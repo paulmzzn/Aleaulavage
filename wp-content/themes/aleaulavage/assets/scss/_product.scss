@@ -1,0 +1,227 @@
+.quantity {
+    margin-top: 25px !important;
+}
+
+.qty {
+    border-right: none;
+    border-left: none;
+    border-color: #161717;
+}
+
+.qty_button {
+    background-color: transparent;
+    border-color: #161717;
+}
+
+.plus {
+    border-left: none;
+}
+
+.minus {
+    border-right: none;
+}
+
+.wc-tabs {
+    margin-top: 42px;
+
+    &> li:nth-child(1) {
+      border-bottom-left-radius: 8px;
+      border-top-left-radius: 8px;
+    }
+
+    &> li:nth-child(2) {
+      border-bottom-right-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    a {
+      color: #B5B5B5;
+    }
+
+    a.active {
+      box-shadow: 0px 0px 10px 0px #262B2F0F;
+      color: #161717;
+      font-weight: 800;
+    }
+}
+
+.flex-control-nav {
+	width: 100%;
+	position: absolute;
+	bottom: -40px;
+	text-align: center;
+}
+
+.flex-control-nav li {
+	margin: 0 6px;
+	display: inline-block;
+	zoom: 1;
+}
+.flex-control-paging li a {
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #000;
+}
+
+.flex-control-paging li a.flex-active {
+	background: #000;
+	background: rgba(0, 0, 0, 0.9);
+	cursor: default;
+    color: white;
+}
+
+.woocommerce div.product div.images img {
+    max-height: 450px;
+    margin: auto;
+    max-width: 550px;
+    width: auto;
+}
+
+#offcanvas-category {
+    margin-top: 68px;
+    padding-top: 12px;
+    z-index: 20;
+    width: auto;
+    visibility: visible;
+    transform: none;
+    cursor: pointer;
+
+    .caterory-thumbnails {
+        max-width: 30px;
+        max-height: 30px;
+    }
+
+    .search-form {
+        position: relative;
+        margin-bottom: 32px;
+        min-height: 42px;
+        min-width: 42px;
+
+        .icon-glass {
+            position: absolute;
+            top: 48%;
+            left: 0;
+            transform: translateY(-50%);
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid gray;
+        }
+
+        input {
+            display: none;
+            padding-left: 42px;
+        }
+    }
+
+    ul {
+        padding: 0;
+        list-style-type: none;
+
+        li {
+            margin : 32px 0;
+            display: flex;
+            justify-content: center;
+
+            a {
+                display: none;
+            }
+
+            img {
+                padding-right: 8px;
+            }
+        }
+    }
+
+    .close-offcanvas {
+        position: absolute;
+        top: 90px;
+        right: 0;
+        transform: translate(20px, 0);
+        background-color: white;
+        padding: 6px 12px;
+        border-radius: 40px;
+        border: 1px solid gray;
+        opacity: 1;
+    }
+
+    &.show {
+        .icon-glass {
+            border: none;
+        }
+
+        .search-form input {
+            display: block;
+            transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        ul li {
+            justify-content: start;
+            transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+
+            a {
+                display: initial;
+                transition: display cubic-bezier(0.075, 0.82, 0.165, 1);
+            }
+        }
+
+        .close-offcanvas {
+            transform: translate(20px, 0) rotate(180deg);
+        }
+    }
+}
+
+.offcanvas-backdrop {
+    z-index: 10;
+}
+
+.offcanvas-category-mobile {
+    display: none;
+}
+
+.shop-page {
+    padding-left: 100px;
+}
+
+@media (max-width: breakpoint-max(sm)) {
+    #offcanvas-category {
+        display: none;
+    }
+
+    .offcanvas-category-mobile {
+        display: flex;
+
+        .caterory-thumbnails {
+            max-width: 30px;
+            max-height: 30px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+
+            li {
+                margin: 16px;
+
+                img {
+                    padding-right: 12px;
+                }
+
+                a {
+                    color: gray;
+                }
+            }
+        }
+    }
+
+    .shop-page {
+        padding-left: 0;
+    }
+}
+
+.woocommerce-Tabs-panel--description {
+    width: 50%;
+}
+
+.woocommerce-product-attributes-item__label {
+    font-weight: 500;
+}
