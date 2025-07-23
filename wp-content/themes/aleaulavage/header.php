@@ -443,10 +443,20 @@
 
 			<!-- Offcanvas cart -->
 			<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-cart">
-				<div class="offcanvas-header bg-light">
-					<span class="h5 mb-0">Panier</span>
-					<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-				</div>
+				   <div class="offcanvas-header bg-light flex-column align-items-stretch">
+					   <span class="h5 mb-0">Panier</span>
+					   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					   <div class="free-shipping-progress mt-3">
+						   <div class="fsp-label text-center mb-2" style="font-size:1.05rem;"></div>
+						   <div class="fsp-bar-bg" style="width:100%;height:18px;background:#e8f0ed;border-radius:9px;position:relative;">
+							   <div class="fsp-bar-fill" style="height:100%;background:#6fa298;border-radius:9px 0 0 9px;width:0%;transition:width 0.4s;"></div>
+						   </div>
+						   <div class="d-flex justify-content-between mt-1" style="font-size:0.98rem;color:#23443b;">
+							   <span>0&nbsp;€</span>
+							   <span>550&nbsp;€ : Livraison offerte</span>
+						   </div>
+					   </div>
+				   </div>
 				<div class="offcanvas-body p-0 d-flex flex-column" style="min-height: 400px;">
 					<div class="cart-list flex-grow-1 overflow-auto">
 						<div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
@@ -470,9 +480,26 @@
 
 				</header>
 
+		<style>
+		.free-shipping-progress .fsp-bar-bg {
+			background: #e3e7f0;
+		}
+		.free-shipping-progress .fsp-bar-fill {
+			background: #2A3E6A !important;
+			border-radius: 9px !important;
+		}
+		.free-shipping-progress .fsp-label {
+			color: #2A3E6A;
+			font-weight: 500;
+		}
+		.free-shipping-progress .d-flex span {
+			color: #2A3E6A;
+			font-weight: 500;
+		}
+		</style>
 		<script>
-		// Met à jour dynamiquement le total du panier dans le offcanvas-cart
-		jQuery(document).on('wc_fragments_refreshed wc_fragments_loaded', function() {
+		// Met à jour dynamiquement le total du panier ET la barre de livraison offerte
+		function updateCartTotalAndProgress() {
 			jQuery.ajax({
 				url: '/wp-admin/admin-ajax.php',
 				method: 'POST',
@@ -481,7 +508,27 @@
 					if (response.success && response.data && response.data.total) {
 						jQuery('.cart-footer .fw-bold').last().html(response.data.total);
 					}
+					// Mettre à jour la barre de progression livraison offerte
+					let total = 0;
+					if (response.success && response.data && response.data.total) {
+						// Extraire le montant numérique du HTML wc_price
+						let match = response.data.total.replace(/\s/g, '').match(/([\d,.]+)/);
+						if (match) {
+							total = parseFloat(match[1].replace(',', '.'));
+						}
+					}
+					const seuil = 550;
+					let manque = seuil - total;
+					let percent = Math.max(0, Math.min(100, (total / seuil) * 100));
+					jQuery('.free-shipping-progress .fsp-bar-fill').css('width', percent + '%');
+					if (manque > 0) {
+						jQuery('.free-shipping-progress .fsp-label').html('Plus que <b>' + manque.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '€</b> pour profiter de la <b>livraison</b> à domicile <b>offerte</b> !');
+					} else {
+						jQuery('.free-shipping-progress .fsp-label').html('<b>Livraison offerte !</b>');
+					}
 				}
 			});
-		});
+		}
+		jQuery(document).on('wc_fragments_refreshed wc_fragments_loaded', updateCartTotalAndProgress);
+		jQuery(document).ready(updateCartTotalAndProgress);
 		</script>
