@@ -496,6 +496,25 @@
 			color: #2A3E6A;
 			font-weight: 500;
 		}
+		
+		/* Fix pour les images du mini-cart qui sont trop grandes sur la page d'accueil */
+		.home #offcanvas-cart .woocommerce-mini-cart-item .item-image img {
+			width: 60px !important;
+			height: 60px !important;
+			object-fit: cover !important;
+			border-radius: 8px !important;
+		}
+		
+		/* S'assurer que le conteneur de l'image a aussi la bonne taille */
+		.home #offcanvas-cart .woocommerce-mini-cart-item .item-image {
+			max-width: 60px !important;
+			flex: 0 0 60px !important;
+		}
+		
+		/* Ajuster l'espacement global des items du mini-cart sur la page d'accueil */
+		.home #offcanvas-cart .woocommerce-mini-cart-item {
+			padding: 0.75rem !important;
+		}
 		</style>
 		<script>
 		// Met à jour dynamiquement le total du panier ET la barre de livraison offerte
