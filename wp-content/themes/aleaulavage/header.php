@@ -468,4 +468,20 @@
 				</div>
 			</div>
 
-		</header>
+				</header>
+
+		<script>
+		// Met à jour dynamiquement le total du panier dans le offcanvas-cart
+		jQuery(document).on('wc_fragments_refreshed wc_fragments_loaded', function() {
+			jQuery.ajax({
+				url: '/wp-admin/admin-ajax.php',
+				method: 'POST',
+				data: { action: 'get_cart_total_only' },
+				success: function(response) {
+					if (response.success && response.data && response.data.total) {
+						jQuery('.cart-footer .fw-bold').last().html(response.data.total);
+					}
+				}
+			});
+		});
+		</script>
