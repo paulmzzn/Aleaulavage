@@ -62,11 +62,11 @@
 			flex-shrink: 0;
 		}
 		
-		.category-item:hover {
-			background-color: #e9ecef;
-			color: #0d6efd;
-			text-decoration: none;
-		}
+		   .category-item:hover {
+			   background-color: #e9ecef;
+			   color: #2A3E6A;
+			   text-decoration: none;
+		   }
 		
 		.category-item img {
 			width: 20px;
@@ -443,39 +443,39 @@
 
 			<!-- Offcanvas cart -->
 			<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-cart">
-				   <div class="offcanvas-header bg-light flex-column align-items-stretch">
+				   <div class="offcanvas-header bg-light flex-row align-items-center justify-content-between">
 					   <span class="h5 mb-0">Panier</span>
-					   <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-					   <div class="free-shipping-progress mt-3">
+					   <button type="button" class="btn-close text-reset ms-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+				   </div>
+				   <hr class="m-0" style="border-top:1.5px solid #d1d7e0;">
+				   <div class="offcanvas-body p-0 d-flex flex-column" style="min-height: 400px;">
+					   <div class="free-shipping-progress mt-3 px-3">
 						   <div class="fsp-label text-center mb-2" style="font-size:1.05rem;"></div>
-						   <div class="fsp-bar-bg" style="width:100%;height:18px;background:#e8f0ed;border-radius:9px;position:relative;">
+						   <div class="fsp-bar-bg" style="width:100%;height:18px;background:#e8f0ed;border-radius:9px;position:relative;border:1.5px solid #bfc8d6;">
 							   <div class="fsp-bar-fill" style="height:100%;background:#6fa298;border-radius:9px 0 0 9px;width:0%;transition:width 0.4s;"></div>
 						   </div>
-						   <div class="d-flex justify-content-between mt-1" style="font-size:0.98rem;color:#23443b;">
-							   <span>0&nbsp;€</span>
-							   <span>550&nbsp;€ : Livraison offerte</span>
+						   <div class="mt-1 text-center mb-3" style="font-size:0.98rem;color:#23443b;">
+							   <span style="display:inline-block;font-weight:600;">550&nbsp;€ : Livraison offerte</span>
 						   </div>
 					   </div>
+					   <hr class="m-0" style="border-top:1.5px solid #d1d7e0;">
+					   <div class="cart-list flex-grow-1 overflow-auto">
+						   <div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
+					   </div>
+					   <div class="cart-footer bg-light p-3 border-top mt-auto">
+						   <?php
+						   if (function_exists('WC')) {
+							   $cart = WC()->cart;
+							   echo '<div class="d-flex justify-content-between align-items-center mb-2">';
+							   echo '<span class="fw-bold">Total :</span>';
+							   echo '<span class="fw-bold">' . wc_price($cart->get_total('edit')) . '</span>';
+							   echo '</div>';
+							   echo '<button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-dismiss="offcanvas">Continuer mes achats</button>';
+							   echo '<a href="' . esc_url(wc_get_cart_url()) . '" class="btn btn-primary w-100">Commander</a>';
+						   }
+						   ?>
+					   </div>
 				   </div>
-				<div class="offcanvas-body p-0 d-flex flex-column" style="min-height: 400px;">
-					<div class="cart-list flex-grow-1 overflow-auto">
-						<div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
-					</div>
-					<div class="cart-footer bg-light p-3 border-top mt-auto">
-						<?php
-						if (function_exists('WC')) {
-							$cart = WC()->cart;
-							echo '<div class="d-flex justify-content-between align-items-center mb-2">';
-							echo '<span class="fw-bold">Total :</span>';
-							echo '<span class="fw-bold">' . wc_price($cart->get_total('edit')) . '</span>';
-							echo '</div>';
-							echo '<a href="' . esc_url(wc_get_cart_url()) . '" class="btn btn-outline-primary w-100 mb-2">Voir le panier</a>';
-							echo '<a href="' . esc_url(wc_get_checkout_url()) . '" class="btn btn-primary w-100">Commander</a>';
-							echo '<p class="text-muted small mt-2 mb-0 text-center">Les frais de livraison seront calculés lors de la validation de la commande.</p>';
-						}
-						?>
-					</div>
-				</div>
 			</div>
 
 				</header>

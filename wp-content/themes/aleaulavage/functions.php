@@ -865,3 +865,314 @@ function get_cart_total_only() {
     }
     wp_send_json_error();
 }
+
+add_action('wp_enqueue_scripts', 'enqueue_ajax_cart_scripts');
+function enqueue_ajax_cart_scripts() {
+    if (is_cart()) {
+        // Debug : Ajouter les logs
+        error_log('AJAX Cart: Scripts chargés sur la page panier');
+        
+        wp_localize_script('jquery', 'ajax_cart_params', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('ajax_cart_nonce'),
+            'debug' => true
+        ));
+    }
+}
+
+// Handler AJAX pour la mise à jour du panier
+// Désactivé - conflit avec la nouvelle fonction
+// add_action('wp_ajax_update_cart_ajax', 'ajax_update_cart_handler');
+// add_action('wp_ajax_nopriv_update_cart_ajax', 'ajax_update_cart_handler');
+
+function ajax_update_cart_handler() {
+    // Debug
+    error_log('AJAX Cart: Handler appelé avec POST: ' . print_r($_POST, true));
+    
+    // Vérification de sécurité
+    if (!isset($_POST['security']) || !wp_verify_nonce($_POST['security'], 'ajax_cart_nonce')) {
+        error_log('AJAX Cart: Erreur de sécurité - Nonce invalide');
+        wp_send_json_error('Erreur de sécurité');
+        return;
+    }
+
+    if (!isset($_POST['cart_key']) || !isset($_POST['quantity'])) {
+        error_log('AJAX Cart: Données manquantes dans POST');
+        wp_send_json_error('Données manquantes');
+        return;
+    }
+
+    $cart_key = sanitize_text_field($_POST['cart_key']);
+    $quantity = intval($_POST['quantity']);
+    
+    error_log("AJAX Cart: Mise à jour - Cart Key: $cart_key, Quantity: $quantity");
+    
+    if (empty($cart_key)) {
+        error_log('AJAX Cart: Clé du panier vide');
+        wp_send_json_error('Clé du panier manquante');
+        return;
+    }
+
+    // Vérifier que le panier existe
+    if (!WC()->cart) {
+        error_log('AJAX Cart: Panier WooCommerce non disponible');
+        wp_send_json_error('Panier non disponible');
+        return;
+    }
+
+    try {
+        // Mettre à jour la quantité dans le panier
+        if ($quantity <= 0) {
+            $removed = WC()->cart->remove_cart_item($cart_key);
+            error_log("AJAX Cart: Suppression - Résultat: " . ($removed ? 'succès' : 'échec'));
+            if (!$removed) {
+                wp_send_json_error('Impossible de supprimer l\'article');
+                return;
+            }
+        } else {
+            $updated = WC()->cart->set_quantity($cart_key, $quantity, true);
+            error_log("AJAX Cart: Mise à jour quantité - Résultat: " . ($updated ? 'succès' : 'échec'));
+            if (!$updated) {
+                wp_send_json_error('Impossible de mettre à jour la quantité');
+                return;
+            }
+        }
+
+        // Recalculer les totaux
+        WC()->cart->calculate_totals();
+        error_log('AJAX Cart: Totaux recalculés');
+
+        // Préparer la réponse
+        $response_data = array(
+            'cart_key' => $cart_key,
+            'quantity' => $quantity,
+            'cart_contents_count' => WC()->cart->get_cart_contents_count()
+        );
+
+        // Ajouter les totaux mis à jour
+        $response_data['cart_totals'] = array(
+            'subtotal' => wc_price(WC()->cart->subtotal),
+            'total' => wc_price(WC()->cart->total),
+            'subtotal_raw' => WC()->cart->subtotal,
+            'total_raw' => WC()->cart->total
+        );
+
+        // Calculer la progression pour la livraison offerte
+        $target = 550;
+        $subtotal = WC()->cart->subtotal;
+        $percent = $subtotal > 0 ? min(100, ($subtotal / $target) * 100) : 0;
+        $remaining = $target - $subtotal;
+
+        $response_data['progress'] = $percent;
+        if ($remaining > 0) {
+            $response_data['shipping_message'] = __('Plus que ', 'woocommerce') . wc_price($remaining) . ' ' . __('pour profiter de la livraison offerte', 'woocommerce');
+        } else {
+            $response_data['shipping_message'] = __('Livraison offerte !', 'woocommerce');
+        }
+
+        // Si on a mis à jour un article, calculer le nouveau sous-total pour cette ligne
+        if ($quantity > 0) {
+            $cart_item = WC()->cart->get_cart_item($cart_key);
+            if ($cart_item) {
+                $product = $cart_item['data'];
+                $response_data['item_subtotal'] = WC()->cart->get_product_subtotal($product, $quantity);
+            }
+        }
+
+        // Message de succès
+        if ($quantity <= 0) {
+            $response_data['message'] = 'Article supprimé du panier';
+        } else {
+            $response_data['message'] = 'Panier mis à jour';
+        }
+
+        error_log('AJAX Cart: Succès - Réponse: ' . print_r($response_data, true));
+        wp_send_json_success($response_data);
+
+    } catch (Exception $e) {
+        error_log('AJAX Cart: Exception - ' . $e->getMessage());
+        wp_send_json_error('Erreur: ' . $e->getMessage());
+    }
+}
+
+// Optimisation : Désactiver les redirections automatiques du panier
+add_filter('woocommerce_cart_redirect_after_error', '__return_false');
+
+// Ajouter un shortcode pour le panier AJAX (optionnel)
+add_shortcode('ajax_cart', 'ajax_cart_shortcode');
+function ajax_cart_shortcode($atts) {
+    if (!WC()->cart) {
+        return '<p>Panier non disponible</p>';
+    }
+    
+    ob_start();
+    include 'cart.php'; // Votre fichier de template
+    return ob_get_clean();
+}
+
+// Hook pour nettoyer le cache si nécessaire
+add_action('woocommerce_cart_updated', 'clear_cart_cache');
+function clear_cart_cache() {
+    if (function_exists('wp_cache_flush')) {
+        wp_cache_flush();
+    }
+}
+
+// Fonction utilitaire pour obtenir les fragments du panier
+function get_cart_fragments() {
+    ob_start();
+    ?>
+    <span class="cart-count"><?php echo WC()->cart->get_cart_contents_count(); ?></span>
+    <?php
+    $cart_count = ob_get_clean();
+
+    ob_start();
+    ?>
+    <span class="cart-total"><?php echo WC()->cart->get_cart_total(); ?></span>
+    <?php
+    $cart_total = ob_get_clean();
+
+    return array(
+        '.cart-count' => $cart_count,
+        '.cart-total' => $cart_total
+    );
+}
+
+// Amélioration : Gestion des erreurs de stock
+add_filter('woocommerce_cart_item_quantity', function($quantity, $cart_item_key, $cart_item) {
+    $product = $cart_item['data'];
+    
+    if (!$product->has_enough_stock($quantity)) {
+        return $product->get_stock_quantity();
+    }
+    
+    return $quantity;
+}, 10, 3);
+
+// Messages personnalisés
+add_filter('woocommerce_cart_item_removed_title', function($title, $cart_item) {
+    return sprintf(__('%s supprimé du panier', 'woocommerce'), $title);
+}, 10, 2);
+
+// Optimisation des performances
+add_action('init', function() {
+    if (is_cart() && !is_admin()) {
+        // Précharger les données du panier
+        WC()->cart->get_cart();
+    }
+});
+
+// AJAX handler pour la mise à jour du panier
+add_action('wp_ajax_update_cart_ajax', 'handle_update_cart_ajax');
+add_action('wp_ajax_nopriv_update_cart_ajax', 'handle_update_cart_ajax');
+
+function handle_update_cart_ajax() {
+    try {
+        // Vérification de sécurité
+        if (!wp_verify_nonce($_POST['security'], 'ajax_cart_nonce')) {
+            wp_send_json_error('Erreur de sécurité');
+            return;
+        }
+
+        $cart_key = sanitize_text_field($_POST['cart_key']);
+        $quantity = intval($_POST['quantity']);
+
+        // Mise à jour de la quantité
+        if ($quantity === 0) {
+            WC()->cart->remove_cart_item($cart_key);
+        } else {
+            WC()->cart->set_quantity($cart_key, $quantity);
+        }
+
+        // Calculer les totaux
+        WC()->cart->calculate_totals();
+
+        // Récupérer les totaux mis à jour avec debug
+        $subtotal = WC()->cart->get_subtotal(); // Montant HT
+        $subtotal_incl_tax = WC()->cart->get_subtotal() + WC()->cart->get_subtotal_tax(); // HT + TVA sur produits
+        $tax_total = WC()->cart->get_taxes_total(); // Total de toutes les taxes
+        
+        error_log("DEBUG: subtotal HT = " . $subtotal);
+        error_log("DEBUG: subtotal + tax = " . $subtotal_incl_tax);
+        error_log("DEBUG: tax_total = " . $tax_total);
+        
+        // Calculer le total TTC avec frais de livraison
+        $cart_total_without_shipping = $subtotal + $tax_total;
+        $cart_total_with_shipping = $cart_total_without_shipping + 19;
+        error_log("DEBUG: cart_total_with_shipping = " . $cart_total_with_shipping);
+        
+        // Calculer la progression pour la livraison gratuite
+        $target = 550;
+        $progress = $cart_total_with_shipping > 0 ? min(100, ($cart_total_with_shipping / $target) * 100) : 0;
+        error_log("DEBUG: progress = " . $progress);
+        
+        // Logique de livraison
+        if ($cart_total_with_shipping >= $target) {
+            $shipping_message = 'Livraison offerte !';
+            $shipping_display = 'Offerte';
+            $total_numeric = $cart_total_without_shipping;
+            error_log("DEBUG: Free shipping - shipping_display = " . $shipping_display);
+        } else {
+            $remaining = max(0, $target - $cart_total_with_shipping);
+            $shipping_message = sprintf('Plus que %s pour profiter de la livraison offerte', wc_price($remaining));
+            $shipping_display = wc_price(19);
+            $total_numeric = $cart_total_with_shipping;
+            error_log("DEBUG: Paid shipping - shipping_display = " . $shipping_display);
+        }
+        
+        // Récupérer le sous-total de l'item
+        $item_subtotal = '';
+        if ($quantity > 0) {
+            $cart_item = WC()->cart->get_cart_item($cart_key);
+            if ($cart_item) {
+                $item_subtotal = WC()->cart->get_product_subtotal($cart_item['data'], $quantity);
+            }
+        }
+
+        error_log("DEBUG: Before JSON response");
+        
+        // Test simple d'abord
+        $response_data = array(
+            'cart_totals' => array(
+                'subtotal' => wc_price($subtotal), // Montant HT uniquement
+                'subtotal_display' => wc_price($subtotal),
+                'subtotal_raw' => $subtotal,
+                'total' => wc_price($total_numeric),
+                'total_raw' => $total_numeric
+            ),
+            'progress' => $progress,
+            'shipping_message' => $shipping_message,
+            'item_subtotal' => $item_subtotal,
+            'message' => 'Panier mis à jour'
+        );
+        
+        error_log("DEBUG: Basic response ready");
+        
+        // Ajouter les données de taxe
+        $response_data['cart_totals']['tax'] = wc_price($tax_total);
+        $response_data['cart_totals']['tax_display'] = wc_price($tax_total);
+        $response_data['cart_totals']['tax_raw'] = $tax_total;
+        error_log("DEBUG: Tax data added");
+        
+        // Ajouter les données de livraison
+        $response_data['cart_totals']['shipping'] = $shipping_display;
+        $response_data['cart_totals']['shipping_display'] = $shipping_display;
+        error_log("DEBUG: Shipping data added - value: " . $shipping_display);
+        
+        // Ajouter debug info
+        $response_data['debug_info'] = array(
+            'cart_total_with_shipping' => $cart_total_with_shipping,
+            'target' => $target,
+            'free_shipping' => $cart_total_with_shipping >= $target,
+            'shipping_display' => $shipping_display
+        );
+        error_log("DEBUG: Debug info added");
+        
+        error_log("DEBUG: Sending JSON response");
+        wp_send_json_success($response_data);
+        
+    } catch (Exception $e) {
+        error_log('AJAX Error: ' . $e->getMessage());
+        wp_send_json_error('Erreur lors de la mise à jour: ' . $e->getMessage());
+    }
+}
