@@ -204,15 +204,15 @@
 		}
 		
 		/* Ajuster le margin-top de la page pour compenser la hauteur supplémentaire */
-		#page.site {
+		   #page.site {
 			margin-top: 120px; /* Desktop : header + catégories */
-		}
-		
-		@media (max-width: 768px) {
-			#page.site {
+		   }
+       
+		   @media (max-width: 768px) {
+			   #page.site {
 				margin-top: 140px; /* Mobile : header avec recherche intégrée */
-			}
-		}
+			   }
+		   }
 	</style>
 	
 	<?php wp_head(); ?>
@@ -439,14 +439,7 @@
 				</div>
 			</div>
 
-			<!-- Offcanvas category -->
-			<?php if (!is_checkout()) { ?>
-			<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas-category">
-				<div class="offcanvas-body m-2">
-					<?php include get_template_directory() . '/woocommerce/single-product/category-offcanvas.php'; ?>
-				</div>
-			</div>
-			<?php } ?>
+
 
 			<!-- Offcanvas cart -->
 			<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-cart">

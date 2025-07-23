@@ -9,7 +9,7 @@ get_header();
 
 the_post();
 ?>
-<div class="home left-search">
+<div class="home">
 	<div class="home-thumbnail mt-5"><!-- Ajout d'un margin-top -->
         <?php the_post_thumbnail() ?>
 		<div class="home-baseline">
