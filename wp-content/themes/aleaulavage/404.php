@@ -9,7 +9,7 @@ get_header();
 
 $search_enabled = get_theme_mod( 'search_enabled', '1' ); // Get custom meta-value.
 ?>
-<div id="post-0" class="container content error404 not-found left-search pb-5 pt-5">
+<div id="post-0" class="container content error404 not-found pb-5 pt-5">
 	<h1 class="entry-title"><?php esc_html_e( 'Not found', 'daz' ); ?></h1>
 	<div class="entry-content">
 		<p><?php esc_html_e( 'It looks like nothing was found at this location.', 'daz' ); ?></p>

@@ -8,7 +8,7 @@
 				endif;
 			?>
 		</main><!-- /#main -->
-		<footer id="footer" class="pt-5 pb-3 text-light <?php if (!is_checkout()) echo 'left-search'?>">
+		<footer id="footer" class="pt-5 pb-3 text-light <?php if (!is_checkout()) echo ''?>">
 			<div class="container">
 				<img src="<?php echo esc_url(get_stylesheet_directory_uri()); ?>/img/logo/logo-white.svg" alt="logo" class="logo">
 				<div class="row mt-4">

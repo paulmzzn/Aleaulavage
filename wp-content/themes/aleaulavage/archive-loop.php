@@ -1,4 +1,4 @@
-<div class="container left-search mt-5 mb-5">
+<div class="container mt-5 mb-5">
 
 <?php
 /**

@@ -1,0 +1,234 @@
+/* CSS pour transformer la première section comme la deuxième */
+
+/* Container pour centrer la section */
+.wp-block-woocommerce-product-collection {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--container-padding);
+}
+
+/* Grille des produits - section "Découvrez nos produits" */
+.wp-block-woocommerce-product-collection .wc-block-product-template {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--grid-gap);
+    list-style: none;
+    padding: 0;
+    margin: 3rem 0;
+    justify-content: center;
+}
+
+/* Cartes produits - Hauteur fixe et flex pour uniformiser */
+.wc-block-product {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: var(--card-padding);
+    box-shadow: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: var(--card-height);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.wc-block-product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Images produits - Format carré et centré */
+.wc-block-components-product-image {
+    margin: 0 auto 1rem auto;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--image-size);
+    width: var(--image-size);
+    flex-shrink: 0;
+}
+
+.wc-block-components-product-image a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.wc-block-components-product-image img {
+    max-width: 80%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Titres produits - Hauteur adaptative */
+.wp-block-post-title {
+    font-size: var(--title-font-size) !important;
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 1rem !important;
+    line-height: 1.4;
+    text-align: center;
+    height: var(--title-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wp-block-post-title a {
+    text-decoration: none;
+    color: #000000;
+    transition: color 0.3s ease;
+}
+
+.wp-block-post-title a:hover {
+    color: #333333;
+}
+
+/* Prix - Hauteur fixe */
+.wc-block-components-product-price {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.woocommerce-Price-amount {
+    font-size: var(--price-font-size);
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.woocommerce-Price-currencySymbol {
+    font-weight: 700;
+}
+
+/* Plage de prix */
+.wc-block-components-product-price .wc-block-grid__product-price span[aria-hidden="true"] {
+    color: #1f2937;
+}
+
+/* Boutons */
+.wc-block-components-product-button {
+    margin-top: auto;
+    margin-bottom: 0;
+}
+
+.wc-block-components-product-button .wp-block-button__link,
+.wc-block-components-product-button button {
+    background: #f1bb69;
+    color: black;
+    border: none;
+    border-radius: 6px;
+    padding: var(--button-padding);
+    font-weight: 600;
+    font-size: var(--button-font-size);
+    text-transform: none;
+    letter-spacing: normal;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: none;
+    width: 100%;
+    text-align: center;
+}
+
+.wc-block-components-product-button .wp-block-button__link:hover,
+.wc-block-components-product-button button:hover {
+    background: #e29a3d;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Ajustement pour que les cartes aient la même hauteur */
+.wc-block-product {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* CSS Custom Properties pour une approche responsive moderne */
+:root {
+    --grid-columns: 4;
+    --grid-gap: 3rem;
+    --card-padding: 3rem;
+    --card-height: 550px;
+    --image-size: 250px;
+    --title-font-size: 1.1rem;
+    --title-height: 4rem;
+    --price-font-size: 1.125rem;
+    --button-font-size: 0.875rem;
+    --button-padding: 10px 20px;
+    --container-padding: 0 2rem;
+}
+
+/* Breakpoints avec spécificité maximale */
+@media (max-width: 1050px) {
+    :root {
+        --grid-gap: 2rem;
+        --card-padding: 2.5rem;
+        --card-height: 520px;
+        --image-size: 200px;
+        --title-font-size: 1rem;
+        --title-height: 3.8rem;
+        --container-padding: 0 1.5rem;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: repeat(3, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --grid-gap: 1.5rem;
+        --card-padding: 2rem;
+        --card-height: 480px;
+        --image-size: 180px;
+        --title-font-size: 0.95rem;
+        --title-height: 3.5rem;
+        --price-font-size: 1rem;
+        --container-padding: 0 1rem;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: repeat(2, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+@media (max-width: 550px) {
+    :root {
+        --grid-gap: 1.5rem;
+        --card-padding: 2rem;
+        --card-height: auto;
+        --image-size: 220px;
+        --title-font-size: 1.1rem;
+        --title-height: auto;
+        --price-font-size: 1.2rem;
+        --button-font-size: 0.9rem;
+        --button-padding: 12px 24px;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: 1fr !important;
+        display: grid !important;
+    }
+}

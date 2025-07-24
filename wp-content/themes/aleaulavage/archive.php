@@ -8,7 +8,7 @@ get_header();
 if ( have_posts() ) :
 ?>
 <div class="container">
-	<header class="page-header left-search">
+	<header class="page-header">
 		<h1 class="page-title">
 			<?php
 				if ( is_day() ) :

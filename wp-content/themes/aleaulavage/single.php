@@ -40,7 +40,7 @@ $custom_query = new WP_Query($args);
 if ($custom_query->have_posts()) :
 ?>
 
-    <div class="custom-section-container container left-search mb-5">
+    <div class="custom-section-container container mb-5">
         <h2>Découvrez d'autres articles</h2>
         <div class="custom-section-grid">
 
@@ -64,7 +64,7 @@ if ($custom_query->have_posts()) :
 
         </div>
     </div>
-	<div class="container left-search d-flex justify-content-center">
+	<div class="container d-flex justify-content-center">
 	<a class="btn bg-secondary me-2 mb-5" href=<?php echo esc_url(home_url('boutique/')); ?>>
 		<span>Découvrez notre boutique</span>
 	</a>

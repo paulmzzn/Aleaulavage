@@ -1176,3 +1176,17 @@ function handle_update_cart_ajax() {
         wp_send_json_error('Erreur lors de la mise à jour: ' . $e->getMessage());
     }
 }
+
+
+function enqueue_home_custom_styles() {
+    // Charger seulement sur la page d'accueil
+    if (is_front_page() || is_page_template('page-home.php')) {
+        wp_enqueue_style(
+            'home-custom-styles', 
+            get_template_directory_uri() . '/css/home-custom.css', 
+            array(), 
+            filemtime(get_template_directory() . '/css/home-custom.css') // Version basée sur la date de modification
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'enqueue_home_custom_styles');

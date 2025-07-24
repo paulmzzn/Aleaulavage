@@ -9,7 +9,7 @@ get_header();
 
 the_post();
 ?>
-	<div class="d-flex justify-content-center container pt-5 left-search">
+	<div class="d-flex justify-content-center container pt-5">
 		<div id="post-<?php the_ID(); ?>" <?php post_class( 'content' ); ?> style="max-width: 1320px;">
 			<?php
 			if (!is_page('mon-compte') && !is_front_page()) {

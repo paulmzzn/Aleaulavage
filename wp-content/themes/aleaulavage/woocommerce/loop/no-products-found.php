@@ -18,6 +18,6 @@
 defined( 'ABSPATH' ) || exit;
 
 ?>
-<div class="alert alert-info left-search">
+<div class="alert alert-info">
 	<?php wc_print_notice( esc_html__( 'No products were found matching your selection.', 'woocommerce' ), 'notice' ); ?>
 </div>

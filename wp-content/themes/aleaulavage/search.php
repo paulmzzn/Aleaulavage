@@ -7,14 +7,14 @@ get_header();
 
 if ( have_posts() ) :
 ?>
-	<header class="page-header container left-search mt-5">
+	<header class="page-header container mt-5">
 		<h1 class="page-title"><?php printf( esc_html__( 'Résultat de recherche pour : %s', 'daz' ), get_search_query() ); ?></h1>
 	</header>
 <?php
 	get_template_part( 'archive', 'loop' );
 else :
 ?>
-	<article id="post-0" class="post no-results not-found left-search container mt-5 mb-5">
+	<article id="post-0" class="post no-results not-found container mt-5 mb-5">
 		<header class="entry-header">
 			<h1 class="entry-title"><?php esc_html_e( 'Nous avons rien trouvé', 'daz' ); ?></h1>
 		</header><!-- /.entry-header -->

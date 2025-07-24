@@ -9,7 +9,7 @@ if ( have_posts() ) :
 ?>
 <div class="container">
 
-	<header class="page-header left-search">
+	<header class="page-header ">
 		<h1 class="page-title"><?php printf( esc_html__( 'Category Archives: %s', 'daz' ), single_cat_title( '', false ) ); ?></h1>
 	</header>
 
