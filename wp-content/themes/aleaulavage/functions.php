@@ -1190,3 +1190,67 @@ function enqueue_home_custom_styles() {
     }
 }
 add_action('wp_enqueue_scripts', 'enqueue_home_custom_styles');
+
+// Permettre la recherche par UGS (SKU) dans WordPress
+function search_by_sku( $search, $wp_query ) {
+    if ( ! is_admin() && $wp_query->is_main_query() && $wp_query->is_search() ) {
+        global $wpdb;
+        
+        $search_term = $wp_query->get( 's' );
+        
+        if ( ! empty( $search_term ) ) {
+            // Rechercher dans les meta_value des UGS
+            $sku_posts = $wpdb->get_col( $wpdb->prepare( "
+                SELECT DISTINCT post_id 
+                FROM {$wpdb->postmeta} 
+                WHERE meta_key = '_sku' 
+                AND meta_value LIKE %s
+            ", '%' . $wpdb->esc_like( $search_term ) . '%' ) );
+            
+            if ( ! empty( $sku_posts ) ) {
+                // Modifier la requête pour inclure les posts trouvés par UGS
+                $search_ids = implode( ',', array_map( 'absint', $sku_posts ) );
+                
+                // Ajouter les IDs des produits trouvés par UGS à la recherche
+                $search .= " OR {$wpdb->posts}.ID IN ({$search_ids})";
+            }
+        }
+    }
+    
+    return $search;
+}
+add_filter( 'posts_search', 'search_by_sku', 10, 2 );
+
+// Alternative plus complète pour WooCommerce spécifiquement
+function woocommerce_search_by_sku( $query ) {
+    if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
+        $search_term = $query->get( 's' );
+        
+        if ( ! empty( $search_term ) ) {
+            global $wpdb;
+            
+            // Chercher les produits par UGS
+            $product_ids = $wpdb->get_col( $wpdb->prepare( "
+                SELECT DISTINCT post_id 
+                FROM {$wpdb->postmeta} 
+                WHERE meta_key IN ('_sku') 
+                AND meta_value LIKE %s
+            ", '%' . $wpdb->esc_like( $search_term ) . '%' ) );
+            
+            if ( ! empty( $product_ids ) ) {
+                // Récupérer les IDs existants dans la requête
+                $post__in = $query->get( 'post__in' );
+                if ( empty( $post__in ) ) {
+                    $post__in = array();
+                }
+                
+                // Fusionner avec les IDs trouvés par UGS
+                $post__in = array_merge( $post__in, $product_ids );
+                $post__in = array_unique( $post__in );
+                
+                $query->set( 'post__in', $post__in );
+            }
+        }
+    }
+}
+add_action( 'pre_get_posts', 'woocommerce_search_by_sku' );
