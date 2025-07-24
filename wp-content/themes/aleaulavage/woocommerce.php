@@ -16,7 +16,7 @@
 get_header();
 ?>
 
-<div id="content" class="site-content shop-page<?php // if (is_shop()) echo 'shop-page' ?>">
+<div id="content" class="site-content<?php // if (is_shop()) echo 'shop-page' ?>">
   <div id="primary" class="content-area container">
     <main id="main" class="site-main">
 

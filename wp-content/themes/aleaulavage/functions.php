@@ -1,4 +1,32 @@
 <?php
+// Ajout du zoom qui suit la souris sur la page produit
+add_action('wp_enqueue_scripts', function() {
+    if (is_product()) {
+        wp_enqueue_script(
+            'single-product-zoom',
+            get_stylesheet_directory_uri() . '/js/single-product-zoom.js',
+            array(),
+            filemtime(get_stylesheet_directory() . '/js/single-product-zoom.js'),
+            true
+        );
+    }
+    // Swatch couleurs variations
+    wp_enqueue_script(
+        'variation-color-swatches',
+        get_stylesheet_directory_uri() . '/js/variation-color-swatches.js',
+        array(),
+        filemtime(get_stylesheet_directory() . '/js/variation-color-swatches.js'),
+        true
+    );
+    // Sync variation price with header price
+    wp_enqueue_script(
+        'variation-price-sync',
+        get_stylesheet_directory_uri() . '/js/variation-price-sync.js',
+        array(),
+        filemtime(get_stylesheet_directory() . '/js/variation-price-sync.js'),
+        true
+    );
+});
 
 /**
  * Include Theme Customizer.
@@ -1254,3 +1282,54 @@ function woocommerce_search_by_sku( $query ) {
     }
 }
 add_action( 'pre_get_posts', 'woocommerce_search_by_sku' );
+
+/**
+ * Charge un CSS personnalisé pour la page produit WooCommerce.
+ */
+function montheme_enqueue_single_product_style() {
+    if ( is_product() ) {
+        wp_enqueue_style(
+            'custom-single-product-style',
+            get_stylesheet_directory_uri() . '/css/single-product-style.css',
+            array(),
+            '1.0.0'
+        );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'montheme_enqueue_single_product_style' );
+
+add_filter( 'woocommerce_enqueue_styles', 'child_dequeue_woocommerce_general' );
+function child_dequeue_woocommerce_general( $enqueue_styles ) {
+    unset( $enqueue_styles['woocommerce-general'] );
+    return $enqueue_styles;
+}
+
+/**
+ * 2) Enfile votre CSS perso sur la page produit
+ * 3) Ajoute une surcharge inline pour le prix
+ */
+function child_enqueue_single_product_style() {
+    if ( is_product() ) {
+        wp_enqueue_style(
+            'custom-single-product-style',
+            get_stylesheet_directory_uri() . '/css/single-product-style.css',
+            array(),
+            '1.0.0'
+        );
+        $override_css = "
+            .woocommerce:where(body:not(.woocommerce-uses-block-theme)) div.product p.price,
+            .woocommerce:where(body:not(.woocommerce-uses-block-theme)) div.product span.price {
+                color: #0E2141 !important;
+            }
+        ";
+        wp_add_inline_style( 'custom-single-product-style', $override_css );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'child_enqueue_single_product_style', 20 );
+
+add_action( 'after_setup_theme', 'childtheme_woocommerce_gallery_support' );
+function childtheme_woocommerce_gallery_support() {
+    add_theme_support( 'wc-product-gallery-zoom' );
+    add_theme_support( 'wc-product-gallery-lightbox' );
+    add_theme_support( 'wc-product-gallery-slider' );
+}
