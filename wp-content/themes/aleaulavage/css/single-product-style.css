@@ -1,3 +1,26 @@
+@media screen and (max-width: 720px) {
+  .woocommerce div.product form.cart .single_add_to_cart_button.button.alt,
+  .woocommerce div.product form.cart .single_add_to_cart_button,
+  .woocommerce div.product form.cart .button.alt.single_add_to_cart_button {
+    width: 90% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    position: fixed;
+    bottom: 2% !important;
+    border-radius: 0 0 8px 8px;
+    z-index: 1000;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+    
+  }
+}
+.woocommerce div.product form.cart .single_add_to_cart_button.button.alt,
+.woocommerce div.product form.cart .single_add_to_cart_button,
+.woocommerce div.product form.cart .button.alt.single_add_to_cart_button {
+  top: unset !important;
+}
 /* Wishlist button ManoMano style */
 .wishlist-btn {
   background: #fff;
@@ -145,8 +168,6 @@
   .single_add_to_cart_button {
     width: 90% !important;
     max-width: 90% !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
     margin: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
@@ -161,6 +182,8 @@
     min-width: 0 !important;
     overflow: visible !important;
     padding: 0 !important;
+    top: 98% !important;
+
   }
   .product-gallery,
   .product-purchase-card {
