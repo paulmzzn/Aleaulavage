@@ -5,55 +5,7 @@
  */
 
 get_header(); ?>
-
-<!-- Removed custom card/grid CSS to use theme's product grid styles -->
-
-<style>
-.empty-state {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(38,43,47,0.07);
-    padding: 32px 24px;
-    text-align: center;
-    margin-bottom: 32px;
-    border: 1px solid #e3e5e8;
-}
-.empty-state .empty-icon {
-    font-size: 2.5rem;
-    color: #f1bb69;
-    margin-bottom: 12px;
-}
-.empty-state .empty-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #0E2141;
-    margin-bottom: 8px;
-}
-.empty-state .empty-text {
-    font-size: 1rem;
-    color: #6c757d;
-    margin-bottom: 18px;
-}
-.btn-primary-custom {
-    background: linear-gradient(135deg, #f1bb69 0%, #e29a3d 100%);
-    color: #0E2141;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1rem;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-}
-.btn-primary-custom:hover {
-    background: linear-gradient(135deg, #e29a3d 0%, #f1bb69 100%);
-    color: #0E2141;
-    box-shadow: 0 4px 16px rgba(241,187,105,0.15);
-}
-</style>
+<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/css/custom-favoris.css?v=20250725">
 <div class="favoris-page">
     <div class="container">
         <div class="favoris-header">
@@ -180,64 +132,6 @@ get_header(); ?>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.remove-from-wishlist').forEach(function(btn) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const productId = this.getAttribute('data-product-id');
-            const wishlistCard = this.closest('.wishlist-card');
-            
-            if (!wishlist_ajax || !wishlist_ajax.nonce) {
-                alert('Erreur de configuration. Veuillez rafraîchir la page.');
-                return;
-            }
-            
-            // Animation de chargement
-            this.style.pointerEvents = 'none';
-            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            
-            const formData = new FormData();
-            formData.append('action', 'remove_from_wishlist');
-            formData.append('product_id', productId);
-            formData.append('nonce', wishlist_ajax.nonce);
-            
-            fetch(wishlist_ajax.ajax_url, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Animation fluide de suppression
-                    wishlistCard.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                    wishlistCard.style.opacity = '0';
-                    wishlistCard.style.transform = 'scale(0.8) translateY(-20px)';
-                    
-                    setTimeout(() => {
-                        wishlistCard.remove();
-                        
-                        const remainingItems = document.querySelectorAll('.wishlist-card');
-                        if (remainingItems.length === 0) {
-                            location.reload();
-                        }
-                    }, 500);
-                } else {
-                    alert(data.data ? data.data.message : 'Erreur lors de la suppression');
-                    this.style.pointerEvents = 'auto';
-                    this.innerHTML = '<i class="fa-solid fa-times"></i>';
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                alert('Erreur de connexion');
-                this.style.pointerEvents = 'auto';
-                this.innerHTML = '<i class="fa-solid fa-times"></i>';
-            });
-        });
-    });
-});
-</script>
+<script src="<?php echo get_stylesheet_directory_uri(); ?>/js/custom-favoris.js?v=20250725" defer></script>
 
 <?php get_footer(); ?>
