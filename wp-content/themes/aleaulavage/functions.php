@@ -1,39 +1,3 @@
-// Recherche fuzzy : tolère jusqu'à 2 fautes dans un mot du terme de recherche
-add_filter('posts_search', 'daz_fuzzy_search', 20, 2);
-function daz_fuzzy_search($search, $wp_query) {
-    if (is_admin() || !$wp_query->is_main_query() || !$wp_query->is_search()) return $search;
-
-    global $wpdb;
-    $search_term = $wp_query->get('s');
-    if (empty($search_term)) return $search;
-
-    // Si la recherche classique ne retourne rien, on tente une recherche fuzzy
-    $ids = array();
-    $products = get_posts([
-        'post_type' => 'product',
-        'posts_per_page' => -1,
-        'fields' => 'ids',
-        'suppress_filters' => true
-    ]);
-    $search_words = preg_split('/\s+/', $search_term);
-    foreach ($products as $pid) {
-        $title = get_the_title($pid);
-        foreach ($search_words as $word) {
-            $title_words = preg_split('/\s+/', $title);
-            foreach ($title_words as $tword) {
-                if (levenshtein(mb_strtolower($word), mb_strtolower($tword)) <= 2) {
-                    $ids[] = $pid;
-                    break 2;
-                }
-            }
-        }
-    }
-    if (!empty($ids)) {
-        $ids = array_unique($ids);
-        $search .= " OR {$wpdb->posts}.ID IN (" . implode(',', array_map('absint', $ids)) . ")";
-    }
-    return $search;
-}
 <?php
 // Laisser ELECX fonctionner normalement mais garder accès au prix original
 // pour notre logique JavaScript personnalisée
@@ -1606,3 +1570,67 @@ add_action('wp_ajax_ajax_login', 'ajax_login'); // Pour les utilisateurs connect
 
 // Charger les menus d’analyse clients
 require_once get_stylesheet_directory() . '/includes/admin-comportement.php';
+// Recherche fuzzy : tolère jusqu'à 2 fautes dans un mot du terme de recherche
+add_filter('posts_search', 'daz_fuzzy_search', 20, 2);
+function daz_fuzzy_search($search, $wp_query) {
+    if (is_admin() || !$wp_query->is_main_query() || !$wp_query->is_search()) return $search;
+
+    global $wpdb;
+    $search_term = $wp_query->get('s');
+    if (empty($search_term)) return $search;
+
+    // Si la recherche classique ne retourne rien, on tente une recherche fuzzy
+    $ids = array();
+    $products = get_posts([
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'suppress_filters' => true
+    ]);
+    $search_words = preg_split('/\s+/', $search_term);
+    foreach ($products as $pid) {
+        $title = get_the_title($pid);
+        foreach ($search_words as $word) {
+            $title_words = preg_split('/\s+/', $title);
+            foreach ($title_words as $tword) {
+                if (levenshtein(mb_strtolower($word), mb_strtolower($tword)) <= 2) {
+                    $ids[] = $pid;
+                    break 2;
+                }
+            }
+        }
+    }
+    if (!empty($ids)) {
+        $ids = array_unique($ids);
+        $search .= " OR {$wpdb->posts}.ID IN (" . implode(',', array_map('absint', $ids)) . ")";
+    }
+    return $search;
+}
+
+// Redirection automatique vers la fiche produit si la recherche est un SKU/UGS
+add_action('template_redirect', function() {
+    if (!is_search() || is_admin()) return;
+    $search_term = get_query_var('s');
+    if (empty($search_term)) return;
+
+    // Extraire le SKU/UGS si préfixe
+    if (preg_match('/^(UGS|SKU)\s*:?-?\s*(\w+)/i', $search_term, $matches)) {
+        $sku_value = $matches[2];
+    } else {
+        $sku_value = $search_term;
+    }
+
+    // Rechercher le produit par SKU
+    global $wpdb;
+    $product_id = $wpdb->get_var($wpdb->prepare(
+        "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_sku' AND meta_value = %s LIMIT 1",
+        $sku_value
+    ));
+    if ($product_id) {
+        $url = get_permalink($product_id);
+        if ($url) {
+            wp_redirect($url);
+            exit;
+        }
+    }
+});
