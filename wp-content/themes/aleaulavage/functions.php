@@ -1464,14 +1464,12 @@ function is_product_in_wishlist($product_id) {
 
 // Ajouter les scripts et variables JavaScript nécessaires
 function enqueue_wishlist_scripts() {
-    if (is_product()) {
-        wp_localize_script('jquery', 'wishlist_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wishlist_nonce'),
-            'is_logged_in' => is_user_logged_in(),
-            'product_id' => get_the_ID()
-        ));
-    }
+    wp_localize_script('variation-color-swatches', 'wishlist_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('wishlist_nonce'),
+        'is_logged_in' => is_user_logged_in(),
+        'product_id' => is_singular('product') ? get_the_ID() : null
+    ));
 }
 add_action('wp_enqueue_scripts', 'enqueue_wishlist_scripts');
 

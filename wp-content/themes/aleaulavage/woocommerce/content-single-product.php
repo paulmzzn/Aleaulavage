@@ -83,9 +83,7 @@ if ( post_password_required() ) {
           <button type="submit" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>" class="single_add_to_cart_button button alt">
             <i class="fa-solid fa-basket-shopping me-1"></i>Ajouter au panier
           </button>
-          <div class="product-details-link-wrapper">
-            <a href="#" class="product-details-link">Voir les détails du produit</a>
-          </div>
+
         </form>
       <?php endif; ?>
       <!-- LIVRAISON (infos principales uniquement) -->
@@ -145,19 +143,22 @@ if ( post_password_required() ) {
       </div>
 
       <!-- ACCORDÉON DESCRIPTION & INFOS COMPLÉMENTAIRES -->
+      <?php
+        $desc_tab = apply_filters('woocommerce_product_tabs', array());
+        $has_additional_info = false;
+        ob_start();
+        if (isset($desc_tab['additional_information']['callback'])) {
+          call_user_func($desc_tab['additional_information']['callback'], 'additional_information', $desc_tab['additional_information']);
+        }
+        $additional_info_content = trim(strip_tags(ob_get_clean()));
+        if (!empty($additional_info_content)) $has_additional_info = true;
+        if ($has_additional_info):
+      ?>
       <div class="sidebar-accordion">
-        <?php
-          // S'assurer que $desc_tab est défini pour l'accordéon
-          $desc_tab = apply_filters('woocommerce_product_tabs', array());
-        ?>
-        <div class="accordion-item">
-            <!-- Description retirée de l'accordéon -->
-        </div>
         <div class="accordion-item">
           <button class="accordion-toggle" type="button">Informations complémentaires</button>
           <div class="accordion-content">
             <?php
-              // Additional info tab content
               if (isset($desc_tab['additional_information']['callback'])) {
                 call_user_func($desc_tab['additional_information']['callback'], 'additional_information', $desc_tab['additional_information']);
               }
@@ -165,6 +166,7 @@ if ( post_password_required() ) {
           </div>
         </div>
       </div>
+      <?php endif; ?>
     </aside>
     <script>
     // Accordéon JS robuste, exécuté après tout le DOM
@@ -202,6 +204,10 @@ if ( post_password_required() ) {
   </div>
 
   <!-- Description principale sous la fiche produit -->
+  <?php
+    $product_description = trim(strip_tags(apply_filters('the_content', get_post_field('post_content', $product->get_id()))));
+    if (!empty($product_description)) :
+  ?>
   <div class="product-main-description" style="width:100%;max-width:none;margin:40px 0 32px 0;padding:32px 28px 24px 28px;background:#fff;border:1px solid #e3e5e8;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.05);">
     <h2 style="font-size:1.5em;font-weight:700;color:#0E2141;margin-bottom:18px;">Description du produit</h2>
     <?php if ( wc_product_sku_enabled() && ( $product->get_sku() || $product->is_type( 'variable' ) ) ) : ?>
@@ -211,6 +217,7 @@ if ( post_password_required() ) {
     <?php endif; ?>
     <?php echo apply_filters('the_content', get_post_field('post_content', $product->get_id())); ?>
   </div>
+  <?php endif; ?>
   <?php
     // upsells, produits liés…
     // On retire les tabs WooCommerce ici
