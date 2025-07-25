@@ -37,14 +37,18 @@ if ( post_password_required() ) {
       <?php if ( $product->is_type( 'variable' ) ) : ?>
         <div class="purchase-header">
           <span class="price"><?php echo $product->get_price_html(); ?></span>
-          <span class="wishlist-btn" title="Ajouter à la liste de souhaits"><i class="fa fa-heart"></i></span>
+          <span class="wishlist-btn<?php echo is_product_in_wishlist($product->get_id()) ? ' active' : ''; ?>" title="Ajouter à la liste de souhaits" data-product-id="<?php echo $product->get_id(); ?>">
+            <i class="<?php echo is_product_in_wishlist($product->get_id()) ? 'fa-solid' : 'fa-regular'; ?> fa-heart"></i>
+          </span>
         </div>
         <?php woocommerce_variable_add_to_cart(); ?>
       <?php else : ?>
         <form class="cart purchase-form" action="<?php echo esc_url( apply_filters( 'woocommerce_add_to_cart_form_action', $product->get_permalink() ) ); ?>" method="post" enctype='multipart/form-data'>
           <div class="purchase-header">
             <span class="price"><?php echo $product->get_price_html(); ?></span>
-            <span class="wishlist-btn" title="Ajouter à la liste de souhaits"><i class="fa fa-heart"></i></span>
+            <span class="wishlist-btn<?php echo is_product_in_wishlist($product->get_id()) ? ' active' : ''; ?>" title="Ajouter à la liste de souhaits" data-product-id="<?php echo $product->get_id(); ?>">
+              <i class="<?php echo is_product_in_wishlist($product->get_id()) ? 'fa-solid' : 'fa-regular'; ?> fa-heart"></i>
+            </span>
           </div>
           <?php
           $bulk_offers = get_post_meta( $product->get_id(), '_bulk_offers', true );

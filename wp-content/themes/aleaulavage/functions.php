@@ -1333,3 +1333,234 @@ function childtheme_woocommerce_gallery_support() {
     add_theme_support( 'wc-product-gallery-lightbox' );
     add_theme_support( 'wc-product-gallery-slider' );
 }
+
+// ===============================================
+// SYSTÈME DE WISHLIST UTILISATEUR
+// ===============================================
+
+// Fonction pour ajouter un produit aux favoris
+function add_to_wishlist() {
+    // Vérifier le nonce pour la sécurité
+    if (!wp_verify_nonce($_POST['nonce'], 'wishlist_nonce')) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Vous devez être connecté pour ajouter aux favoris']);
+        return;
+    }
+    
+    $product_id = intval($_POST['product_id']);
+    $user_id = get_current_user_id();
+    
+    if (!$product_id) {
+        wp_send_json_error(['message' => 'ID produit invalide']);
+        return;
+    }
+    
+    // Récupérer la wishlist actuelle de l'utilisateur
+    $wishlist = get_user_meta($user_id, 'user_wishlist', true);
+    if (!is_array($wishlist)) {
+        $wishlist = array();
+    }
+    
+    // Ajouter le produit s'il n'est pas déjà présent
+    if (!in_array($product_id, $wishlist)) {
+        $wishlist[] = $product_id;
+        update_user_meta($user_id, 'user_wishlist', $wishlist);
+        wp_send_json_success(['action' => 'added', 'message' => 'Produit ajouté aux favoris']);
+    } else {
+        wp_send_json_error(['message' => 'Produit déjà dans les favoris']);
+    }
+}
+add_action('wp_ajax_add_to_wishlist', 'add_to_wishlist');
+add_action('wp_ajax_nopriv_add_to_wishlist', 'add_to_wishlist');
+
+// Fonction pour retirer un produit des favoris
+function remove_from_wishlist() {
+    // Vérifier le nonce pour la sécurité
+    if (!wp_verify_nonce($_POST['nonce'], 'wishlist_nonce')) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_error(['message' => 'Vous devez être connecté']);
+        return;
+    }
+    
+    $product_id = intval($_POST['product_id']);
+    $user_id = get_current_user_id();
+    
+    if (!$product_id) {
+        wp_send_json_error(['message' => 'ID produit invalide']);
+        return;
+    }
+    
+    // Récupérer la wishlist actuelle de l'utilisateur
+    $wishlist = get_user_meta($user_id, 'user_wishlist', true);
+    if (!is_array($wishlist)) {
+        $wishlist = array();
+    }
+    
+    // Retirer le produit
+    $key = array_search($product_id, $wishlist);
+    if ($key !== false) {
+        unset($wishlist[$key]);
+        $wishlist = array_values($wishlist); // Réindexer le tableau
+        update_user_meta($user_id, 'user_wishlist', $wishlist);
+        wp_send_json_success(['action' => 'removed', 'message' => 'Produit retiré des favoris']);
+    } else {
+        wp_send_json_error(['message' => 'Produit non trouvé dans les favoris']);
+    }
+}
+add_action('wp_ajax_remove_from_wishlist', 'remove_from_wishlist');
+add_action('wp_ajax_nopriv_remove_from_wishlist', 'remove_from_wishlist');
+
+// Fonction pour vérifier si un produit est dans les favoris
+function check_wishlist_status() {
+    // Vérifier le nonce pour la sécurité
+    if (!wp_verify_nonce($_POST['nonce'], 'wishlist_nonce')) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+    
+    if (!is_user_logged_in()) {
+        wp_send_json_success(['in_wishlist' => false]);
+        return;
+    }
+    
+    $product_id = intval($_POST['product_id']);
+    $user_id = get_current_user_id();
+    
+    $wishlist = get_user_meta($user_id, 'user_wishlist', true);
+    if (!is_array($wishlist)) {
+        $wishlist = array();
+    }
+    
+    $in_wishlist = in_array($product_id, $wishlist);
+    
+    wp_send_json_success(['in_wishlist' => $in_wishlist]);
+}
+add_action('wp_ajax_check_wishlist_status', 'check_wishlist_status');
+add_action('wp_ajax_nopriv_check_wishlist_status', 'check_wishlist_status');
+
+// Fonction helper pour vérifier si un produit est en favoris (utilisation dans les templates)
+function is_product_in_wishlist($product_id) {
+    if (!is_user_logged_in()) {
+        return false;
+    }
+    
+    $user_id = get_current_user_id();
+    $wishlist = get_user_meta($user_id, 'user_wishlist', true);
+    
+    if (!is_array($wishlist)) {
+        return false;
+    }
+    
+    return in_array($product_id, $wishlist);
+}
+
+// Ajouter les scripts et variables JavaScript nécessaires
+function enqueue_wishlist_scripts() {
+    if (is_product()) {
+        wp_localize_script('jquery', 'wishlist_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wishlist_nonce'),
+            'is_logged_in' => is_user_logged_in(),
+            'product_id' => get_the_ID()
+        ));
+    }
+}
+add_action('wp_enqueue_scripts', 'enqueue_wishlist_scripts');
+
+// Ajouter un shortcode pour afficher la page de wishlist
+function display_user_wishlist() {
+    if (!is_user_logged_in()) {
+        return '<p>Vous devez être connecté pour voir vos favoris.</p>';
+    }
+    
+    $user_id = get_current_user_id();
+    $wishlist = get_user_meta($user_id, 'user_wishlist', true);
+    
+    if (!is_array($wishlist) || empty($wishlist)) {
+        return '<p>Votre liste de favoris est vide.</p>';
+    }
+    
+    $output = '<div class="user-wishlist"><h3>Mes favoris</h3><div class="wishlist-products">';
+    
+    foreach ($wishlist as $product_id) {
+        $product = wc_get_product($product_id);
+        if ($product) {
+            $output .= '<div class="wishlist-item">';
+            $output .= '<a href="' . get_permalink($product_id) . '">' . $product->get_image('thumbnail') . '</a>';
+            $output .= '<div class="product-info">';
+            $output .= '<h4><a href="' . get_permalink($product_id) . '">' . $product->get_name() . '</a></h4>';
+            $output .= '<span class="price">' . $product->get_price_html() . '</span>';
+            $output .= '<button class="remove-from-wishlist" data-product-id="' . $product_id . '">Retirer</button>';
+            $output .= '</div></div>';
+        }
+    }
+    
+    $output .= '</div></div>';
+    
+    return $output;
+}
+add_shortcode('user_wishlist', 'display_user_wishlist');
+
+// Fonction AJAX pour la connexion dans la modal
+function ajax_login() {
+    // Vérifier le nonce pour la sécurité
+    if (!wp_verify_nonce($_POST['security'], 'wishlist_nonce')) {
+        wp_send_json_error(['message' => 'Erreur de sécurité']);
+        return;
+    }
+    
+    $username = sanitize_text_field($_POST['username']);
+    $password = $_POST['password'];
+    
+    if (empty($username) || empty($password)) {
+        wp_send_json_error(['message' => 'Veuillez remplir tous les champs.']);
+        return;
+    }
+    
+    // Tenter la connexion
+    $credentials = array(
+        'user_login'    => $username,
+        'user_password' => $password,
+        'remember'      => true
+    );
+    
+    $user = wp_signon($credentials, false);
+    
+    if (is_wp_error($user)) {
+        // Connexion échouée
+        $error_message = 'Identifiants incorrects.';
+        
+        // Messages d'erreur plus spécifiques selon le type d'erreur
+        if ($user->get_error_code() === 'invalid_username') {
+            $error_message = 'Nom d\'utilisateur ou email invalide.';
+        } elseif ($user->get_error_code() === 'incorrect_password') {
+            $error_message = 'Mot de passe incorrect.';
+        } elseif ($user->get_error_code() === 'empty_username') {
+            $error_message = 'Veuillez saisir votre nom d\'utilisateur.';
+        } elseif ($user->get_error_code() === 'empty_password') {
+            $error_message = 'Veuillez saisir votre mot de passe.';
+        }
+        
+        wp_send_json_error(['message' => $error_message]);
+    } else {
+        // Connexion réussie
+        wp_set_current_user($user->ID);
+        wp_set_auth_cookie($user->ID, true);
+        
+        wp_send_json_success([
+            'message' => 'Connexion réussie !',
+            'user_id' => $user->ID,
+            'user_name' => $user->display_name
+        ]);
+    }
+}
+add_action('wp_ajax_nopriv_ajax_login', 'ajax_login'); // Pour les utilisateurs non connectés
+add_action('wp_ajax_ajax_login', 'ajax_login'); // Pour les utilisateurs connectés (au cas où)

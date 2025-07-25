@@ -1,3 +1,100 @@
+/* Wishlist button ManoMano style */
+.wishlist-btn {
+  background: #fff;
+  border: 2px solid #f1bb69;
+  color: #f1bb69;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.wishlist-btn i {
+  color: #f1bb69 !important;
+  transition: color 0.2s;
+}
+.wishlist-btn.active {
+  background: #fff !important;
+  border-color: #f1bb69;
+  color: #f1bb69;
+}
+.wishlist-btn.active i {
+  color: #f1bb69 !important;
+}
+/* Correction couleur coeur favoris */
+.wishlist-btn i.fa-regular.fa-heart {
+  color: #f1bb69 !important;
+  background: none !important;
+}
+.wishlist-btn.active i.fa-solid.fa-heart {
+  color: #fff !important;
+  background: none !important;
+}
+/* Alignement parfait des attributs WooCommerce dans l'accordéon */
+.woocommerce-product-attributes.shop_attributes {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  border: 1.5px solid #e3e5e8;
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* Reset complet des marges pour un alignement parfait */
+.woocommerce-product-attributes.shop_attributes p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.woocommerce-product-attributes.shop_attributes th.woocommerce-product-attributes-item__label {
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
+  text-align: left;
+  font-weight: 600;
+  color: #0E2141;
+  padding: 10px 18px 10px 10px;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-right: 1px solid #e3e5e8;
+  background: #fff;
+}
+
+.woocommerce-product-attributes.shop_attributes td.woocommerce-product-attributes-item__value {
+  text-align: left;
+  color: #222;
+  padding: 10px 0 10px 18px;
+  word-break: break-word;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.woocommerce-product-attributes.shop_attributes tr.woocommerce-product-attributes-item {
+  border: none;
+}
+
+.woocommerce-product-attributes.shop_attributes tr.woocommerce-product-attributes-item:not(:last-child) th,
+.woocommerce-product-attributes.shop_attributes tr.woocommerce-product-attributes-item:not(:last-child) td {
+  border-bottom: 1px solid #e3e5e8;
+}
+
+/* Bordures complètes pour toutes les cellules */
+.woocommerce-product-attributes.shop_attributes th,
+.woocommerce-product-attributes.shop_attributes td {
+  border-bottom: 1px solid #e3e5e8;
+}
+
+.woocommerce-product-attributes.shop_attributes tr:last-child th,
+.woocommerce-product-attributes.shop_attributes tr:last-child td {
+  border-bottom: none;
+}
+
+/* Bordures latérales pour compléter les angles */
+.woocommerce-product-attributes.shop_attributes th:first-child {
+  border-left: 1px solid #e3e5e8;
+}
+
+.woocommerce-product-attributes.shop_attributes td:last-child {
+  border-right: 1px solid #e3e5e8;
+}
 /* Bordure haut/bas uniquement pour l'input quantité dans les variations WooCommerce */
 .woocommerce-variation-add-to-cart .quantity.input-group input.input-text.qty.text.form-control {
   border-top: 1.5px solid #000 !important;
@@ -148,22 +245,48 @@
 .accordion-content.active {
   display: block;
 }
-/* Bouton Effacer aligné avec les swatches */
-.swatch-clear-btn {
-  background: none;
-  border: none;
-  color: #2980d9;
-  font-size: 15px;
-  margin-left: 16px;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 0 2px;
-  align-self: center;
-  transition: color 0.2s;
+/* RESET COMPLET des espaces WooCommerce variations */
+.variations_form table.variations {
+  margin: 0 !important;
+  padding: 0 !important;
 }
-.swatch-clear-btn:hover {
-  color: #e74c3c;
-  text-decoration: underline;
+
+.variations_form .single_variation_wrap {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.variations_form .woocommerce-variation-add-to-cart {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.variations_form table.variations tbody tr {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.variations_form table.variations tbody tr td {
+  padding-bottom: 8px !important;
+  margin: 0 !important;
+}
+
+.variations_form table.variations tbody tr:last-child td {
+  padding-bottom: 0 !important;
+}
+
+/* Éliminer les espaces des labels et contenus */
+.variations_form table.variations tbody tr td label {
+  margin-bottom: 5px !important;
+}
+
+/* Reset de tous les éléments dans les variations */
+.variations_form * {
+  margin-bottom: 0 !important;
+}
+
+.variations_form br {
+  display: none !important;
 }
 /* Masquer le prix de variation WooCommerce sous le sélecteur */
 .single_variation .woocommerce-variation-price {
@@ -207,12 +330,90 @@
 /* Swatch couleurs variations */
 .color-swatches {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   margin: 10px 0 15px 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Boutons d'attributs génériques (taille, matière, etc.) - Spécificité renforcée */  
+.woocommerce .variations .attribute-buttons,
+.attribute-buttons {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin: 12px 0 18px 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+
+/* Styles des boutons d'attributs - Version propre */
+.woocommerce .variations .attribute-buttons .attribute-button,
+.attribute-buttons .attribute-button,
+button.attribute-button {
+  padding: 10px 18px !important;
+  border: 2px solid #e3e5e8 !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #fff 0%, #fafbfc 100%) !important;
+  color: #0E2141 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+  white-space: nowrap !important;
+  min-height: 42px !important;
+  min-width: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06) !important;
+  text-transform: capitalize !important;
+  letter-spacing: 0.3px !important;
+  text-decoration: none !important;
+}
+
+.woocommerce .variations .attribute-buttons .attribute-button:hover,
+.attribute-buttons .attribute-button:hover,
+button.attribute-button:hover {
+  border-color: #f1bb69 !important;
+  background: linear-gradient(135deg, #fdf8f1 0%, #fcf4e8 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(241, 187, 105, 0.25) !important;
+  color: #0E2141 !important;
+}
+
+.woocommerce .variations .attribute-buttons .attribute-button.selected,
+.attribute-buttons .attribute-button.selected,
+button.attribute-button.selected {
+  border-color: #f1bb69 !important;
+  background: linear-gradient(135deg, #f1bb69 0%, #e29a3d 100%) !important;
+  color: #0E2141 !important;
+  font-weight: 700 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(241, 187, 105, 0.35) !important;
+}
+
+
+.woocommerce .variations .attribute-buttons .attribute-button:focus,
+.attribute-buttons .attribute-button:focus,
+button.attribute-button:focus {
+  border-color: #f1bb69 !important;
+  box-shadow: 0 0 0 3px rgba(241, 187, 105, 0.3) !important;
+}
+
+.woocommerce .variations .attribute-buttons .attribute-button:active,
+.attribute-buttons .attribute-button:active,
+button.attribute-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 6px rgba(241, 187, 105, 0.2) !important;
 }
 .color-swatch {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 2px solid #e3e5e8;
   cursor: pointer;
@@ -220,6 +421,7 @@
   transition: border 0.2s, box-shadow 0.2s;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
   position: relative;
+  flex-shrink: 0;
 }
 .color-swatch.selected,
 .color-swatch:focus {
@@ -461,7 +663,7 @@
   height: 18px;
 }
 
-/* 2) CARTE D’ACHAT */
+/* 2) CARTE D'ACHAT */
 .product-purchase-card {
   background: #fff;
   border: 1px solid #e3e5e8;
@@ -469,6 +671,8 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   padding: 20px 18px 18px 18px;
   min-width: 0;
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 /* 3) TITRE PRODUIT */
@@ -505,11 +709,55 @@
   font-size: 20px;
   cursor: pointer;
   margin-left: 10px;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
+
 .wishlist-btn:hover {
   background: #e3e5e8;
-  color: #0E2141;
+  color: #f1bb69;
+  border-color: #f1bb69;
+}
+
+/* État par défaut : cœur outline */
+.wishlist-btn i {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 400;
+  font-style: normal;
+  color: #f1bb69 !important;
+}
+
+/* Force l'affichage des icônes FontAwesome */
+.wishlist-btn .fa-regular {
+  font-weight: 400 !important;
+  color: #f1bb69 !important;
+}
+
+.wishlist-btn .fa-solid {
+  font-weight: 900 !important;
+}
+
+/* État actif : cœur plein */
+.wishlist-btn.active {
+  background: #fff !important;
+  color: #f1bb69;
+  border-color: #f1bb69;
+}
+
+.wishlist-btn.active i {
+  font-weight: 900 !important;
+}
+
+.wishlist-btn.active i.fa-solid.fa-heart {
+  color: #f1bb69 !important;
+}
+
+.wishlist-btn.active:hover {
+  background: #f9f9f9 !important;
+  border-color: #e29a3d;
+}
+
+.wishlist-btn.active:hover i.fa-solid.fa-heart {
+  color: #e29a3d !important;
 }
 .purchase-qty { margin-bottom: 16px; }
 

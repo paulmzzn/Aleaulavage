@@ -262,6 +262,20 @@
 									<i class="fa-solid fa-user"></i>
 									<span class="visually-hidden-focusable">Account</span>
 								</a>
+								<a class="btn ms-1 position-relative" href="<?php echo esc_url(home_url('favoris/')); ?>" title="Mes favoris">
+									<i class="fa-<?php echo is_user_logged_in() ? 'solid' : 'regular'; ?> fa-heart" style="color: #333; font-size: 1.2rem;"></i>
+									<span class="visually-hidden-focusable">Favoris</span>
+									<?php if (is_user_logged_in()) {
+										$user_id = get_current_user_id();
+										$wishlist = get_user_meta($user_id, 'user_wishlist', true);
+										$count = is_array($wishlist) ? count($wishlist) : 0;
+										if ($count > 0) : ?>
+											<span class="wishlist-count position-absolute badge rounded-pill" style="background: #f1bb69; color: #0E2141; font-size: 0.7rem; padding: 2px 6px; top: 0px; right: 0px;">
+												<?php echo esc_html($count); ?>
+											</span>
+										<?php endif;
+									} ?>
+								</a>
 								<button class="btn ms-1 position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas-cart" aria-controls="offcanvas-cart" title="Panier">
 									<i class="fa-solid fa-basket-shopping"></i>
 									<span class="visually-hidden-focusable">Cart</span>
@@ -372,6 +386,12 @@
 											<div class="menu-card-icon"><i class="fa-solid fa-user"></i></div>
 											<div class="menu-card-title">Mon Compte</div>
 											<div class="menu-card-subtitle">Profil & commandes</div>
+										</a>
+										
+										<a href="<?php echo esc_url(home_url('favoris/')); ?>" class="menu-card">
+											<div class="menu-card-icon"><i class="fa-solid fa-heart" style="color: #f1bb69;"></i></div>
+											<div class="menu-card-title">Mes Favoris</div>
+											<div class="menu-card-subtitle">Produits préférés</div>
 										</a>
 										
 										<a href="<?php echo esc_url(home_url('boutique/')); ?>" class="menu-card">
