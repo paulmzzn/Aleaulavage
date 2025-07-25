@@ -1,4 +1,7 @@
 <?php
+// Laisser ELECX fonctionner normalement mais garder accès au prix original
+// pour notre logique JavaScript personnalisée
+
 // Ajout du zoom qui suit la souris sur la page produit
 add_action('wp_enqueue_scripts', function() {
     if (is_product()) {
@@ -1562,3 +1565,6 @@ function ajax_login() {
 }
 add_action('wp_ajax_nopriv_ajax_login', 'ajax_login'); // Pour les utilisateurs non connectés
 add_action('wp_ajax_ajax_login', 'ajax_login'); // Pour les utilisateurs connectés (au cas où)
+
+// Charger les menus d’analyse clients
+require_once get_stylesheet_directory() . '/includes/admin-comportement.php';

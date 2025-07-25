@@ -86,6 +86,290 @@ if ( post_password_required() ) {
 
         </form>
       <?php endif; ?>
+      
+      <!-- TABLEAU DES PRIX DYNAMIQUES -->
+      <div id="pricing-table-container" style="margin: 20px 0;"></div>
+      
+      <?php
+      // Laisser ELECX gérer les prix normalement
+      // Notre JavaScript interviendra seulement pour les cas spécifiques
+      ?>
+      
+      <script>
+      // Variables globales pour la gestion des prix
+      var originalPriceData = <?php echo json_encode([
+          'price' => floatval($product->get_regular_price()),
+          'currency' => get_woocommerce_currency_symbol(),
+          'formatted' => wc_price($product->get_regular_price())
+      ]); ?>;
+      
+      var pricingRules = [];
+      var elecxOverrideActive = false;
+      var isUpdatingPrice = false;
+      
+      // Déplacer et restyler le tableau des prix du plugin
+      document.addEventListener('DOMContentLoaded', function() {
+          initializePriceManagement();
+      });
+      
+      function initializePriceManagement() {
+          // Chercher le tableau du plugin
+          var pluginTable = document.querySelector('.xa_sp_table');
+          var pluginHeader = document.querySelector('.xa_sp_table_head1');
+          var targetContainer = document.getElementById('pricing-table-container');
+          
+          if (pluginTable && targetContainer) {
+              // Créer un nouveau conteneur stylé
+              var newContainer = document.createElement('div');
+              newContainer.style.cssText = 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px;';
+              
+              // Créer un nouveau titre
+              var newTitle = document.createElement('h3');
+              newTitle.textContent = 'Prix dégressifs';
+              newTitle.style.cssText = 'margin: 0 0 12px 0; font-size: 16px; color: #2A3E6A; font-weight: 600;';
+              
+              // Cloner le tableau
+              var newTable = pluginTable.cloneNode(true);
+              
+              // Appliquer de nouveaux styles au tableau
+              newTable.style.cssText = 'width: 100%; border-collapse: collapse; margin: 0;';
+              newTable.className = 'custom-pricing-table';
+              
+              // Styler l'en-tête
+              var thead = newTable.querySelector('thead');
+              if (thead) {
+                  thead.style.cssText = 'background: #e9ecef;';
+                  var headerCells = thead.querySelectorAll('td');
+                  headerCells.forEach(function(cell) {
+                      cell.style.cssText = 'padding: 8px; font-weight: 600; border-bottom: 1px solid #dee2e6; font-size: 14px; color: #2A3E6A;';
+                  });
+              }
+              
+              // Styler le corps du tableau
+              var tbody = newTable.querySelector('tbody');
+              if (tbody) {
+                  var rows = tbody.querySelectorAll('tr');
+                  rows.forEach(function(row) {
+                      row.style.cssText = 'border-bottom: 1px solid #f1f3f4;';
+                      var cells = row.querySelectorAll('td');
+                      cells.forEach(function(cell) {
+                          cell.style.cssText = 'padding: 8px; border-bottom: 1px solid #f1f3f4; font-size: 14px; font-family: inherit;';
+                      });
+                  });
+              }
+              
+              // Assembler le nouveau tableau
+              newContainer.appendChild(newTitle);
+              newContainer.appendChild(newTable);
+              targetContainer.appendChild(newContainer);
+              
+              // Extraire les règles de prix du tableau
+              extractPricingRules();
+              
+              // Cacher l'ancien tableau et titre
+              if (pluginHeader) {
+                  pluginHeader.style.display = 'none';
+              }
+              pluginTable.style.display = 'none';
+              
+              // Activer immédiatement notre gestion pour prendre le contrôle avant ELECX
+              elecxOverrideActive = true;
+              setupPriceManagement();
+          } else {
+              // Pas de tableau ELECX, désactiver la logique custom
+              elecxOverrideActive = false;
+          }
+      }
+      
+      function extractPricingRules() {
+          pricingRules = [];
+          var tableRows = document.querySelectorAll('.custom-pricing-table tbody tr');
+          
+          tableRows.forEach(function(row) {
+              var cells = row.querySelectorAll('td');
+              if (cells.length >= 3) {
+                  var minText = cells[0].textContent.trim();
+                  var maxText = cells[1].textContent.trim();
+                  var discountText = cells[2].textContent.trim();
+                  
+                  var minQty = parseInt(minText.replace(/\D/g, ''));
+                  var maxQty = parseInt(maxText.replace(/\D/g, ''));
+                  var discount = parseFloat(discountText.replace(/[^\d.]/g, ''));
+                  
+                  if (minQty > 0 && maxQty > 0 && discount > 0) {
+                      pricingRules.push({
+                          min: minQty,
+                          max: maxQty,
+                          discount: discount
+                      });
+                  }
+              }
+          });
+          
+      }
+      
+      function setupPriceManagement() {
+          var qtyInput = document.querySelector('input[name="quantity"]');
+          var priceElement = document.querySelector('.price');
+          
+          if (!qtyInput || !priceElement) return;
+          
+          // Forcer le prix original immédiatement
+          restoreOriginalPrice();
+          
+          // Écouter les changements de quantité avec debounce
+          var quantityTimeout;
+          function handleQuantityChangeDebounced() {
+              clearTimeout(quantityTimeout);
+              quantityTimeout = setTimeout(function() {
+                  handleQuantityChange();
+              }, 100);
+          }
+          
+          qtyInput.addEventListener('input', handleQuantityChangeDebounced);
+          qtyInput.addEventListener('change', handleQuantityChangeDebounced);
+          
+          // Écouter les clics sur les boutons + et - de quantité
+          var qtyPlusBtn = document.querySelector('.quantity .plus, .qty-btn-plus, [data-quantity="plus"]');
+          var qtyMinusBtn = document.querySelector('.quantity .minus, .qty-btn-minus, [data-quantity="minus"]');
+          
+          if (qtyPlusBtn) {
+              qtyPlusBtn.addEventListener('click', function() {
+                  setTimeout(handleQuantityChangeDebounced, 50);
+              });
+          }
+          
+          if (qtyMinusBtn) {
+              qtyMinusBtn.addEventListener('click', function() {
+                  setTimeout(handleQuantityChangeDebounced, 50);
+              });
+          }
+          
+          // Écouter tous les clics dans la zone quantity au cas où
+          var quantityDiv = qtyInput.closest('.quantity, .purchase-qty');
+          if (quantityDiv) {
+              quantityDiv.addEventListener('click', function(e) {
+                  // Si c'est un bouton (contient + ou -)
+                  if (e.target.tagName === 'BUTTON' || e.target.classList.contains('plus') || e.target.classList.contains('minus')) {
+                      setTimeout(handleQuantityChangeDebounced, 100);
+                  }
+              });
+          }
+          
+          // Observer les modifications ELECX et les corriger
+          if (window.MutationObserver) {
+              var observer = new MutationObserver(function(mutations) {
+                  // Ignorer si on est en train de mettre à jour le prix nous-mêmes
+                  if (isUpdatingPrice) return;
+                  
+                  // Vérifier si ELECX a modifié le prix de manière non désirée
+                  var currentContent = priceElement.innerHTML;
+                  var currentQty = parseInt(qtyInput.value) || 1;
+                  
+                  // Observer pour détecter les conflits entre notre gestion et ELECX
+                  // Seulement intervenir si on a une règle active qui doit s'appliquer
+                  if (pricingRules.length > 0) {
+                      var activeRule = null;
+                      for (var i = 0; i < pricingRules.length; i++) {
+                          if (currentQty >= pricingRules[i].min && currentQty <= pricingRules[i].max) {
+                              activeRule = pricingRules[i];
+                              break;
+                          }
+                      }
+                      
+                      // Si on a une règle active, s'assurer que notre prix s'affiche
+                      if (activeRule) {
+                          var expectedPrice = (originalPriceData.price * (1 - activeRule.discount / 100)).toFixed(2);
+                          if (!currentContent.includes(expectedPrice.replace('.', ','))) {
+                              setTimeout(function() {
+                                  displayDiscountedPrice(activeRule);
+                              }, 50);
+                          }
+                      }
+                      // Si pas de règle active, laisser ELECX faire son travail
+                  }
+              });
+              
+              observer.observe(priceElement, {
+                  childList: true,
+                  subtree: true,
+                  characterData: true
+              });
+          }
+          
+          // Surveiller les changements de valeur en continu (polling)
+          var lastQuantity = parseInt(qtyInput.value) || 1;
+          var lastPollingTime = 0;
+          setInterval(function() {
+              // Ne pas déclencher si on vient de faire une recalculation ELECX
+              if (Date.now() - lastPollingTime < 600) return;
+              
+              var currentQuantity = parseInt(qtyInput.value) || 1;
+              if (currentQuantity !== lastQuantity && elecxOverrideActive) {
+                  lastQuantity = currentQuantity;
+                  lastPollingTime = Date.now();
+                  handleQuantityChangeDebounced();
+              } else if (currentQuantity !== lastQuantity) {
+                  lastQuantity = currentQuantity; // Mettre à jour sans déclencher
+              }
+          }, 300);
+          
+          // Application initiale
+          setTimeout(handleQuantityChange, 200);
+      }
+      
+      function handleQuantityChange() {
+          if (!elecxOverrideActive) return;
+          
+          var qtyInput = document.querySelector('input[name="quantity"]');
+          if (!qtyInput) return;
+          
+          var currentQty = parseInt(qtyInput.value) || 1;
+          
+          // Trouver la règle active
+          var activeRule = null;
+          for (var i = 0; i < pricingRules.length; i++) {
+              var rule = pricingRules[i];
+              if (currentQty >= rule.min && currentQty <= rule.max) {
+                  activeRule = rule;
+                  break;
+              }
+          }
+          
+          if (activeRule) {
+              displayDiscountedPrice(activeRule);
+          } else {
+              // Afficher le prix original (sans promotion) quand on est hors seuils
+              restoreOriginalPrice();
+          }
+      }
+      
+      function displayDiscountedPrice(rule) {
+          var priceElement = document.querySelector('.price');
+          if (!priceElement || !originalPriceData) return;
+          
+          isUpdatingPrice = true;
+          var newPrice = originalPriceData.price * (1 - rule.discount / 100);
+          
+          priceElement.innerHTML = '<del style="color: #999; text-decoration: line-through;">' + 
+                                 originalPriceData.price.toFixed(2).replace('.', ',') + '&nbsp;' + originalPriceData.currency + 
+                                 '</del> <span style="color: #5899E2; font-weight: bold;">' + 
+                                 newPrice.toFixed(2).replace('.', ',') + '&nbsp;' + originalPriceData.currency + '</span>';
+          
+          setTimeout(function() { isUpdatingPrice = false; }, 100);
+      }
+      
+      function restoreOriginalPrice() {
+          var priceElement = document.querySelector('.price');
+          if (!priceElement || !originalPriceData) return;
+          
+          isUpdatingPrice = true;
+          priceElement.innerHTML = originalPriceData.price.toFixed(2).replace('.', ',') + '&nbsp;' + originalPriceData.currency;
+          setTimeout(function() { isUpdatingPrice = false; }, 100);
+      }
+      
+      </script>
+      
       <!-- LIVRAISON (infos principales uniquement) -->
       <div class="livraison-card">
         <h2>

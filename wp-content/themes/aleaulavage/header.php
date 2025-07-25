@@ -41,6 +41,51 @@
 			padding: 0.5rem 0;
 		}
 		
+		.category-scroll-container {
+			display: flex;
+			align-items: center;
+			position: relative;
+		}
+		
+		.category-scroll-btn {
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			background: rgba(255, 255, 255, 0.9);
+			border: 1px solid #dee2e6;
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			z-index: 10;
+			transition: all 0.3s ease;
+			opacity: 0;
+			visibility: hidden;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+		
+		.category-scroll-container:hover .category-scroll-btn {
+			opacity: 1;
+			visibility: visible;
+		}
+		
+		.category-scroll-btn:hover {
+			background: #2A3E6A;
+			color: white;
+			transform: translateY(-50%) scale(1.1);
+		}
+		
+		.category-scroll-left {
+			left: 10px;
+		}
+		
+		.category-scroll-right {
+			right: 10px;
+		}
+		
 		.category-list {
 			display: flex;
 			align-items: center;
@@ -49,7 +94,8 @@
 			white-space: nowrap;
 			scrollbar-width: none;
 			-ms-overflow-style: none;
-			padding: 0 2rem;
+			padding: 0 60px;
+			scroll-behavior: smooth;
 		}
 		
 		.category-list::-webkit-scrollbar {
@@ -428,7 +474,11 @@
 
 				<!-- Nouvelle barre de catégories (desktop uniquement) -->
 				<div class="category-bar bg-light d-none d-md-block">
-					<div class="category-list">
+					<div class="category-scroll-container position-relative">
+						<button class="category-scroll-btn category-scroll-left" id="scrollLeft">
+							<i class="fa-solid fa-chevron-left"></i>
+						</button>
+						<div class="category-list">
 						<?php
 						$cat_args = array(
 							'orderby'    => 'menu_order',
@@ -462,6 +512,10 @@
 							}
 						}
 						?>
+						</div>
+						<button class="category-scroll-btn category-scroll-right" id="scrollRight">
+							<i class="fa-solid fa-chevron-right"></i>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -559,4 +613,66 @@
 		}
 		jQuery(document).on('wc_fragments_refreshed wc_fragments_loaded', updateCartTotalAndProgress);
 		jQuery(document).ready(updateCartTotalAndProgress);
+		
+		// Navigation des catégories avec les flèches
+		jQuery(document).ready(function($) {
+			const categoryList = $('.category-list');
+			const scrollAmount = 200; // Distance de défilement en pixels
+			
+			// Fonction pour vérifier si les boutons doivent être visibles
+			function checkScrollButtons() {
+				const container = categoryList[0];
+				const leftBtn = $('.category-scroll-left');
+				const rightBtn = $('.category-scroll-right');
+				
+				if (container) {
+					// Masquer les boutons si le contenu ne déborde pas
+					if (container.scrollWidth <= container.clientWidth) {
+						leftBtn.hide();
+						rightBtn.hide();
+					} else {
+						leftBtn.show();
+						rightBtn.show();
+						
+						// Gérer l'opacité selon la position
+						if (container.scrollLeft <= 0) {
+							leftBtn.css('opacity', '0.3');
+						} else {
+							leftBtn.css('opacity', '1');
+						}
+						
+						if (container.scrollLeft >= container.scrollWidth - container.clientWidth) {
+							rightBtn.css('opacity', '0.3');
+						} else {
+							rightBtn.css('opacity', '1');
+						}
+					}
+				}
+			}
+			
+			// Défilement vers la gauche
+			$('#scrollLeft').on('click', function() {
+				categoryList.animate({
+					scrollLeft: categoryList.scrollLeft() - scrollAmount
+				}, 300, function() {
+					checkScrollButtons();
+				});
+			});
+			
+			// Défilement vers la droite
+			$('#scrollRight').on('click', function() {
+				categoryList.animate({
+					scrollLeft: categoryList.scrollLeft() + scrollAmount
+				}, 300, function() {
+					checkScrollButtons();
+				});
+			});
+			
+			// Vérifier les boutons au chargement et au redimensionnement
+			checkScrollButtons();
+			$(window).resize(checkScrollButtons);
+			
+			// Vérifier les boutons pendant le défilement manuel
+			categoryList.on('scroll', checkScrollButtons);
+		});
 		</script>
