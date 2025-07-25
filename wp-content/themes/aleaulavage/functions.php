@@ -1226,28 +1226,30 @@ add_action('wp_enqueue_scripts', 'enqueue_home_custom_styles');
 function search_by_sku( $search, $wp_query ) {
     if ( ! is_admin() && $wp_query->is_main_query() && $wp_query->is_search() ) {
         global $wpdb;
-        
         $search_term = $wp_query->get( 's' );
-        
+
         if ( ! empty( $search_term ) ) {
+            // Détecter le format "UGS : 010069" ou "SKU: 010069"
+            if ( preg_match('/^(UGS|SKU)\s*:?\s*(\w+)/i', $search_term, $matches) ) {
+                $sku_value = $matches[2];
+            } else {
+                $sku_value = $search_term;
+            }
+
             // Rechercher dans les meta_value des UGS
             $sku_posts = $wpdb->get_col( $wpdb->prepare( "
                 SELECT DISTINCT post_id 
                 FROM {$wpdb->postmeta} 
                 WHERE meta_key = '_sku' 
                 AND meta_value LIKE %s
-            ", '%' . $wpdb->esc_like( $search_term ) . '%' ) );
-            
+            ", '%' . $wpdb->esc_like( $sku_value ) . '%' ) );
+
             if ( ! empty( $sku_posts ) ) {
-                // Modifier la requête pour inclure les posts trouvés par UGS
                 $search_ids = implode( ',', array_map( 'absint', $sku_posts ) );
-                
-                // Ajouter les IDs des produits trouvés par UGS à la recherche
                 $search .= " OR {$wpdb->posts}.ID IN ({$search_ids})";
             }
         }
     }
-    
     return $search;
 }
 add_filter( 'posts_search', 'search_by_sku', 10, 2 );
