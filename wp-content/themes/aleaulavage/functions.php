@@ -1,3 +1,39 @@
+// Recherche fuzzy : tolère jusqu'à 2 fautes dans un mot du terme de recherche
+add_filter('posts_search', 'daz_fuzzy_search', 20, 2);
+function daz_fuzzy_search($search, $wp_query) {
+    if (is_admin() || !$wp_query->is_main_query() || !$wp_query->is_search()) return $search;
+
+    global $wpdb;
+    $search_term = $wp_query->get('s');
+    if (empty($search_term)) return $search;
+
+    // Si la recherche classique ne retourne rien, on tente une recherche fuzzy
+    $ids = array();
+    $products = get_posts([
+        'post_type' => 'product',
+        'posts_per_page' => -1,
+        'fields' => 'ids',
+        'suppress_filters' => true
+    ]);
+    $search_words = preg_split('/\s+/', $search_term);
+    foreach ($products as $pid) {
+        $title = get_the_title($pid);
+        foreach ($search_words as $word) {
+            $title_words = preg_split('/\s+/', $title);
+            foreach ($title_words as $tword) {
+                if (levenshtein(mb_strtolower($word), mb_strtolower($tword)) <= 2) {
+                    $ids[] = $pid;
+                    break 2;
+                }
+            }
+        }
+    }
+    if (!empty($ids)) {
+        $ids = array_unique($ids);
+        $search .= " OR {$wpdb->posts}.ID IN (" . implode(',', array_map('absint', $ids)) . ")";
+    }
+    return $search;
+}
 <?php
 // Laisser ELECX fonctionner normalement mais garder accès au prix original
 // pour notre logique JavaScript personnalisée
