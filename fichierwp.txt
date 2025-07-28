@@ -1,0 +1,162 @@
+<!-- wp:heading {"className":"container"} -->
+<h2 class="wp-block-heading container">Découvrez nos produits pour vos stations de lavage</h2>
+<!-- /wp:heading -->
+
+<!-- wp:woocommerce/product-collection {"queryId":0,"query":{"perPage":4,"pages":1,"offset":0,"postType":"product","order":"desc","orderBy":"date","search":"","exclude":[],"inherit":false,"taxQuery":[],"isProductCollectionBlock":true,"featured":true,"woocommerceOnSale":false,"woocommerceStockStatus":["instock","outofstock","onbackorder"],"woocommerceAttributes":[],"woocommerceHandPickedProducts":[],"filterable":false,"relatedBy":{"categories":true,"tags":true}},"tagName":"div","displayLayout":{"type":"flex","columns":5,"shrinkColumns":true},"dimensions":{"widthType":"fill"},"collection":"woocommerce/product-collection/featured","hideControls":["inherit","featured","filterable"],"queryContextIncludes":["collection"],"className":"container","__privatePreviewState":{"isPreview":false,"previewMessage":"Les produits dépendront de la page consultée."}} -->
+<div class="wp-block-woocommerce-product-collection container">
+<!-- wp:woocommerce/product-template -->
+<!-- wp:woocommerce/product-image {"imageSizing":"woocommerce_thumbnail","isDescendentOfQueryLoop":true} /-->
+<!-- wp:post-title {"textAlign":"center","isLink":true,"style":{"spacing":{"margin":{"bottom":"0.75rem","top":"0"}},"typography":{"lineHeight":"1.4"}},"fontSize":"small","__woocommerceNamespace":"woocommerce/product-collection/product-title"} /-->
+<!-- wp:woocommerce/product-price {"isDescendentOfQueryLoop":true,"textAlign":"center","fontSize":"small"} /-->
+<!-- wp:woocommerce/product-button {"textAlign":"center","isDescendentOfQueryLoop":true,"fontSize":"small"} /-->
+<!-- /wp:woocommerce/product-template -->
+</div>
+<!-- /wp:woocommerce/product-collection -->
+
+<!-- wp:columns {"align":"wide","className":"container"} -->
+<div class="wp-block-columns alignwide container"><!-- wp:column {"width":"50%"} -->
+<div class="wp-block-column" style="flex-basis:50%"><!-- wp:heading -->
+<h2 class="wp-block-heading">La boutique qui fournit les stations de lavage</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Une sélection de pièces sur mesure liée à notre expérience dans le lavage auto, nos pièces sont reconnues pour leur robustesse. Notre panel de produit vous permettra de moins vous prendre la tête et peut-être de réduire vos pannes de stations de lavage.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Aleaulavage est un fournisseur expert dans les stations de lavage automobile. Nous sommes des passionnés du secteur et spécialistes de la haute pression depuis plus de 30 ans.<br><br>Aleaulavage est la référence pour trouver des flexibles, pompes de relevage, clapets anti-retour, pompes Cat, et bien plus encore.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>L'entreprise s'adresse à tous les professionnels de la haute pression et du lavage automobile, avec l'engagement de proposer des pièces détachées de haute qualité, à la fois flexibles et durables.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button">Découvrez la boutique</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"50%"} -->
+<div class="wp-block-column" style="flex-basis:50%"><!-- wp:woocommerce/product-categories {"hasCount":false,"hasEmpty":true,"isDropdown":true,"isHierarchical":false} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:heading {"className":"container"} -->
+<h2 class="wp-block-heading container">Nos marques partenaires pour votre station de lavage</h2>
+<!-- /wp:heading -->
+
+<!-- wp:gallery {"linkTo":"none","className":"container"} -->
+<figure class="wp-block-gallery has-nested-images columns-default is-cropped container"><!-- wp:image {"id":1028,"sizeSlug":"full","linkDestination":"custom"} -->
+<figure class="wp-block-image size-full"><a href="https://aleaulavage.com/marque/burkert/"><img src="http://localhost:8000/wp-content/uploads/2022/10/image-10-1.png" alt="" class="wp-image-1028"/></a></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"lightbox":{"enabled":false},"id":1029,"sizeSlug":"full","linkDestination":"custom"} -->
+<figure class="wp-block-image size-full"><a href="https://www.catpumps.be/fr/"><img src="http://localhost:8000/wp-content/uploads/2022/10/image-11-1.png" alt="" class="wp-image-1029"/></a></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":1030,"sizeSlug":"full","linkDestination":"custom"} -->
+<figure class="wp-block-image size-full"><a href="https://aleaulavage.com/marque/tecomec/"><img src="http://localhost:8000/wp-content/uploads/2022/10/image-12-1.png" alt="" class="wp-image-1030"/></a></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":1031,"sizeSlug":"full","linkDestination":"custom"} -->
+<figure class="wp-block-image size-full" id="MTM"><a href="https://aleaulavage.com/etiquette-produit/mtm/"><img src="http://localhost:8000/wp-content/uploads/2022/10/image-13-1.png" alt="Logo-mtm" class="wp-image-1031" title="informatif"/></a></figure>
+<!-- /wp:image --></figure>
+<!-- /wp:gallery -->
+
+<!-- wp:group {"className":"bg-primary","layout":{"type":"constrained"}} -->
+<div class="wp-block-group bg-primary"><!-- wp:columns {"className":"bg-primary container skills"} -->
+<div class="wp-block-columns bg-primary container skills"><!-- wp:column {"verticalAlignment":"center"} -->
+<div class="wp-block-column is-vertically-aligned-center"><!-- wp:html -->
+<figure class="wp-block-image aligncenter size-full is-resized">
+<i data-lucide="lock" style="width: 28px; height: 28px; color: white;"></i>
+</figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">Paiement sécurisé‎<br>‎ </p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"verticalAlignment":"center"} -->
+<div class="wp-block-column is-vertically-aligned-center"><!-- wp:html -->
+<figure class="wp-block-image aligncenter size-full is-resized">
+<i data-lucide="phone" style="width: 28px; height: 28px; color: white;"></i>
+</figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">Assistance téléphonique<br>02 54 51 76 88</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"verticalAlignment":"center"} -->
+<div class="wp-block-column is-vertically-aligned-center"><!-- wp:html -->
+<figure class="wp-block-image aligncenter size-full is-resized">
+<i data-lucide="package" style="width: 28px; height: 28px; color: white;"></i>
+</figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">Livraison Offerte<br>dès 550 € d'achat</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"verticalAlignment":"center"} -->
+<div class="wp-block-column is-vertically-aligned-center"><!-- wp:html -->
+<figure class="wp-block-image aligncenter size-full is-resized">
+<i data-lucide="truck" style="width: 28px; height: 28px; color: white;"></i>
+</figure>
+<!-- /wp:html -->
+
+<!-- wp:paragraph {"align":"center"} -->
+<p class="has-text-align-center">Livraison sous 1 semaine maximum</p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns --></div>
+<!-- /wp:group -->
+
+<!-- wp:heading {"className":"container"} -->
+<h2 class="wp-block-heading container">Nos nouveautés du lavage haute pression</h2>
+<!-- /wp:heading -->
+
+<!-- wp:woocommerce/product-new {"rows":1,"className":"container"} /-->
+
+<!-- wp:heading {"className":"container"} -->
+<h2 class="wp-block-heading container">Un Approvisionnement Responsable, au Cœur de l'Europe</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph {"className":"container"} -->
+<p class="container">Chez Aleaulavage, nous nous engageons pleinement à limiter notre empreinte carbone en privilégiant un approvisionnement local. Nous faisons le choix de restreindre au maximum nos fournisseurs au cercle français ou européen, favorisant ainsi les circuits courts. Cette démarche écoresponsable nous permet non seulement de réduire les émissions liées au transport de marchandises, mais aussi de soutenir activement l'économie locale et les entreprises de proximité. En choisissant des partenaires locaux, nous garantissons également à nos clients des produits conformes aux normes européennes.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"className":"container"} -->
+<h2 class="wp-block-heading container">Prêt à vous accompagner dans votre projet</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><p class="container">Une équipe dédiée à vos projets, nous vous accompagnons dans le développement de votre station de lavage pour<a href="https://aleaulavage.com/comment-augmenter-les-revenus-dune-station-de-lavage/"> <strong>augmenter votre chiffre d'affaires</strong></a> et améliorer l'expérience de vos clients.</p>
+<p class="container">L'ensemble de notre catalogue n'est pas encore numérisé, n'hésite pas à nous contacter pour toutes pièces spécifiques. Dans les domaines de la haute pression, de la monétique ou des aires de services.</p>
+<p class="container">Disponibles du lundi au vendredi de <strong>8 h 30</strong> à <strong>18h</strong>.</p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"className":"container"} -->
+<h2 class="wp-block-heading container">Nos articles</h2>
+<!-- /wp:heading -->
+
+<!-- wp:columns {"className":"home-articles container"} -->
+<div class="wp-block-columns home-articles container"><!-- wp:column {"width":"50%"} -->
+<div class="wp-block-column" style="flex-basis:50%"><!-- wp:latest-posts {"displayPostDate":true,"className":"container"} /-->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button {"className":"btn-arrow"} -->
+<div class="wp-block-button btn-arrow"><a class="wp-block-button__link wp-element-button">Voir tout</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons --></div>
+<!-- /wp:column -->
+
+<!-- wp:column {"width":"50%"} -->
+<div class="wp-block-column" style="flex-basis:50%"></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->

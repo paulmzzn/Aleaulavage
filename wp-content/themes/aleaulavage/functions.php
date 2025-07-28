@@ -29,6 +29,114 @@ add_action('wp_enqueue_scripts', function() {
         filemtime(get_stylesheet_directory() . '/js/variation-price-sync.js'),
         true
     );
+    
+    // Chargement des icônes Lucide pour la section skills de la homepage
+    if (is_front_page()) {
+        wp_enqueue_script(
+            'lucide-icons',
+            'https://unpkg.com/lucide@latest/dist/umd/lucide.js',
+            array(),
+            null,
+            false // Charger dans le head pour que les icônes soient disponibles immédiatement
+        );
+        
+        // Script d'initialisation des icônes
+        wp_add_inline_script('lucide-icons', '
+            document.addEventListener("DOMContentLoaded", function() {
+                if (typeof lucide !== "undefined") {
+                    lucide.createIcons();
+                }
+            });
+        ');
+        
+        // Script pour faire fonctionner les boutons produits homepage comme single product
+        wp_add_inline_script('jquery', '
+            jQuery(document).ready(function($) {
+                // Attendre que WooCommerce soit chargé
+                $(document).on("wc_fragments_loaded wc_fragments_refreshed", function() {
+                    initHomepageCartButtons();
+                });
+                
+                // Initialiser immédiatement aussi
+                setTimeout(initHomepageCartButtons, 1000);
+                
+                function initHomepageCartButtons() {
+                    // Cibler tous les boutons "Ajouter au panier" de la section produits homepage
+                    $(".wp-block-woocommerce-product-collection .wc-block-components-product-button button").each(function() {
+                        var $btn = $(this);
+                        
+                        // Si ce n\'est pas déjà fait, modifier le comportement
+                        if (!$btn.data("homepage-cart-initialized")) {
+                            $btn.data("homepage-cart-initialized", true);
+                            
+                            // Intercepter le clic pour faire un vrai ajout AJAX
+                            $btn.on("click", function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                var $product = $btn.closest(".wc-block-product");
+                                var productId = $btn.data("product_id") || $product.find("[data-product-id]").data("product-id");
+                                
+                                if (!productId) {
+                                    // Essayer de récupérer l\'ID depuis l\'URL du bouton
+                                    var href = $btn.attr("href") || $product.find("a").first().attr("href");
+                                    if (href) {
+                                        var match = href.match(/product_id=(\d+)|\/product\/[^\/]+\/(\d+)/);
+                                        if (match) {
+                                            productId = match[1] || match[2];
+                                        }
+                                    }
+                                }
+                                
+                                if (productId) {
+                                    // Déclencher le loading
+                                    $(document.body).trigger("adding_to_cart", [$btn, {}]);
+                                    $("#offcanvas-cart").addClass("loading");
+                                    
+                                    // Faire l\'ajout AJAX réel
+                                    $.ajax({
+                                        url: wc_add_to_cart_params.wc_ajax_url.toString().replace("%%endpoint%%", "add_to_cart"),
+                                        method: "POST",
+                                        data: {
+                                            product_id: productId,
+                                            quantity: 1
+                                        },
+                                        success: function(response) {
+                                            if (response.fragments) {
+                                                // Mettre à jour les fragments
+                                                $.each(response.fragments, function(key, value) {
+                                                    $(key).replaceWith(value);
+                                                });
+                                                
+                                                // Déclencher les events de succès
+                                                $(document.body).trigger("added_to_cart", [response.fragments, response.cart_hash, $btn]);
+                                                $(document.body).trigger("wc_fragments_refreshed");
+                                            }
+                                            
+                                            // Le produit est ajouté au panier, l\'utilisateur peut ouvrir le mini cart manuellement
+                                            
+                                            // Mettre à jour le header
+                                            if (typeof updateCartTotalAndProgress === "function") {
+                                                updateCartTotalAndProgress();
+                                            }
+                                        },
+                                        error: function() {
+                                            console.log("Erreur lors de l\'ajout au panier");
+                                        },
+                                        complete: function() {
+                                            $("#offcanvas-cart").removeClass("loading");
+                                        }
+                                    });
+                                } else {
+                                    console.log("Product ID not found");
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        ');
+    }
 });
 
 /**
@@ -1634,3 +1742,39 @@ add_action('template_redirect', function() {
         }
     }
 });
+
+
+add_action('wp_head', function() {
+    if (!is_product()) return;
+
+    global $product;
+    if (!$product || !is_a($product, 'WC_Product')) {
+        $product = wc_get_product(get_the_ID());
+        if (!$product) return;
+    }
+
+    $data = [
+        "@context" => "https://schema.org/",
+        "@type" => "Product",
+        "name" => get_the_title(),
+        "image" => wp_get_attachment_url($product->get_image_id()),
+        "description" => wp_strip_all_tags($product->get_short_description() ?: get_the_excerpt() ?: get_the_content()),
+        "sku" => $product->get_sku(),
+        "brand" => [
+            "@type" => "Brand",
+            "name" => get_post_meta($product->get_id(), 'brand', true) ?: get_bloginfo('name')
+        ],
+        "offers" => [
+            "@type" => "Offer",
+            "url" => get_permalink(),
+            "priceCurrency" => get_woocommerce_currency(),
+            "price" => $product->get_price(),
+            "availability" => $product->is_in_stock() ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "itemCondition" => "https://schema.org/NewCondition",
+            "priceValidUntil" => date('Y-m-d', strtotime('+6 months'))
+        ]
+    ];
+
+    echo "\n<script type='application/ld+json'>" . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "</script>\n";
+}, 5);
+

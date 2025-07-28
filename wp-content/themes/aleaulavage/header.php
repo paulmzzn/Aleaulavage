@@ -28,6 +28,7 @@
 	<meta name="msapplication-TileColor" content="#ffffff">
 	<meta name="theme-color" content="#ffffff">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/css/custom-header.css?v=20250725">
+	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 	<script src="<?php echo get_stylesheet_directory_uri(); ?>/js/custom-header.js?v=20250725" defer></script>
 
 		<!-- Google tag (gtag.js) -->

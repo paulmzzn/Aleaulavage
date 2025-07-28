@@ -131,7 +131,6 @@ function createAttributeButtons(select, label, attrName, form) {
       cursor: pointer !important;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       outline: none !important;
-      white-space: nowrap !important;
       min-height: 44px !important;
       min-width: 60px !important;
       display: flex !important;

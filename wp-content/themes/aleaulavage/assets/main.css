@@ -958,14 +958,14 @@ img {
   z-index: 2;
 }
 .card .add-to-cart-button:hover {
-  background-color: #1c2945;
+  background-color: rgb(27.527027027, 40.6351351351, 69.472972973);
   transform: translateY(-2px) scale(1.05);
 }
 .card .add-to-cart-button i {
   font-size: 1rem;
 }
 .card:hover .add-to-cart-button {
-  background-color: #1c2945;
+  background-color: rgb(27.527027027, 40.6351351351, 69.472972973);
 }
 .card .added_to_cart.wc-forward {
   display: none !important;

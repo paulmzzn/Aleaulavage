@@ -376,6 +376,12 @@
 .woocommerce .variations .attribute-buttons .attribute-button,
 .attribute-buttons .attribute-button,
 button.attribute-button {
+  max-width: 100% !important;
+  width: 100% !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  text-align: left !important;
   padding: 10px 18px !important;
   border: 2px solid #e3e5e8 !important;
   border-radius: 8px !important;
@@ -386,17 +392,12 @@ button.attribute-button {
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   outline: none !important;
-  white-space: nowrap !important;
-  min-height: 42px !important;
-  min-width: 60px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06) !important;
-  text-transform: capitalize !important;
-  letter-spacing: 0.3px !important;
-  text-decoration: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px; /* adapte selon le design */
+  padding: 8px 12px;
+  line-height: 1.2;
 }
 
 .woocommerce .variations .attribute-buttons .attribute-button:hover,

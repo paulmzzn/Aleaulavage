@@ -48,3 +48,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+// Supprime le style white-space: nowrap !important sur les boutons d'option
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.attribute-button').forEach(function(btn) {
+        if (btn.style.whiteSpace === 'nowrap') {
+            btn.style.whiteSpace = '';
+        }
+    });
+});

@@ -16,6 +16,27 @@ Text Domain: aleaulavage
 
 /* From http://codex.wordpress.org/CSS */
 
+/* CSS global pour restaurer le padding du footer sur toutes les pages */
+footer,
+.footer,
+#footer,
+.site-footer {
+  margin-top: 3rem !important;
+  padding-top: 3rem !important;
+}
+
+/* Restaurer le padding normal de .pt-5 sur toutes les pages */
+.pt-5 {
+  padding-top: 3rem !important;
+}
+
+/* Exception pour la page panier sur mobile seulement */
+@media (max-width: 768px) {
+  body.woocommerce-cart .pt-5 {
+    padding-top: 0 !important;
+  }
+}
+
 .alignnone {
 	margin: 5px 20px 20px 0;
 }

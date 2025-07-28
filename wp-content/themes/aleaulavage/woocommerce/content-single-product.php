@@ -372,58 +372,102 @@ if ( post_password_required() ) {
       
       <!-- LIVRAISON (infos principales uniquement) -->
       <div class="livraison-card">
-        <h2>
-          <i class="fa fa-truck"></i> Livraison
-          <span class="info-icon" tabindex="0" aria-label="Informations livraison" style="margin-left:6px;cursor:pointer;position:relative;display:inline-block;">
-            <i class="fa fa-info-circle"></i>
-            <span class="info-tooltip" style="display:none;position:absolute;left:50%;transform:translateX(-50%);top:120%;background:#fff;color:#222;padding:10px 16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-size:14px;white-space:nowrap;z-index:1001;min-width:220px;">
-              <strong>19&nbsp;€</strong> : France métropolitaine<br>
-              <strong>45&nbsp;€</strong> : Corse
-            </span>
-          </span>
-          <span class="fee">19,00 €</span>
-        </h2>
         <?php
-          $now = new DateTime('now', wp_timezone());
-          $weekday = (int)$now->format('w'); // 0=dimanche, 6=samedi
-          $add_days = 0;
-          if ($weekday === 6) { // samedi
-            $add_days = 2;
-          } elseif ($weekday === 0) { // dimanche
-            $add_days = 1;
-          }
-          $date1 = clone $now;
-          $date1->modify('+' . (1 + $add_days) . ' day');
-          $date3 = clone $now;
-          $date3->modify('+' . (3 + $add_days) . ' day');
-          $mois = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-          $jour1 = $date1->format('j') . ' ' . $mois[(int)$date1->format('n')];
-          $jour3 = $date3->format('j') . ' ' . $mois[(int)$date3->format('n')];
+        // Vérifier si le produit est dans la catégorie "peripheriques"
+        $is_peripherique = false;
+        $periph_term = get_term_by('slug', 'peripheriques', 'product_cat');
+        if ($periph_term && has_term($periph_term->term_id, 'product_cat', $product->get_id())) {
+            $is_peripherique = true;
+        }
         ?>
-        <p>Entre le <?php echo $jour1; ?> – <?php echo $jour3; ?></p>
-        <p>Commandez avant 16h30</p>
-      <script>
-      // Affichage du tooltip info livraison
-      (function() {
-        var info = document.querySelector('.info-icon');
-        if (!info) return;
-        var tooltip = info.querySelector('.info-tooltip');
-        function show() { tooltip.style.display = 'block'; }
-        function hide() { tooltip.style.display = 'none'; }
-        info.addEventListener('mouseenter', show);
-        info.addEventListener('mouseleave', hide);
-        info.addEventListener('focus', show);
-        info.addEventListener('blur', hide);
-        // Pour mobile : toggle au clic
-        info.addEventListener('click', function(e) {
-          e.stopPropagation();
-          tooltip.style.display = (tooltip.style.display === 'block') ? 'none' : 'block';
-        });
-        document.addEventListener('click', function(e) {
-          if (!info.contains(e.target)) hide();
-        });
-      })();
-      </script>
+        <?php if ($is_peripherique): ?>
+      <h2>
+        <i class="fa fa-truck"></i> Livraison
+        <span class="info-icon" tabindex="0" aria-label="Informations livraison" style="margin-left:6px;cursor:pointer;position:relative;display:inline-block;">
+          <i class="fa fa-info-circle"></i>
+          <span class="info-tooltip" style="display:none;position:absolute;left:50%;transform:translateX(-50%);top:120%;background:#fff;color:#222;padding:10px 16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-size:14px;white-space:normal;z-index:1001;min-width:220px;">
+            <span>La date de livraison est varible selon vos besoins.</span><br>
+          </span>
+        </span>
+        <span class="fee" style="color:#222;font-weight:600;">Sur devis</span>
+      </h2>
+      <p style="font-size:15px;color:#222;margin-bottom:8px;">Pour toute demande ou précision, contactez-nous au <a href="tel:0254517688" style="color:#2A3E6A;font-size:1.1em;text-decoration:underline;">02 54 51 76 88</a></p>
+            <p style="font-size:14px;color:#6c757d;">Un conseiller vous proposera une solution adaptée et un délai personnalisé.</p>
+            <script>
+            // Affichage du tooltip info livraison pour peripheriques
+            (function() {
+              var info = document.querySelector('.info-icon');
+              if (!info) return;
+              var tooltip = info.querySelector('.info-tooltip');
+              function show() { tooltip.style.display = 'block'; }
+              function hide() { tooltip.style.display = 'none'; }
+              info.addEventListener('mouseenter', show);
+              info.addEventListener('mouseleave', hide);
+              info.addEventListener('focus', show);
+              info.addEventListener('blur', hide);
+              info.addEventListener('click', function(e) {
+                e.stopPropagation();
+                tooltip.style.display = (tooltip.style.display === 'block') ? 'none' : 'block';
+              });
+              document.addEventListener('click', function(e) {
+                if (!info.contains(e.target)) hide();
+              });
+            })();
+            </script>
+        <?php else: ?>
+            <h2>
+              <i class="fa fa-truck"></i> Livraison
+              <span class="info-icon" tabindex="0" aria-label="Informations livraison" style="margin-left:6px;cursor:pointer;position:relative;display:inline-block;">
+                <i class="fa fa-info-circle"></i>
+                <span class="info-tooltip" style="display:none;position:absolute;left:50%;transform:translateX(-50%);top:120%;background:#fff;color:#222;padding:10px 16px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.12);font-size:14px;white-space:nowrap;z-index:1001;min-width:220px;">
+                  <strong>19&nbsp;€</strong> : France métropolitaine<br>
+                  <strong>45&nbsp;€</strong> : Corse
+                </span>
+              </span>
+              <span class="fee">19,00 €</span>
+            </h2>
+            <?php
+              $now = new DateTime('now', wp_timezone());
+              $weekday = (int)$now->format('w'); // 0=dimanche, 6=samedi
+              $add_days = 0;
+              if ($weekday === 6) { // samedi
+                $add_days = 2;
+              } elseif ($weekday === 0) { // dimanche
+                $add_days = 1;
+              }
+              $date1 = clone $now;
+              $date1->modify('+' . (1 + $add_days) . ' day');
+              $date3 = clone $now;
+              $date3->modify('+' . (3 + $add_days) . ' day');
+              $mois = [1=>'janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+              $jour1 = $date1->format('j') . ' ' . $mois[(int)$date1->format('n')];
+              $jour3 = $date3->format('j') . ' ' . $mois[(int)$date3->format('n')];
+            ?>
+            <p>Entre le <?php echo $jour1; ?> – <?php echo $jour3; ?></p>
+            <p>Commandez avant 16h30</p>
+            <script>
+            // Affichage du tooltip info livraison
+            (function() {
+              var info = document.querySelector('.info-icon');
+              if (!info) return;
+              var tooltip = info.querySelector('.info-tooltip');
+              function show() { tooltip.style.display = 'block'; }
+              function hide() { tooltip.style.display = 'none'; }
+              info.addEventListener('mouseenter', show);
+              info.addEventListener('mouseleave', hide);
+              info.addEventListener('focus', show);
+              info.addEventListener('blur', hide);
+              // Pour mobile : toggle au clic
+              info.addEventListener('click', function(e) {
+                e.stopPropagation();
+                tooltip.style.display = (tooltip.style.display === 'block') ? 'none' : 'block';
+              });
+              document.addEventListener('click', function(e) {
+                if (!info.contains(e.target)) hide();
+              });
+            })();
+            </script>
+        <?php endif; ?>
       </div>
 
       <!-- ACCORDÉON DESCRIPTION & INFOS COMPLÉMENTAIRES -->
