@@ -21,14 +21,6 @@ add_action('wp_enqueue_scripts', function() {
         filemtime(get_stylesheet_directory() . '/js/variation-color-swatches.js'),
         true
     );
-    // Sync variation price with header price
-    wp_enqueue_script(
-        'variation-price-sync',
-        get_stylesheet_directory_uri() . '/js/variation-price-sync.js',
-        array(),
-        filemtime(get_stylesheet_directory() . '/js/variation-price-sync.js'),
-        true
-    );
     
     // Chargement des icônes Lucide pour la section skills de la homepage
     if (is_front_page()) {
@@ -1270,7 +1262,14 @@ function handle_update_cart_ajax() {
 
         error_log("DEBUG: Before JSON response");
         
-        // Test simple d'abord
+        // Ajout des prix unitaires pour chaque item du panier
+        $items = array();
+        foreach (WC()->cart->get_cart() as $key => $item) {
+            $items[$key] = array(
+                'unit_price_html' => WC()->cart->get_product_price($item['data'])
+            );
+        }
+
         $response_data = array(
             'cart_totals' => array(
                 'subtotal' => wc_price($subtotal), // Montant HT uniquement
@@ -1282,6 +1281,7 @@ function handle_update_cart_ajax() {
             'progress' => $progress,
             'shipping_message' => $shipping_message,
             'item_subtotal' => $item_subtotal,
+            'items' => $items,
             'message' => 'Panier mis à jour'
         );
         
@@ -1777,4 +1777,42 @@ add_action('wp_head', function() {
 
     echo "\n<script type='application/ld+json'>" . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) . "</script>\n";
 }, 5);
+
+/**
+ * =====================================================
+ * OPTIMISATION PERFORMANCE SCRIPTS - PHASE 3
+ * =====================================================
+ * Améliore le temps de chargement avec scripts différés/asynchrones
+ * First Paint rapide et rendu HTML prioritaire
+ */
+
+// Inclure le système d'optimisation des scripts
+require_once get_template_directory() . '/script-optimization.php';
+
+// Personnalisations spécifiques au thème Aleaulavage
+add_action('init', function() {
+    // Scripts du thème à traiter en defer
+    force_script_defer('lucide-icons');
+    force_script_defer('variation-color-swatches');
+    force_script_defer('single-product-zoom');
+    
+    // Ajouter des scripts critiques spécifiques
+    add_filter('script_optimizer_critical_scripts', function($scripts) {
+        $scripts[] = 'custom-header';
+        $scripts[] = 'homepage-cart';
+        return $scripts;
+    });
+});
+
+// Debug pour développement (supprimer en production)
+if (WP_DEBUG && current_user_can('administrator')) {
+    add_action('wp_footer', function() {
+        if (isset($_GET['debug_perf'])) {
+            echo '<div style="position:fixed;top:0;right:0;background:#000;color:#fff;padding:10px;z-index:999999;font-size:12px;">';
+            echo 'Scripts optimisés: ✅<br>';
+            echo 'First Paint: ' . (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . 's';
+            echo '</div>';
+        }
+    });
+}
 

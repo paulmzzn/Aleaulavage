@@ -1,3 +1,33 @@
+<script>
+jQuery(function($) {
+  // Met à jour dynamiquement le prix unitaire affiché après chaque réponse AJAX du panier
+  function updateUnitPricesFromAjax(response) {
+    if (!response || !response.data || !response.data.items) return;
+    $.each(response.data.items, function(cartKey, item) {
+      if (item.unit_price_html) {
+        // Desktop
+        var $row = $('tr[data-cart-key="' + cartKey + '"]');
+        $row.find('.product-price').html(item.unit_price_html);
+        // Mobile
+        $row.find('.product-price-mobile .price-value').html(item.unit_price_html);
+      }
+    });
+  }
+
+  // Patch la fonction AJAX d'origine pour injecter la MAJ du prix unitaire
+  var oldAjax = $.ajax;
+  $.ajax = function(settings) {
+    if (settings && settings.data && settings.data.action === 'update_cart_ajax') {
+      var oldSuccess = settings.success;
+      settings.success = function(response) {
+        if (typeof oldSuccess === 'function') oldSuccess(response);
+        updateUnitPricesFromAjax(response);
+      };
+    }
+    return oldAjax.apply(this, arguments);
+  };
+});
+</script>
 <?php
 /**
  * Page Panier avec AJAX - Sans rechargement

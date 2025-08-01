@@ -80,9 +80,34 @@ if ( post_password_required() ) {
               ) ); 
             ?>
           </div>
-          <button type="submit" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>" class="single_add_to_cart_button button alt">
-            <i class="fa-solid fa-basket-shopping me-1"></i>Ajouter au panier
-          </button>
+      <button type="submit" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>" class="single_add_to_cart_button button alt">
+      <i class="fa-solid fa-basket-shopping me-1"></i>Ajouter au panier
+      </button>
+
+      <!-- Tableau règles de prix ADP sous le bouton -->
+      <div class="adp-bulk-table-wrapper" style="margin:12px 0 0 0;">
+        <?php echo do_shortcode('[adp_product_bulk_rules_table]'); ?>
+      </div>
+      <style>
+        /* Rendre le tableau ADP plus large et fluide */
+        .adp-bulk-table-wrapper table {
+          width: 100% !important;
+          min-width: 320px;
+          max-width: 100%;
+          margin: 0 !important;
+        }
+        .adp-bulk-table-wrapper th, .adp-bulk-table-wrapper td {
+          padding: 5px 12px !important;
+          font-size: 15px !important;
+        }
+        .adp-bulk-table-wrapper thead th {
+          background: #f5f5f5 !important;
+        }
+        .adp-bulk-table-wrapper tr {
+          background: #fff !important;
+        }
+      </style>
+      <script src="<?php echo get_template_directory_uri(); ?>/js/adp-bulk-price-sync.js"></script>
 
         </form>
       <?php endif; ?>
