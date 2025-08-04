@@ -141,6 +141,24 @@ if ( is_readable( $theme_customizer ) ) {
 	require_once $theme_customizer;
 }
 
+// Ajout d'une section bandeau promo dans le Customizer
+add_action('customize_register', function($wp_customize) {
+    $wp_customize->add_section('promo_banner_section', [
+        'title' => __('Bandeau promotion', 'aleaulavage'),
+        'priority' => 10,
+    ]);
+    $wp_customize->add_setting('promo_banner_message', [
+        'default' => '',
+        'sanitize_callback' => 'wp_kses_post',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('promo_banner_message', [
+        'label' => __('Message du bandeau', 'aleaulavage'),
+        'section' => 'promo_banner_section',
+        'type' => 'textarea',
+    ]);
+});
+
 // WooCommerce
 require get_template_directory() . '/woocommerce/woocommerce-functions.php';
 // WooCommerce END
@@ -1815,4 +1833,600 @@ if (WP_DEBUG && current_user_can('administrator')) {
         }
     });
 }
+
+/**
+ * =====================================================
+ * SYSTÈME DE BULLES PROMO - ADVANCED DYNAMIC PRICING
+ * =====================================================
+ */
+
+// Hook pour les blocks WooCommerce (page d'accueil) - DESACTIVE
+// add_filter('render_block', 'add_promo_bubble_to_blocks', 999, 2);
+
+// Approche JavaScript pour ajouter les bulles
+add_action('wp_footer', 'add_promo_bubbles_javascript');
+
+function add_promo_bubbles_javascript() {
+    if (!is_front_page()) {
+        return;
+    }
+    
+    // Récupérer les données de promotion pour tous les produits visibles
+    $product_promo_data = [];
+    
+    // Chercher tous les produits sur la page
+    global $wpdb;
+    $featured_products = $wpdb->get_results("
+        SELECT p.ID 
+        FROM {$wpdb->posts} p 
+        INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id 
+        INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id 
+        INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id 
+        WHERE p.post_type = 'product' 
+        AND p.post_status = 'publish' 
+        AND t.slug = 'featured'
+        LIMIT 10
+    ");
+    
+    foreach ($featured_products as $product_row) {
+        $product = wc_get_product($product_row->ID);
+        if ($product) {
+            $promo_data = calculate_product_promotion($product);
+            if ($promo_data['has_promo']) {
+                $product_promo_data[$product_row->ID] = [
+                    'has_promo' => $promo_data['has_promo'],
+                    'discount_percent' => $promo_data['discount_percent'],
+                    'is_quantity_based' => $promo_data['is_quantity_based'],
+                    'regular_price' => floatval($product->get_regular_price()),
+                    'lowest_price' => $promo_data['lowest_price'],
+                    'type' => $promo_data['type']
+                ];
+            }
+        }
+    }
+    
+    if (empty($product_promo_data)) {
+        return;
+    }
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Adding promo bubbles...');
+        
+        const promoData = <?php echo json_encode($product_promo_data); ?>;
+        console.log('Promo data:', promoData);
+        
+        
+        // Chercher tous les produits sur la page
+        const productItems = document.querySelectorAll('[data-wp-context*="productId"]');
+        console.log('Found product items:', productItems.length);
+        
+        productItems.forEach(function(item) {
+            // Extraire l'ID du produit depuis data-wp-context
+            const contextData = item.getAttribute('data-wp-context');
+            console.log('Context data:', contextData);
+            const match = contextData.match(/"productId":(\d+)/);
+            
+            if (match) {
+                const productId = match[1];
+                console.log('Product ID found:', productId);
+                
+                if (promoData[productId]) {
+                    console.log('Promo data for product', productId, ':', promoData[productId]);
+                    const data = promoData[productId];
+                    const bubbleText = data.is_quantity_based ? 
+                        'jusqu\'à -' + data.discount_percent + '%' : 
+                        '-' + data.discount_percent + '%';
+                    
+                    // Créer la bulle
+                    const bubble = document.createElement('span');
+                    bubble.className = 'promo-bubble';
+                    bubble.textContent = bubbleText;
+                    
+                    // Chercher le conteneur d'image
+                    const imageContainer = item.querySelector('.wc-block-components-product-image');
+                    if (imageContainer) {
+                        imageContainer.style.position = 'relative';
+                        imageContainer.appendChild(bubble);
+                        console.log('Bubble added for product ' + productId);
+                    }
+                    
+                    // Ajouter le badge "Promo" s'il n'existe pas déjà
+                    let existingBadge = item.querySelector('.wc-block-components-product-sale-badge');
+                    if (!existingBadge && imageContainer) {
+                        const promoBadge = document.createElement('div');
+                        promoBadge.className = 'wc-block-components-product-sale-badge alignright wc-block-components-product-sale-badge--align-right';
+                        promoBadge.innerHTML = '<span class="wc-block-components-product-sale-badge__text" aria-hidden="true">Promo</span><span class="screen-reader-text">Produit en promotion</span>';
+                        
+                        // Insérer le badge dans le conteneur d'image, pas sur l'image elle-même
+                        imageContainer.appendChild(promoBadge);
+                        console.log('Promo badge added for product ' + productId);
+                    }
+                    
+                    // Modifier l'affichage du prix pour toutes les promotions
+                    if (data.has_promo) {
+                        // Essayer plusieurs sélecteurs pour trouver le prix
+                        let priceContainer = item.querySelector('.wc-block-components-product-price');
+                        
+                        console.log('Price container found:', !!priceContainer, priceContainer);
+                        console.log('Current price HTML:', priceContainer ? priceContainer.innerHTML : 'N/A');
+                        
+                        if (priceContainer) {
+                            // Formater les prix en euros
+                            const regularPriceFormatted = data.regular_price.toFixed(2).replace('.', ',') + '\u00A0€';
+                            const lowestPriceFormatted = data.lowest_price.toFixed(2).replace('.', ',') + '\u00A0€';
+                            
+                            console.log('Regular price:', regularPriceFormatted);
+                            console.log('Lowest price:', lowestPriceFormatted);
+                            
+                            // Créer le nouveau HTML de prix dans le bon format
+                            let newPriceHtml;
+                            if (data.is_quantity_based) {
+                                // Pour les promos par quantité : "À partir de"
+                                newPriceHtml = '<span class="woocommerce-Price-amount amount promo-price-vertical">' +
+                                             '<del style="color:#999;text-decoration:line-through;">' + regularPriceFormatted + '</del>' +
+                                             '<span style="color:#5899E2;font-weight:bold;">À partir de ' + lowestPriceFormatted + '</span>' +
+                                             '</span>';
+                            } else {
+                                // Pour les promos fixes : format standard avec prix barré
+                                newPriceHtml = '<span class="woocommerce-Price-amount amount promo-price-vertical">' +
+                                             '<del style="color:#999;text-decoration:line-through;">' + regularPriceFormatted + '</del>' +
+                                             '<span style="color:#5899E2;font-weight:bold;">' + lowestPriceFormatted + '</span>' +
+                                             '</span>';
+                            }
+                            
+                            console.log('New price HTML:', newPriceHtml);
+                            priceContainer.innerHTML = newPriceHtml;
+                            console.log('Price updated for product ' + productId);
+                        } else {
+                            console.log('No price container found for product ' + productId);
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+    <?php
+}
+
+
+// Modifier l'affichage des prix sur les pages produit
+add_filter('woocommerce_get_price_html', 'modify_single_product_price_display', 10, 2);
+
+function modify_single_product_price_display($price_html, $product) {
+    // Seulement sur les pages produit individuelles
+    if (!is_product()) {
+        return $price_html;
+    }
+    
+    $promo_data = calculate_product_promotion($product);
+    
+    // Si il y a une promotion, modifier l'affichage (seulement pour les promotions fixes, pas quantity-based)
+    if ($promo_data['has_promo'] && $promo_data['type'] === 'adp' && !$promo_data['is_quantity_based']) {
+        $regular_price = floatval($product->get_regular_price());
+        $lowest_price = $promo_data['lowest_price'];
+        
+        // Formater les prix
+        $regular_price_formatted = wc_price($regular_price);
+        $lowest_price_formatted = wc_price($lowest_price);
+        
+        // Format simple pour les promotions fixes
+        $regular_price_simple = number_format($regular_price, 2, ',', '') . '&nbsp;€';
+        $lowest_price_simple = number_format($lowest_price, 2, ',', '') . '&nbsp;€';
+        
+        $price_html = '<span class="price">' .
+                     '<del style="color:#999;text-decoration:line-through;">' . $regular_price_simple . '</del> ' .
+                     '<span style="color:#5899E2;font-weight:bold;">' . $lowest_price_simple . '</span>' .
+                     '</span>';
+    }
+    
+    return $price_html;
+}
+
+// JavaScript pour les pages produit individuelles
+add_action('wp_footer', 'add_promo_bubble_single_product_js');
+
+function add_promo_bubble_single_product_js() {
+    if (!is_product()) {
+        return;
+    }
+    
+    global $product;
+    if (!$product) {
+        return;
+    }
+    
+    $promo_data = calculate_product_promotion($product);
+    
+    if (!$promo_data['has_promo']) {
+        return;
+    }
+    
+    $product_id = $product->get_id();
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Adding single product promo bubble...');
+        
+        const promoData = {
+            discount_percent: <?php echo $promo_data['discount_percent']; ?>,
+            is_quantity_based: <?php echo $promo_data['is_quantity_based'] ? 'true' : 'false'; ?>
+        };
+        
+        // Créer la bulle
+        const bubble = document.createElement('span');
+        bubble.className = promoData.is_quantity_based ? 'promo-bubble-single promo-bubble-quantity' : 'promo-bubble-single';
+        
+        // Forcer les styles inline pour s'assurer de l'affichage sur mobile
+        bubble.style.cssText = 'position: absolute !important; background-color: #5899E2 !important; color: white !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; font-weight: bold !important; z-index: 9999 !important; box-shadow: 0 3px 6px rgba(0,0,0,0.3) !important; line-height: 1.1 !important; text-align: center !important; visibility: visible !important; opacity: 1 !important;';
+        
+        if (promoData.is_quantity_based) {
+            // Pour les bulles "jusqu'à", utiliser HTML avec saut de ligne
+            bubble.innerHTML = 'jusqu\'à<br>-' + promoData.discount_percent + '%';
+            bubble.style.cssText += 'top: 15px !important; left: 15px !important; width: 70px !important; height: 70px !important; font-size: 11.39px !important; padding: 2px !important;';
+        } else {
+            // Pour les bulles simples, texte normal
+            bubble.textContent = '-' + promoData.discount_percent + '%';
+            bubble.style.cssText += 'top: 15px !important; left: 15px !important; width: 60px !important; height: 60px !important; font-size: 13.92px !important;';
+        }
+        
+        // Chercher le conteneur d'image principal du produit
+        const imageContainers = [
+            '.woocommerce-product-gallery__wrapper',
+            '.woocommerce-product-gallery',
+            '.product-gallery',
+            '.single-product-main-image',
+            '.wp-post-image'
+        ];
+        
+        let imageContainer = null;
+        for (let selector of imageContainers) {
+            imageContainer = document.querySelector(selector);
+            if (imageContainer) {
+                console.log('Image container found with selector:', selector);
+                break;
+            }
+        }
+        
+        // Essayer d'abord .product-gallery mais sans casser le slide
+        let productGallery = document.querySelector('.product-gallery');
+        if (productGallery) {
+            // Sauvegarder la position originale
+            const originalPosition = getComputedStyle(productGallery).position;
+            if (originalPosition === 'static') {
+                productGallery.style.position = 'relative';
+            }
+            productGallery.appendChild(bubble);
+            console.log('Single product bubble added to .product-gallery for product <?php echo $product_id; ?>');
+        } else if (imageContainer) {
+            imageContainer.style.position = 'relative';
+            imageContainer.appendChild(bubble);
+            console.log('Single product bubble added to image container for product <?php echo $product_id; ?>');
+        } else {
+            console.log('No container found for single product');
+        }
+    });
+    </script>
+    <?php
+}
+
+// Fonction utilitaire pour récupérer l'ID produit depuis le contexte du block
+function get_product_id_from_block_context($block) {
+    // Essayer différentes méthodes pour obtenir l'ID du produit
+    if (isset($block['attrs']['context']['productId'])) {
+        return $block['attrs']['context']['productId'];
+    }
+    
+    if (isset($GLOBALS['wc_product_collection_current_product'])) {
+        return $GLOBALS['wc_product_collection_current_product']->get_id();
+    }
+    
+    // Essayer de l'extraire du contexte wp-context
+    global $wp_query;
+    if (isset($wp_query->post->ID)) {
+        return $wp_query->post->ID;
+    }
+    
+    return null;
+}
+
+// Fonction principale pour calculer les promotions
+function calculate_product_promotion($product) {
+    $product_id = $product->get_id();
+    $regular_price = floatval($product->get_regular_price());
+    $sale_price = $product->get_sale_price();
+    
+    $result = [
+        'has_promo' => false,
+        'discount_percent' => 0,
+        'lowest_price' => $regular_price,
+        'is_quantity_based' => false,
+        'type' => 'none'
+    ];
+    
+    if (empty($regular_price)) {
+        return $result;
+    }
+    
+    $lowest_price = null;
+    
+    // 1. Vérifier les promotions WooCommerce standard
+    if ($product->is_on_sale() && !empty($sale_price)) {
+        $sale_price_float = floatval($sale_price);
+        if ($sale_price_float < $regular_price) {
+            $lowest_price = $sale_price_float;
+            $result['type'] = 'woocommerce';
+        }
+    }
+    
+    // 2. Vérifier les promotions Advanced Dynamic Pricing
+    if (function_exists('adp_functions')) {
+        $adp_price = get_adp_lowest_price($product_id);
+        if ($adp_price && $adp_price < $regular_price) {
+            // Si ADP donne un prix plus bas, l'utiliser
+            if (!$lowest_price || $adp_price < $lowest_price) {
+                $lowest_price = $adp_price;
+                $result['type'] = 'adp';
+                $result['is_quantity_based'] = is_quantity_based_discount($product_id);
+            }
+        }
+    }
+    
+    // 3. Calculer le résultat final
+    if ($lowest_price && $lowest_price < $regular_price) {
+        $result['has_promo'] = true;
+        $result['lowest_price'] = $lowest_price;
+        $result['discount_percent'] = round((($regular_price - $lowest_price) / $regular_price) * 100);
+    }
+    
+    return $result;
+}
+
+// Fonction pour obtenir le prix le plus bas avec ADP
+function get_adp_lowest_price($product_id) {
+    if (!function_exists('adp_functions')) {
+        return null;
+    }
+    
+    $product = wc_get_product($product_id);
+    if (!$product) {
+        return null;
+    }
+    
+    // Tester différentes quantités pour trouver le prix le plus bas
+    $quantities_to_test = [1, 2, 5, 10, 25, 50, 100, 150, 200, 300, 500, 1000];
+    $lowest_price = null;
+    
+    foreach ($quantities_to_test as $qty) {
+        try {
+            $calculated_product = adp_functions()->calculateProduct($product, $qty, true);
+            
+            if ($calculated_product && method_exists($calculated_product, 'getPrice')) {
+                $price = $calculated_product->getPrice();
+                if ($price && (!$lowest_price || $price < $lowest_price)) {
+                    $lowest_price = $price;
+                }
+            }
+        } catch (Exception $e) {
+            // Ignorer les erreurs et continuer
+            continue;
+        }
+    }
+    
+    return $lowest_price;
+}
+
+// Fonction pour détecter si c'est une remise basée sur la quantité
+function is_quantity_based_discount($product_id) {
+    if (!function_exists('adp_functions')) {
+        return false;
+    }
+    
+    $product = wc_get_product($product_id);
+    if (!$product) {
+        return false;
+    }
+    
+    // Comparer les prix pour différentes quantités
+    $prices = [];
+    $quantities_to_test = [1, 2, 5, 10, 50, 100, 200, 500];
+    
+    foreach ($quantities_to_test as $qty) {
+        try {
+            $calculated_product = adp_functions()->calculateProduct($product, $qty, true);
+            
+            if ($calculated_product && method_exists($calculated_product, 'getPrice')) {
+                $price = $calculated_product->getPrice();
+                if ($price) {
+                    $prices[] = round($price, 2);
+                }
+            }
+        } catch (Exception $e) {
+            continue;
+        }
+    }
+    
+    // Si les prix varient, c'est basé sur la quantité
+    return count(array_unique($prices)) > 1;
+}
+
+// Fonction pour générer le HTML de la bulle
+function generate_promo_bubble($promo_data, $context = 'homepage') {
+    if (!$promo_data['has_promo']) {
+        return '';
+    }
+    
+    $discount_percent = $promo_data['discount_percent'];
+    $is_quantity_based = $promo_data['is_quantity_based'];
+    
+    // Texte de la bulle
+    if ($is_quantity_based) {
+        $bubble_text = 'jusqu\'à -' . $discount_percent . '%';
+    } else {
+        $bubble_text = '-' . $discount_percent . '%';
+    }
+    
+    // Classes CSS selon le contexte
+    $css_class = $context === 'single' ? 'promo-bubble-single' : 'promo-bubble';
+    
+    return '<span class="' . $css_class . '">' . $bubble_text . '</span>';
+}
+
+// CSS pour les bulles
+add_action('wp_head', function() {
+    echo '<style>
+        /* Bulle promo page d\'accueil */
+        .promo-price-container {
+            position: relative;
+        }
+        
+        /* S\'assurer que le conteneur d\'image est positionné relativement */
+        .wc-block-components-product-image {
+            position: relative !important;
+        }
+        
+        /* Style pour l affichage vertical des prix promo uniquement */
+        .wc-block-components-product-price .promo-price-vertical {
+            display: block !important;
+            text-align: center;
+        }
+        
+        .wc-block-components-product-price .promo-price-vertical del {
+            display: block !important;
+            margin-bottom: 2px;
+            font-size: 0.9em;
+        }
+        
+        .wc-block-components-product-price .promo-price-vertical span[style*="color:#5899E2"] {
+            display: block !important;
+            font-size: 1em;
+        }
+        
+        /* Badge promo positionné correctement */
+        .wc-block-components-product-image .wc-block-components-product-sale-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+        
+        .promo-bubble {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #5899E2;
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 100;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            line-height: 1.1;
+            text-align: center;
+        }
+        
+        
+        /* Bulle promo page produit - en haut a gauche */
+        .promo-bubble-single {
+            position: absolute !important;
+            top: 15px !important;
+            left: 15px !important;
+            background-color: #5899E2 !important;
+            color: white !important;
+            border-radius: 50% !important;
+            width: 60px !important;
+            height: 60px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 13.92px !important;
+            font-weight: bold !important;
+            z-index: 9999 !important;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3) !important;
+            line-height: 1.1 !important;
+            text-align: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Bulle specifique pour "jusqu a" - 2 lignes */
+        .promo-bubble-single.promo-bubble-quantity {
+            left: 15px !important;
+            width: 70px !important;
+            height: 70px !important;
+            font-size: 11.39px !important;
+            line-height: 1.1 !important;
+            padding: 2px !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .promo-bubble {
+                width: 45px;
+                height: 45px;
+                font-size: 10px;
+                top: 8px;
+                left: 8px;
+            }
+            
+            .promo-bubble-single {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 12.65px !important;
+                top: 10px !important;
+                left: 10px !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 9999 !important;
+            }
+            
+            .promo-bubble-single.promo-bubble-quantity {
+                left: 10px !important;
+                width: 60px !important;
+                height: 60px !important;
+                font-size: 10.12px !important;
+                line-height: 1.1 !important;
+                padding: 2px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .promo-bubble {
+                width: 40px;
+                height: 40px;
+                font-size: 9px;
+                top: 6px;
+                left: 6px;
+            }
+            
+            .promo-bubble-single {
+                width: 45px !important;
+                height: 45px !important;
+                font-size: 11.39px !important;
+                top: 8px !important;
+                left: 8px !important;
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                z-index: 9999 !important;
+            }
+            
+            .promo-bubble-single.promo-bubble-quantity {
+                left: 8px !important;
+                width: 55px !important;
+                height: 55px !important;
+                font-size: 8.86px !important;
+                line-height: 1.1 !important;
+                padding: 1px !important;
+            }
+        }
+    </style>';
+});
 

@@ -23,13 +23,6 @@ if (!defined('ABSPATH')) {
 global $post, $product;
 
 ?>
-<?php //if ($product->is_on_sale()) : ?>
-
-	<?php //echo apply_filters('woocommerce_sale_flash', '<span class="badge bg-danger sale">%</span>', $post, $product); ?>
-<?php //endif; ?>
-
-<?php if ($product->is_on_sale()) {
-	return '';
-}
-
-/* Omit closing PHP tag at the end of PHP files to avoid "headers already sent" issues. */
+<?php
+// La bulle promo est gérée par la fonction add_promo_bubble_to_single_product() dans functions.php
+// Ce fichier reste vide pour éviter les conflits

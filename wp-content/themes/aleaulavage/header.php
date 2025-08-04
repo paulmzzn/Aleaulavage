@@ -1,3 +1,6 @@
+<?php
+$promo_banner = get_theme_mod('promo_banner_message');
+?>
 <!DOCTYPE html>
 <!-- Hotjar Tracking Code for https://aleaulavage.com -->
 <script>
@@ -16,6 +19,18 @@
 <html <?php language_attributes(); ?>>
 
 <head>
+	<style>
+	.promo-banner {
+		background: #5899E2;
+		color: #fff;
+		text-align: center;
+		padding: 6px 0;
+		font-weight: 600;
+		font-size: 1rem;
+		position: relative;
+		z-index: 100;
+	}
+	</style>
 	<meta charset="<?php bloginfo('charset'); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="profile" href="https://gmpg.org/xfn/11">
@@ -30,6 +45,18 @@
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/css/custom-header.css?v=20250725">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 	<script src="<?php echo get_stylesheet_directory_uri(); ?>/js/custom-header.js?v=20250725" defer></script>
+
+	<?php if (!empty($promo_banner)) : ?>
+	<style>
+	body .site-header {
+		margin-top: 48px;
+	}
+	.promo-banner {
+		position: relative;
+		z-index: 100;
+	}
+	</style>
+	<?php endif; ?>
 
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=AW-10813983195"></script>
@@ -50,9 +77,14 @@
 
 	<?php wp_body_open(); ?>
 
+	<!-- Bandeau promo déplacé dans .fixed-top -->
+
 	<div id="page" class="site">
 		<header id="masthead" class="site-header">
 			<div class="fixed-top">
+				<?php if (!empty($promo_banner)) {
+					echo '<div class="promo-banner">' . wp_kses_post($promo_banner) . '</div>';
+				} ?>
 				<!-- Navbar principale -->
 				<nav id="nav-main" class="navbar main-navbar outline-gray box-shadow-gray bg-white">
 					<div class="container">

@@ -16,8 +16,8 @@ if (!defined('DISABLE_ASYNC_OPTIMIZATION')) {
     define('DISABLE_ASYNC_OPTIMIZATION', false);
 }
 
-// Éviter l'exécution si désactivé
-if (DISABLE_ASYNC_OPTIMIZATION) {
+// Éviter l'exécution si désactivé ou si on est dans l'admin
+if (DISABLE_ASYNC_OPTIMIZATION || is_admin()) {
     return;
 }
 
