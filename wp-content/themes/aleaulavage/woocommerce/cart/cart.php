@@ -76,22 +76,20 @@ do_action('woocommerce_before_cart'); ?>
     <div class="progress mx-3" style="height: 8px;">
       <?php 
         $target = 550;
-        $cart_subtotal = WC()->cart->get_subtotal();
-        $cart_tax_total = WC()->cart->get_taxes_total();
-        $total_without_shipping = $cart_subtotal + $cart_tax_total; // Total TTC sans livraison
-        $total_with_shipping = $total_without_shipping + 19; // Total TTC avec livraison
-        $percent = $total_with_shipping > 0 ? min(100, ($total_with_shipping / $target) * 100) : 0;
+        $cart_subtotal = WC()->cart->get_subtotal(); // Prix HT
+        // Utiliser seulement le prix HT pour le calcul de livraison gratuite
+        $percent = $cart_subtotal > 0 ? min(100, ($cart_subtotal / $target) * 100) : 0;
       ?>
       <div class="progress-bar" role="progressbar" style="width: <?php echo esc_attr($percent); ?>%; background-color: #5899E2;"></div>
     </div>
     <div class="mt-2 small text-muted text-start text-md-start text-center mx-3">
       <span class="free-shipping-message">
         <?php 
-        $remaining = max(0, 550 - $total_with_shipping);
-        if ($total_with_shipping >= 550) {
+        $remaining = max(0, 550 - $cart_subtotal);
+        if ($cart_subtotal >= 550) {
           echo esc_html__('Livraison offerte !', 'woocommerce');
         } else {
-          echo esc_html__('Plus que ', 'woocommerce') . wc_price($remaining) . ' ' . esc_html__('pour profiter de la livraison offerte', 'woocommerce');
+          echo esc_html__('Plus que ', 'woocommerce') . wc_price($remaining) . ' HT ' . esc_html__('pour profiter de la livraison offerte', 'woocommerce');
         }
         ?>
       </span>
@@ -365,7 +363,7 @@ do_action('woocommerce_before_cart'); ?>
               <span><?php esc_html_e('Livraison', 'woocommerce'); ?> :</span>
               <span class="cart-shipping-amount">
                 <?php
-                  if ($total_with_shipping >= 550) {
+                  if ($cart_subtotal >= 550) {
                     echo esc_html__('Offerte', 'woocommerce');
                   } else {
                     echo wc_price(19); // Prix fixe de livraison

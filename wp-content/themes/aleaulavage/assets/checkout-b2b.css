@@ -1,0 +1,598 @@
+/* ==========================================
+   CHECKOUT B2B - STYLES PERSONNALISÉS
+   ========================================== */
+
+.checkout-b2b-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================
+   ÉTAPES DU CHECKOUT
+   ========================================== */
+
+.checkout-steps {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  margin: 0 20px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.step:not(:last-child):after {
+  content: '';
+  position: absolute;
+  right: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 2px;
+  background: #e3e8ee;
+  z-index: 1;
+}
+
+.step.active:not(:last-child):after {
+  background: #5899E2;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e3e8ee;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-right: 12px;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background: #5899E2;
+  color: white;
+}
+
+.step.completed .step-number {
+  background: #28a745;
+  color: white;
+}
+
+.step-title {
+  font-weight: 500;
+  color: #6c757d;
+  transition: color 0.3s ease;
+}
+
+.step.active .step-title {
+  color: #2A3E6A;
+  font-weight: 600;
+}
+
+/* ==========================================
+   CONTENU PRINCIPAL
+   ========================================== */
+
+.checkout-content {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 40px;
+  align-items: start;
+}
+
+/* ==========================================
+   SECTIONS DU CHECKOUT
+   ========================================== */
+
+.checkout-section {
+  display: none;
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.checkout-section.active {
+  display: block;
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-header {
+  margin-bottom: 32px;
+  border-bottom: 1px solid #e3e8ee;
+  padding-bottom: 16px;
+}
+
+.section-header h2 {
+  color: #2A3E6A;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-header i {
+  color: #5899E2;
+}
+
+.section-description {
+  color: #6c757d;
+  margin: 0;
+  font-size: 15px;
+}
+
+/* ==========================================
+   FORMULAIRES
+   ========================================== */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: #2A3E6A;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.optional {
+  color: #6c757d;
+  font-weight: 400;
+}
+
+.form-control {
+  padding: 12px 16px;
+  border: 2px solid #e3e8ee;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #5899E2;
+  box-shadow: 0 0 0 3px rgba(88, 153, 226, 0.1);
+}
+
+.form-control:invalid {
+  border-color: #dc3545;
+}
+
+.form-control:invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-hint {
+  color: #6c757d;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* ==========================================
+   SECTIONS SPÉCIALES
+   ========================================== */
+
+.billing-toggle {
+  margin: 32px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e3e8ee;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-check-input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.form-check-label {
+  font-weight: 500;
+  color: #2A3E6A;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.separate-billing-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e3e8ee;
+}
+
+/* ==========================================
+   OPTIONS DE LIVRAISON
+   ========================================== */
+
+.shipping-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.shipping-option {
+  border: 2px solid #e3e8ee;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.shipping-option:hover {
+  border-color: #5899E2;
+}
+
+.shipping-option input[type="radio"]:checked + label {
+  background: rgba(88, 153, 226, 0.05);
+  border-color: #5899E2;
+}
+
+.shipping-option .form-check-label {
+  padding: 20px;
+  margin: 0;
+  cursor: pointer;
+  width: 100%;
+  font-weight: normal;
+}
+
+.option-content {
+  width: 100%;
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.option-title {
+  font-weight: 600;
+  color: #2A3E6A;
+  font-size: 16px;
+}
+
+.option-price {
+  font-weight: 600;
+  color: #5899E2;
+  font-size: 16px;
+}
+
+.option-description {
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ==========================================
+   SECTION TERMES ET CONDITIONS
+   ========================================== */
+
+.terms-section {
+  margin: 32px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #e3e8ee;
+}
+
+.terms-section .form-check-label a {
+  color: #5899E2;
+  text-decoration: none;
+}
+
+.terms-section .form-check-label a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================
+   BOUTONS
+   ========================================== */
+
+.section-footer {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 1px solid #e3e8ee;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+  background: #5899E2;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #4782c7;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+  font-size: 16px;
+  padding: 16px 32px;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+.btn-place-order {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-place-order:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-place-order:hover:before {
+  left: 100%;
+}
+
+/* ==========================================
+   RÉSUMÉ DE COMMANDE
+   ========================================== */
+
+.checkout-summary {
+  position: sticky;
+  top: 20px;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.summary-card h3 {
+  color: #2A3E6A;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.summary-card h3 i {
+  color: #5899E2;
+}
+
+.security-info {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e3e8ee;
+}
+
+.security-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.security-item i {
+  color: #28a745;
+  width: 16px;
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 992px) {
+  .checkout-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .checkout-summary {
+    order: 2;
+    position: static;
+  }
+  
+  .checkout-forms {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkout-b2b-container {
+    padding: 15px;
+  }
+  
+  .checkout-steps {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .step {
+    margin: 0;
+  }
+  
+  .step:not(:last-child):after {
+    display: none;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .checkout-section {
+    padding: 24px 20px;
+  }
+  
+  .section-footer {
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==========================================
+   ANIMATIONS ET TRANSITIONS
+   ========================================== */
+
+.form-control.error {
+  border-color: #dc3545;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.validation-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.validation-message.success {
+  color: #28a745;
+}
+
+.validation-message i {
+  font-size: 12px;
+}
+
+/* ==========================================
+   AMÉLIORATIONS UX
+   ========================================== */
+
+.form-control:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.loading {
+  position: relative;
+}
+
+.loading:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}

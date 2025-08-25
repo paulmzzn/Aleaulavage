@@ -18,16 +18,25 @@ global $product;
   <?php
   do_action('woocommerce_before_add_to_cart_quantity');
 
-  woocommerce_quantity_input(array(
+  // Paramètres pour le champ quantité
+  $quantity_args = array(
     'min_value'   => apply_filters('woocommerce_quantity_input_min', $product->get_min_purchase_quantity(), $product),
     'max_value'   => apply_filters('woocommerce_quantity_input_max', $product->get_max_purchase_quantity(), $product),
-    'input_value' => isset($_POST['quantity']) ? wc_stock_amount(wp_unslash($_POST['quantity'])) : $product->get_min_purchase_quantity(), // WPCS: CSRF ok, input var ok.
-  ));
-
-  do_action('woocommerce_after_add_to_cart_quantity');
+    'input_value' => isset($_POST['quantity']) ? wc_stock_amount(wp_unslash($_POST['quantity'])) : $product->get_min_purchase_quantity(),
+  );
   ?>
 
-  <button type="submit" class="single_add_to_cart_button btn bg-secondary pe-auto mt-3"><i class="fa-solid fa-basket-shopping me-1"></i><?php echo esc_html($product->single_add_to_cart_text()); ?></button>
+  <div class="quantity-wrapper purchase-qty" data-out-of-stock-message="Plus de stock disponible">
+    <?php woocommerce_quantity_input($quantity_args); ?>
+  </div>
+
+  <?php do_action('woocommerce_after_add_to_cart_quantity'); ?>
+
+  <button type="submit" 
+          class="single_add_to_cart_button btn bg-secondary pe-auto mt-3" 
+          data-out-of-stock-message="Plus de stock disponible">
+    <i class="fa-solid fa-basket-shopping me-1"></i><?php echo esc_html($product->single_add_to_cart_text()); ?>
+  </button>
 
   <?php do_action('woocommerce_after_add_to_cart_button'); ?>
 

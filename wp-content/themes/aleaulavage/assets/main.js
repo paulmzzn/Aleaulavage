@@ -84,3 +84,27 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
+
+// Fonction pour faire défiler vers la description complète - déclaration globale
+window.scrollToFullDescription = function() {
+    console.log('scrollToFullDescription appelée');
+    const fullDescription = document.getElementById('full-description');
+    console.log('Element trouvé:', fullDescription);
+    if (fullDescription) {
+        fullDescription.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+        });
+    } else {
+        console.log('Element full-description non trouvé');
+        // Fallback: chercher par classe
+        const fallback = document.querySelector('.category-description-full');
+        if (fallback) {
+            console.log('Fallback trouvé, scroll vers fallback');
+            fallback.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
+};

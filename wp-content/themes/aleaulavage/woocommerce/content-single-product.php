@@ -43,6 +43,38 @@ if ( post_password_required() ) {
         </div>
         <?php woocommerce_variable_add_to_cart(); ?>
       <?php else : ?>
+        <?php 
+        // Vérifier le stock disponible et la quantité déjà dans le panier
+        $stock_quantity = $product->get_stock_quantity();
+        $is_manage_stock = $product->managing_stock();
+        $cart_qty = 0;
+
+        // Calculer la quantité déjà dans le panier
+        if (WC()->cart) {
+            foreach (WC()->cart->get_cart() as $cart_item) {
+                if ($cart_item['product_id'] == $product->get_id()) {
+                    $cart_qty += $cart_item['quantity'];
+                }
+            }
+        }
+
+        // Déterminer s'il y a du stock disponible
+        $available_stock = null;
+        $is_out_of_stock = false;
+
+        if ($is_manage_stock && $stock_quantity !== null) {
+            $available_stock = $stock_quantity - $cart_qty;
+            $is_out_of_stock = $available_stock <= 0;
+        } else {
+            $is_out_of_stock = !$product->is_in_stock();
+        }
+
+        // Classes et attributs pour les éléments grisés
+        $disabled_class = $is_out_of_stock ? ' disabled-out-of-stock' : '';
+        $disabled_attr = $is_out_of_stock ? ' disabled' : '';
+        $tooltip_attr = $is_out_of_stock ? ' title="Plus de stock disponible" data-toggle="tooltip"' : '';
+        ?>
+        
         <form class="cart purchase-form" action="<?php echo esc_url( apply_filters( 'woocommerce_add_to_cart_form_action', $product->get_permalink() ) ); ?>" method="post" enctype='multipart/form-data'>
           <div class="purchase-header">
             <span class="price"><?php echo $product->get_price_html(); ?></span>
@@ -71,16 +103,28 @@ if ( post_password_required() ) {
               </table>
             </div>
           <?php endif; ?>
-          <div class="purchase-qty">
+          <div class="purchase-qty<?php echo $disabled_class; ?>">
             <?php 
-              woocommerce_quantity_input( array(
+              // Paramètres pour le champ quantité
+              $quantity_args = array(
                 'min_value'   => apply_filters( 'woocommerce_quantity_input_min', 1, $product ),
                 'max_value'   => apply_filters( 'woocommerce_quantity_input_max', $product->get_max_purchase_quantity(), $product ),
                 'input_value' => isset( $_POST['quantity'] ) ? wc_stock_amount( wp_unslash( $_POST['quantity'] ) ) : 1,
-              ) ); 
+              );
+
+              // Ajuster max_value si on gère le stock
+              if ($is_manage_stock && $available_stock !== null && $available_stock > 0) {
+                  $quantity_args['max_value'] = min($quantity_args['max_value'], $available_stock);
+              }
+
+              woocommerce_quantity_input( $quantity_args ); 
             ?>
           </div>
-      <button type="submit" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>" class="single_add_to_cart_button button alt">
+      <button type="submit" 
+              name="add-to-cart" 
+              value="<?php echo esc_attr( $product->get_id() ); ?>" 
+              class="single_add_to_cart_button button alt<?php echo $disabled_class; ?>"
+              <?php echo $disabled_attr . $tooltip_attr; ?>>
       <i class="fa-solid fa-basket-shopping me-1"></i>Ajouter au panier
       </button>
 
@@ -138,99 +182,110 @@ if ( post_password_required() ) {
       });
       
       function initializePriceManagement() {
-          // Chercher le tableau du plugin
-          var pluginTable = document.querySelector('.xa_sp_table');
-          var pluginHeader = document.querySelector('.xa_sp_table_head1');
-          var targetContainer = document.getElementById('pricing-table-container');
+          // Chercher le tableau ADP directement
+          var adpTable = document.querySelector('.wdp_pricing_table');
           
-          if (pluginTable && targetContainer) {
-              // Créer un nouveau conteneur stylé
-              var newContainer = document.createElement('div');
-              newContainer.style.cssText = 'background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px;';
+          if (adpTable) {
+              console.log('📊 Tableau ADP trouvé, extraction des règles...');
               
-              // Créer un nouveau titre
-              var newTitle = document.createElement('h3');
-              newTitle.textContent = 'Prix dégressifs';
-              newTitle.style.cssText = 'margin: 0 0 12px 0; font-size: 16px; color: #2A3E6A; font-weight: 600;';
-              
-              // Cloner le tableau
-              var newTable = pluginTable.cloneNode(true);
-              
-              // Appliquer de nouveaux styles au tableau
-              newTable.style.cssText = 'width: 100%; border-collapse: collapse; margin: 0;';
-              newTable.className = 'custom-pricing-table';
-              
-              // Styler l'en-tête
-              var thead = newTable.querySelector('thead');
-              if (thead) {
-                  thead.style.cssText = 'background: #e9ecef;';
-                  var headerCells = thead.querySelectorAll('td');
-                  headerCells.forEach(function(cell) {
-                      cell.style.cssText = 'padding: 8px; font-weight: 600; border-bottom: 1px solid #dee2e6; font-size: 14px; color: #2A3E6A;';
-                  });
-              }
-              
-              // Styler le corps du tableau
-              var tbody = newTable.querySelector('tbody');
-              if (tbody) {
-                  var rows = tbody.querySelectorAll('tr');
-                  rows.forEach(function(row) {
-                      row.style.cssText = 'border-bottom: 1px solid #f1f3f4;';
-                      var cells = row.querySelectorAll('td');
-                      cells.forEach(function(cell) {
-                          cell.style.cssText = 'padding: 8px; border-bottom: 1px solid #f1f3f4; font-size: 14px; font-family: inherit;';
-                      });
-                  });
-              }
-              
-              // Assembler le nouveau tableau
-              newContainer.appendChild(newTitle);
-              newContainer.appendChild(newTable);
-              targetContainer.appendChild(newContainer);
-              
-              // Extraire les règles de prix du tableau
+              // Extraire les règles de prix du tableau ADP
               extractPricingRules();
               
-              // Cacher l'ancien tableau et titre
-              if (pluginHeader) {
-                  pluginHeader.style.display = 'none';
-              }
-              pluginTable.style.display = 'none';
-              
-              // Activer immédiatement notre gestion pour prendre le contrôle avant ELECX
+              // Activer notre gestion des prix
               elecxOverrideActive = true;
               setupPriceManagement();
           } else {
-              // Pas de tableau ELECX, désactiver la logique custom
+              console.log('❌ Aucun tableau ADP trouvé');
+              // Pas de tableau ADP, désactiver la logique custom
               elecxOverrideActive = false;
           }
       }
       
       function extractPricingRules() {
           pricingRules = [];
-          var tableRows = document.querySelectorAll('.custom-pricing-table tbody tr');
           
-          tableRows.forEach(function(row) {
-              var cells = row.querySelectorAll('td');
-              if (cells.length >= 3) {
-                  var minText = cells[0].textContent.trim();
-                  var maxText = cells[1].textContent.trim();
-                  var discountText = cells[2].textContent.trim();
+          // Essayer de trouver le tableau ADP actuel
+          var adpTableRows = document.querySelectorAll('.wdp_pricing_table tbody tr');
+          
+          if (adpTableRows.length > 0) {
+              console.log('📊 Extraction des règles ADP:', adpTableRows.length, 'règles trouvées');
+              
+              adpTableRows.forEach(function(row) {
+                  var cells = row.querySelectorAll('td');
                   
-                  var minQty = parseInt(minText.replace(/\D/g, ''));
-                  var maxQty = parseInt(maxText.replace(/\D/g, ''));
-                  var discount = parseFloat(discountText.replace(/[^\d.]/g, ''));
-                  
-                  if (minQty > 0 && maxQty > 0 && discount > 0) {
-                      pricingRules.push({
-                          min: minQty,
-                          max: maxQty,
-                          discount: discount
-                      });
+                  if (cells.length >= 3) {
+                      // Format 3 colonnes: Quantité | Remise | Prix remisé
+                      var quantityText = cells[0].textContent.trim(); // ex: "5 - 9"
+                      var discountText = cells[1].textContent.trim(); // ex: "5%"
+                      var priceText = cells[2].textContent.trim(); // ex: "4,93 €"
+                      
+                      console.log('🔍 Analyse 3 colonnes:', {quantite: quantityText, remise: discountText, prix: priceText});
+                      
+                      // Extraire les quantités min et max
+                      var minQty = 0;
+                      var maxQty = 999999;
+                      
+                      if (quantityText.includes(' - ')) {
+                          // Format "5 - 9"
+                          var parts = quantityText.split(' - ');
+                          minQty = parseInt(parts[0].replace(/\D/g, '')) || 0;
+                          maxQty = parseInt(parts[1].replace(/\D/g, '')) || 999999;
+                      } else if (quantityText.includes(' +')) {
+                          // Format "16 +"
+                          minQty = parseInt(quantityText.replace(/\D/g, '')) || 0;
+                          maxQty = 999999;
+                      }
+                      
+                      // Extraire le prix remisé (3ème colonne)
+                      var priceValue = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.'));
+                      
+                      if (minQty > 0 && priceValue > 0) {
+                          pricingRules.push({
+                              min: minQty,
+                              max: maxQty,
+                              price: priceValue
+                          });
+                          console.log('✅ Règle 3 colonnes ajoutée:', {min: minQty, max: maxQty, price: priceValue});
+                      }
+                      
+                  } else if (cells.length >= 2) {
+                      // Format 2 colonnes: Quantité | Prix fixe
+                      var quantityText = cells[0].textContent.trim(); // ex: "100 - 199"
+                      var priceText = cells[1].textContent.trim(); // ex: "6,50 €"
+                      
+                      console.log('🔍 Analyse 2 colonnes:', {quantite: quantityText, prix: priceText});
+                      
+                      // Extraire les quantités min et max
+                      var minQty = 0;
+                      var maxQty = 999999;
+                      
+                      if (quantityText.includes(' - ')) {
+                          // Format "100 - 199"
+                          var parts = quantityText.split(' - ');
+                          minQty = parseInt(parts[0].replace(/\D/g, '')) || 0;
+                          maxQty = parseInt(parts[1].replace(/\D/g, '')) || 999999;
+                      } else if (quantityText.includes(' +')) {
+                          // Format "200 +"
+                          minQty = parseInt(quantityText.replace(/\D/g, '')) || 0;
+                          maxQty = 999999;
+                      }
+                      
+                      // Extraire le prix fixe (2ème colonne)
+                      var priceValue = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.'));
+                      
+                      if (minQty > 0 && priceValue > 0) {
+                          pricingRules.push({
+                              min: minQty,
+                              max: maxQty,
+                              price: priceValue
+                          });
+                          console.log('✅ Règle 2 colonnes ajoutée:', {min: minQty, max: maxQty, price: priceValue});
+                      }
                   }
-              }
-          });
+              });
+          }
           
+          console.log('📋 Règles de prix finales:', pricingRules);
       }
       
       function setupPriceManagement() {
@@ -344,14 +399,13 @@ if ( post_password_required() ) {
       }
       
       function handleQuantityChange() {
-          if (!elecxOverrideActive) return;
-          
           var qtyInput = document.querySelector('input[name="quantity"]');
           if (!qtyInput) return;
           
           var currentQty = parseInt(qtyInput.value) || 1;
+          console.log('🔢 Changement quantité:', currentQty, 'règles:', pricingRules);
           
-          // Trouver la règle active
+          // Trouver la règle active (prix fixe)
           var activeRule = null;
           for (var i = 0; i < pricingRules.length; i++) {
               var rule = pricingRules[i];
@@ -362,24 +416,27 @@ if ( post_password_required() ) {
           }
           
           if (activeRule) {
-              displayDiscountedPrice(activeRule);
+              console.log('✅ Règle active:', activeRule);
+              displayFixedPrice(activeRule);
           } else {
-              // Afficher le prix original (sans promotion) quand on est hors seuils
+              console.log('❌ Aucune règle, prix original');
               restoreOriginalPrice();
           }
       }
       
-      function displayDiscountedPrice(rule) {
+      function displayFixedPrice(rule) {
           var priceElement = document.querySelector('.price');
           if (!priceElement || !originalPriceData) return;
           
           isUpdatingPrice = true;
-          var newPrice = originalPriceData.price * (1 - rule.discount / 100);
+          var newPrice = rule.price;
+          
+          console.log('💰 Affichage prix fixe:', newPrice, '€');
           
           priceElement.innerHTML = '<del style="color: #999; text-decoration: line-through;">' + 
-                                 originalPriceData.price.toFixed(2).replace('.', ',') + '&nbsp;' + originalPriceData.currency + 
-                                 '</del> <span style="color: #5899E2; font-weight: bold;">' + 
-                                 newPrice.toFixed(2).replace('.', ',') + '&nbsp;' + originalPriceData.currency + '</span>';
+                                 originalPriceData.price.toFixed(2).replace('.', ',') + '&nbsp;€</del> ' + 
+                                 '<span style="color: #5899E2; font-weight: bold;">' + 
+                                 newPrice.toFixed(2).replace('.', ',') + '&nbsp;€</span>';
           
           setTimeout(function() { isUpdatingPrice = false; }, 100);
       }

@@ -15,24 +15,22 @@ function updateCartTotalAndProgress() {
         method: 'POST',
         data: { action: 'get_cart_total_only' },
         success: function(response) {
-            if (response.success && response.data && response.data.total) {
-                jQuery('.cart-footer .fw-bold').last().html(response.data.total);
+            if (response.success && response.data && response.data.total_ht) {
+                // Afficher le prix HT au lieu du TTC dans le total du panier
+                jQuery('.cart-footer .fw-bold').last().html(parseFloat(response.data.total_ht).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '€ HT');
             }
             // Mettre à jour la barre de progression livraison offerte
             let total = 0;
-            if (response.success && response.data && response.data.total) {
-                // Extraire le montant numérique du HTML wc_price
-                let match = response.data.total.replace(/\s/g, '').match(/([\d,.]+)/);
-                if (match) {
-                    total = parseFloat(match[1].replace(',', '.'));
-                }
+            if (response.success && response.data && response.data.total_ht) {
+                // Utiliser directement le prix HT numérique envoyé par PHP
+                total = parseFloat(response.data.total_ht);
             }
             const seuil = 550;
             let manque = seuil - total;
             let percent = Math.max(0, Math.min(100, (total / seuil) * 100));
             jQuery('.free-shipping-progress .fsp-bar-fill').css('width', percent + '%');
             if (manque > 0) {
-                jQuery('.free-shipping-progress .fsp-label').html('Plus que <b>' + manque.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '€</b> pour profiter de la <b>livraison</b> à domicile <b>offerte</b> !');
+                jQuery('.free-shipping-progress .fsp-label').html('Plus que <b>' + manque.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '€ HT</b> pour profiter de la <b>livraison</b> à domicile <b>offerte</b> !');
             } else {
                 jQuery('.free-shipping-progress .fsp-label').html('<b>Livraison offerte !</b>');
             }

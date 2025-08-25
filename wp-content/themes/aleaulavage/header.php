@@ -45,7 +45,6 @@ $promo_banner = get_theme_mod('promo_banner_message');
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/css/custom-header.css?v=20250725">
 	<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 	<script src="<?php echo get_stylesheet_directory_uri(); ?>/js/custom-header.js?v=20250725" defer></script>
-
 	<?php if (!empty($promo_banner)) : ?>
 	<style>
 	body .site-header {
@@ -181,7 +180,7 @@ $promo_banner = get_theme_mod('promo_banner_message');
 								
 								<!-- Section Catégories -->
 								<div class="menu-section">
-									<h6 class="menu-section-title">Nos Catégories</h6>
+									<p class="menu-section-title">Nos Catégories</p>
 									<div class="menu-grid">
 										<?php
 										// Récupérer les mêmes catégories que la barre desktop
@@ -240,7 +239,7 @@ $promo_banner = get_theme_mod('promo_banner_message');
 
 								<!-- Section Navigation -->
 								<div class="menu-section">
-									<h6 class="menu-section-title">Navigation</h6>
+									<p class="menu-section-title">Navigation</p>>
 									<div class="menu-grid">
 										<a href="<?php echo esc_url(home_url('mon-compte/')); ?>" class="menu-card">
 											<div class="menu-card-icon"><i class="fa-solid fa-user"></i></div>
