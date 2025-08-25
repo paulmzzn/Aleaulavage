@@ -28,7 +28,8 @@ global $post, $product;
 if (function_exists('calculate_product_promotion')) {
     $promo_data = calculate_product_promotion($product);
     
-    if ($promo_data['has_promo']) {
+    // Afficher les badges promo seulement si le produit est en stock
+    if ($promo_data['has_promo'] && $product->is_in_stock()) {
         $discount_percent = $promo_data['discount_percent'];
         $is_quantity_based = $promo_data['is_quantity_based'];
         
@@ -45,8 +46,8 @@ if (function_exists('calculate_product_promotion')) {
         
         echo '<span class="' . $bubble_class . '" style="position: absolute; top: 15px; left: 15px; background-color: #5899E2; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 10; box-shadow: 0 3px 6px rgba(0,0,0,0.3); line-height: 1.1; text-align: center; ' . $bubble_size . '">' . $bubble_text . '</span>';
     }
-} elseif ($product->is_on_sale()) {
-    // Fallback vers le badge standard si la fonction n'existe pas
+} elseif ($product->is_on_sale() && $product->is_in_stock()) {
+    // Fallback vers le badge standard si la fonction n'existe pas ET si le produit est en stock
     echo apply_filters('woocommerce_sale_flash', '<span class="badge bg-danger sale">%</span>', $post, $product);
 }
 ?>

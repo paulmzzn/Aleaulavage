@@ -49,7 +49,8 @@ if (empty($product) || !$product->is_visible()) {
     if (function_exists('calculate_product_promotion')) {
         $promo_data = calculate_product_promotion($product);
         
-        if ($promo_data['has_promo']) {
+        // Afficher les badges promo seulement si le produit est en stock
+        if ($promo_data['has_promo'] && $product->is_in_stock()) {
             $discount_percent = $promo_data['discount_percent'];
             $is_quantity_based = $promo_data['is_quantity_based'];
             
@@ -112,7 +113,8 @@ if (empty($product) || !$product->is_visible()) {
 		if (function_exists('calculate_product_promotion')) {
 		    $promo_data = calculate_product_promotion($product);
 		    
-		    if ($promo_data['has_promo']) {
+		    // Afficher le prix promo seulement si le produit est en stock
+		    if ($promo_data['has_promo'] && $product->is_in_stock()) {
 		        $regular_price = floatval($product->get_regular_price());
 		        $lowest_price = $promo_data['lowest_price'];
 		        
@@ -132,7 +134,7 @@ if (empty($product) || !$product->is_visible()) {
 		                 '</div>';
 		        }
 		    } else {
-		        // Prix normal pour les produits sans promo
+		        // Prix normal pour les produits sans promo ou en rupture de stock
 		        echo '<div class="price order-1">' . $product->get_price_html() . '</div>';
 		    }
 		} else {
