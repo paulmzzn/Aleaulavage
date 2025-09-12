@@ -1,4 +1,34 @@
 <?php
+// ========================================
+// SYSTÈME DE GALERIE V2 - TEST PARALLÈLE
+// ========================================
+
+// Charger le nouveau système de galerie V2 (en test)
+add_action('wp_enqueue_scripts', function() {
+    if (is_product()) {
+        // CSS du nouveau système V2
+        wp_enqueue_style(
+            'gallery-v2',
+            get_template_directory_uri() . '/css/gallery-v2.css',
+            array(),
+            '1.0.0'
+        );
+        
+        // JavaScript du nouveau système V2
+        wp_enqueue_script(
+            'gallery-v2',
+            get_template_directory_uri() . '/js/gallery-v2.js',
+            array(),
+            '1.0.0',
+            true
+        );
+    }
+}, 5); // Priorité 5 pour charger après l'ancien système
+
+// ========================================
+// SYSTÈME EXISTANT PRÉSERVÉ
+// ========================================
+
 // Laisser ELECX fonctionner normalement mais garder accès au prix original
 
 /**
@@ -51,9 +81,18 @@ if (!function_exists('my_theme_debug_log')) {
 }
 // pour notre logique JavaScript personnalisée
 
-// Ajout du zoom qui suit la souris sur la page produit
+// Zoom multi-niveaux pour galerie produit
 add_action('wp_enqueue_scripts', function() {
     if (is_product()) {
+        // CSS améliorations zoom
+        wp_enqueue_style(
+            'zoom-enhancements',
+            get_stylesheet_directory_uri() . '/css/zoom-enhancements.css',
+            array(),
+            filemtime(get_stylesheet_directory() . '/css/zoom-enhancements.css')
+        );
+        
+        // Script zoom multi-niveaux
         wp_enqueue_script(
             'single-product-zoom',
             get_stylesheet_directory_uri() . '/js/single-product-zoom.js',
@@ -162,14 +201,14 @@ add_action('wp_enqueue_scripts', function() {
                                             }
                                         },
                                         error: function() {
-                                            console.log("Erreur lors de l\'ajout au panier");
+                                            //console.log("Erreur lors de l\'ajout au panier");
                                         },
                                         complete: function() {
                                             $("#offcanvas-cart").removeClass("loading");
                                         }
                                     });
                                 } else {
-                                    console.log("Product ID not found");
+                                    //console.log("Product ID not found");
                                 }
                             });
                         }
@@ -1043,44 +1082,37 @@ add_action('wp_footer', function () {
     if (is_product()) : ?>
         <script>
         jQuery(document).ready(function($) {
-            console.log('🚀 Script prix + UGS variantes - version complète');
             
             // Cibler les éléments prix et UGS
             var priceElements = $('.price');
             var skuElement = $('.product-sku span');
             
-            console.log('💰 Éléments trouvés:', {
-                prix: priceElements.length,
-                sku: skuElement.length
-            });
             
             // Stocker les valeurs originales
             var originalPrices = [];
             priceElements.each(function(index) {
                 originalPrices[index] = $(this).html();
-                console.log('Prix original ' + index + ':', $(this).html().substring(0, 100) + '...');
             });
             
             var originalSku = skuElement.html();
-            console.log('🏷️ UGS original:', originalSku);
             
             // Fonction pour mettre à jour prix et UGS
             function updateProductInfo(variation) {
-                console.log('🔄 Mise à jour - Variation:', variation);
+                //console.log('🔄 Mise à jour - Variation:', variation);
                 
                 // NE PAS mettre à jour le prix automatiquement - on gère ça ailleurs
                 // Seulement mettre à jour l'UGS
                 if (variation.sku && skuElement.length) {
-                    console.log('🏷️ Nouvel UGS:', variation.sku);
+                    //console.log('🏷️ Nouvel UGS:', variation.sku);
                     skuElement.html(variation.sku);
                 } else {
-                    console.log('⚠️ Pas d\'UGS dans la variation');
+                    //console.log('⚠️ Pas d\'UGS dans la variation');
                 }
             }
             
             // Fonction pour restaurer les valeurs originales
             function resetProductInfo() {
-                console.log('🔄 Reset - restauration des valeurs originales');
+                //console.log('🔄 Reset - restauration des valeurs originales');
                 
                 // Restaurer les prix
                 $('.price').each(function(index) {
@@ -1100,17 +1132,17 @@ add_action('wp_footer', function () {
             
             // Événement found_variation - simple et direct
             $(document).on('found_variation', function (event, variation) {
-                console.log('🔔 Événement found_variation déclenché');
-                console.log('📊 Variation reçue:', variation);
+                //console.log('🔔 Événement found_variation déclenché');
+                //console.log('📊 Variation reçue:', variation);
                 updateProductInfo(variation);
                 
                 // Délai pour vérifier si toutes les variations sont sélectionnées
                 setTimeout(function() {
                     if (isAllVariationsSelected() && variation && variation.price_html) {
-                        console.log('✅ VARIATION COMPLÈTE - Mise à jour du prix:', variation.price_html);
+                        //console.log('✅ VARIATION COMPLÈTE - Mise à jour du prix:', variation.price_html);
                         updateVariantPrice(variation);
                     } else {
-                        console.log('❌ Sélection incomplète - garder la plage de prix');
+                        //console.log('❌ Sélection incomplète - garder la plage de prix');
                         restoreVariableProductPriceRange();
                     }
                 }, 100);
@@ -1118,7 +1150,7 @@ add_action('wp_footer', function () {
             
             // Événement reset_data - déclenché quand on réinitialise les sélections
             $(document).on('reset_data', function () {
-                console.log('🔄 Reset des données de variation');
+                //console.log('🔄 Reset des données de variation');
                 resetProductInfo();
                 restoreVariableProductPriceRange();
             });
@@ -1126,7 +1158,7 @@ add_action('wp_footer', function () {
             function updateVariantPrice(variation) {
                 const $priceElement = $('.purchase-header .price');
                 if ($priceElement.length && variation.price_html) {
-                    console.log('💰 Mise à jour du prix de la variation:', variation.price_html);
+                    //console.log('💰 Mise à jour du prix de la variation:', variation.price_html);
                     
                     // Masquer TOUS les éléments de la plage de prix
                     $priceElement.find('.woocommerce-Price-amount').hide();
@@ -1144,7 +1176,7 @@ add_action('wp_footer', function () {
             function restoreVariableProductPriceRange() {
                 const $priceElement = $('.purchase-header .price');
                 if ($priceElement.length) {
-                    console.log('🔄 Restauration de la plage de prix');
+                    //console.log('🔄 Restauration de la plage de prix');
                     
                     // Supprimer le prix de variation
                     $priceElement.find('.single-variation-price').remove();
@@ -1175,14 +1207,14 @@ add_action('wp_footer', function () {
                     }
                 });
                 
-                console.log('🔍 Vérification sélection complète:', allSelected, 'Sélections:', selections);
+                //console.log('🔍 Vérification sélection complète:', allSelected, 'Sélections:', selections);
                 return allSelected;
             }
             
             // Écouter les changements sur les sélecteurs de variation pour restaurer la plage de prix si sélection incomplète
             $(document).on('change', '.variations select', function() {
                 var selectedValue = $(this).val();
-                console.log('📝 Select modifié:', selectedValue);
+                //console.log('📝 Select modifié:', selectedValue);
                 
                 // Délai pour laisser WooCommerce traiter la sélection
                 setTimeout(function() {
@@ -1192,7 +1224,7 @@ add_action('wp_footer', function () {
             
             // Écouter les clics sur les boutons d'attribut personnalisés 
             $(document).on('click', '.attribute-button, .color-swatch', function() {
-                console.log('🎯 Attribut cliqué');
+                //console.log('🎯 Attribut cliqué');
                 
                 setTimeout(function() {
                     checkIfAllVariationsSelected();
@@ -1213,11 +1245,11 @@ add_action('wp_footer', function () {
                     }
                 });
                 
-                console.log('🔍 Toutes les variations sélectionnées?', allSelected);
+                //console.log('🔍 Toutes les variations sélectionnées?', allSelected);
                 
                 // Si toutes les variations ne sont pas sélectionnées, restaurer la plage de prix
                 if (!allSelected) {
-                    console.log('⚠️ Sélection incomplète - restauration de la plage de prix');
+                    //console.log('⚠️ Sélection incomplète - restauration de la plage de prix');
                     restoreVariableProductPriceRange();
                 }
             }
@@ -1225,7 +1257,7 @@ add_action('wp_footer', function () {
             // Alternative : écouter directement les changements des selects cachés
             $(document).on('change', '.variations select[style*="display: none"]', function() {
                 var selectedValue = $(this).val();
-                console.log('📝 Select caché modifié:', selectedValue);
+                //console.log('📝 Select caché modifié:', selectedValue);
                 
                 setTimeout(function() {
                     var form = $('.variations_form');
@@ -1239,7 +1271,7 @@ add_action('wp_footer', function () {
                             // Vérifier si cette variation correspond à la sélection
                             for (var attr in variation.attributes) {
                                 if (variation.attributes[attr] === selectedValue) {
-                                    console.log('🎯 Variation manuelle trouvée');
+                                    //console.log('🎯 Variation manuelle trouvée');
                                     updateProductInfo(variation);
                                     return;
                                 }
@@ -2490,18 +2522,18 @@ function add_promo_bubbles_javascript() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 PROMO SCRIPT LOADED ON:', window.location.pathname);
+        //console.log('🚀 PROMO SCRIPT LOADED ON:', window.location.pathname);
         
         const promoData = <?php echo json_encode($product_promo_data); ?>;
-        console.log('📊 Promo data:', promoData);
-        console.log('📊 Number of products with promos:', Object.keys(promoData).length);
+        //console.log('📊 Promo data:', promoData);
+        //console.log('📊 Number of products with promos:', Object.keys(promoData).length);
         
         
         // Chercher tous les produits sur la page (blocs ET cards classiques)
         const blockProducts = document.querySelectorAll('[data-wp-context*="productId"]');
         const classicProducts = document.querySelectorAll('.product.type-product');
         const allProducts = [...blockProducts, ...classicProducts];
-        console.log('Found products:', {blocks: blockProducts.length, classic: classicProducts.length, total: allProducts.length});
+        //console.log('Found products:', {blocks: blockProducts.length, classic: classicProducts.length, total: allProducts.length});
         
         allProducts.forEach(function(item) {
             let productId = null;
@@ -2524,7 +2556,7 @@ function add_promo_bubbles_javascript() {
             }
             
             if (productId && promoData[productId]) {
-                console.log('Promo data for product', productId, ':', promoData[productId]);
+                //console.log('Promo data for product', productId, ':', promoData[productId]);
                 const data = promoData[productId];
                 const bubbleText = data.is_quantity_based ? 
                     'jusqu\'à -' + data.discount_percent + '%' : 
@@ -2550,7 +2582,7 @@ function add_promo_bubbles_javascript() {
                 if (imageContainer) {
                     imageContainer.style.position = 'relative';
                     imageContainer.appendChild(bubble);
-                    console.log('Bubble added for product ' + productId);
+                    //console.log('Bubble added for product ' + productId);
                     
                     // Ajouter le badge "Promo" s'il n'existe pas déjà
                     let existingBadge = item.querySelector('.wc-block-components-product-sale-badge');
@@ -2560,7 +2592,7 @@ function add_promo_bubbles_javascript() {
                         promoBadge.style.cssText = 'position: absolute; top: 10px; right: 10px; z-index: 10; background: #fff; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: bold;';
                         promoBadge.innerHTML = '<span class="wc-block-components-product-sale-badge__text" aria-hidden="true">Promo</span><span class="screen-reader-text">Produit en promotion</span>';
                         imageContainer.appendChild(promoBadge);
-                        console.log('Promo badge added for product ' + productId);
+                        //console.log('Promo badge added for product ' + productId);
                     }
                 }
                 
@@ -2569,7 +2601,7 @@ function add_promo_bubbles_javascript() {
                                    item.querySelector('.price');
                 
                 if (priceContainer && data.has_promo) {
-                    console.log('Updating price for product', productId);
+                    //console.log('Updating price for product', productId);
                     
                     const regularPriceFormatted = data.regular_price.toFixed(2).replace('.', ',') + '\u00A0€';
                     const lowestPriceFormatted = data.lowest_price.toFixed(2).replace('.', ',') + '\u00A0€';
@@ -2594,7 +2626,7 @@ function add_promo_bubbles_javascript() {
                         priceContainer.innerHTML = newPriceHtml;
                     }
                     
-                    console.log('Price updated for product', productId);
+                    //console.log('Price updated for product', productId);
                 }
             }
         });
@@ -2746,7 +2778,6 @@ function add_stock_management_styles_and_scripts() {
     
     <script>
     jQuery(document).ready(function($) {
-        console.log('🛒 Gestion du stock chargée');
         
         // Fonction pour vérifier le stock d'une variante
         function checkVariationStock(variation) {
@@ -2769,7 +2800,7 @@ function add_stock_management_styles_and_scripts() {
                 
                 maxStock = variation.max_qty;
                 
-                console.log('Stock variante:', {
+                //console.log('Stock variante:', {
                     in_stock: variation.is_in_stock,
                     max_qty: variation.max_qty,
                     out_of_stock: isOutOfStock
@@ -2801,13 +2832,13 @@ function add_stock_management_styles_and_scripts() {
         
         // Écouter les changements de variante
         $(document).on('found_variation', function(event, variation) {
-            console.log('🔄 Variante trouvée, vérification du stock');
+            //console.log('🔄 Variante trouvée, vérification du stock');
             checkVariationStock(variation);
         });
         
         // Écouter la réinitialisation des variantes
         $(document).on('reset_data', function() {
-            console.log('🔄 Reset des variantes');
+            //console.log('🔄 Reset des variantes');
             checkVariationStock(null);
         });
 
@@ -2817,7 +2848,7 @@ function add_stock_management_styles_and_scripts() {
             const currentValue = parseInt($input.val()) || 1;
             const maxValue = parseInt($input.attr('max')) || 999999;
             
-            console.log('📊 Vérification quantité:', {current: currentValue, max: maxValue});
+            //console.log('📊 Vérification quantité:', {current: currentValue, max: maxValue});
             
             if (currentValue > maxValue) {
                 $input.val(maxValue);
@@ -2870,7 +2901,7 @@ function add_stock_management_styles_and_scripts() {
         // Vérification initiale pour les produits simples
         const initialDisabled = $('.disabled-out-of-stock');
         if (initialDisabled.length) {
-            console.log('📦 Produit simple en rupture de stock détecté');
+            //console.log('📦 Produit simple en rupture de stock détecté');
             initialDisabled.each(function() {
                 $(this).addClass('tooltip-out-of-stock');
                 if (!$(this).find('.tooltip-text').length) {
@@ -2903,7 +2934,6 @@ function add_promo_bubble_single_product_js() {
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Adding single product promo bubble...');
         
         const promoData = {
             discount_percent: <?php echo $promo_data['discount_percent']; ?>,
@@ -2940,7 +2970,6 @@ function add_promo_bubble_single_product_js() {
         for (let selector of imageContainers) {
             imageContainer = document.querySelector(selector);
             if (imageContainer) {
-                console.log('Image container found with selector:', selector);
                 break;
             }
         }
@@ -2954,13 +2983,11 @@ function add_promo_bubble_single_product_js() {
                 productGallery.style.position = 'relative';
             }
             productGallery.appendChild(bubble);
-            console.log('Single product bubble added to .product-gallery for product <?php echo $product_id; ?>');
         } else if (imageContainer) {
             imageContainer.style.position = 'relative';
             imageContainer.appendChild(bubble);
-            console.log('Single product bubble added to image container for product <?php echo $product_id; ?>');
         } else {
-            console.log('No container found for single product');
+            //console.log('No container found for single product');
         }
     });
     </script>

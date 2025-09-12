@@ -1,0 +1,14 @@
+/*--------------------------------------------------------------
+WooCommerce Buttons
+--------------------------------------------------------------*/
+
+// Widget buttons
+.woocommerce {
+  #respond input#submit,
+  a.button,
+  button.button,
+  input.button {
+    @extend .btn;
+    @extend .btn-outline-primary;
+  }
+}

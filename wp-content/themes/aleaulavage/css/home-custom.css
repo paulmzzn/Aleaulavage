@@ -1,16 +1,42 @@
-/* CSS pour transformer la première section comme la deuxième */
+/* ====================================
+   SECTION PRODUITS MODERNE V2
+   ==================================== */
 
-/* Container pour centrer la section */
-.wp-block-woocommerce-product-collection {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: var(--container-padding);
+/* Variables modernes pour la cohérence avec la galerie V2 */
+:root {
+    --primary-color: #f1bb69;
+    --primary-dark: #e29a3d;
+    --dark-color: #0E2141;
+    --light-bg: #fafbfc;
+    --border-color: #e3e5e8;
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.25);
+    --radius: 16px;
+    --radius-small: 8px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s ease;
+    
+    /* Responsive variables */
+    --grid-columns: 4;
+    --grid-gap: 2rem;
+    --card-padding: 2rem;
+    --image-size: 240px;
+    --container-padding: 0 2rem;
 }
 
-/* Grille des produits - section "Découvrez nos produits" */
+/* Container principal moderne */
+.wp-block-woocommerce-product-collection {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--container-padding);
+    background: transparent;
+}
+
+/* Grille produits responsive et moderne */
 .wp-block-woocommerce-product-collection .wc-block-product-template {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(var(--grid-columns), 1fr);
     gap: var(--grid-gap);
     list-style: none;
     padding: 0;
@@ -18,41 +44,48 @@
     justify-content: center;
 }
 
-/* Cartes produits - Hauteur fixe et flex pour uniformiser */
+/* Cartes produits modernes avec glassmorphism subtil */
 .wc-block-product {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
     padding: var(--card-padding);
-    box-shadow: none;
-    transition: all 0.3s ease;
+    transition: var(--transition);
     position: relative;
-    overflow: hidden;
-    height: var(--card-height);
+    overflow: visible; /* Permettre débordement badges */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     text-align: center;
+    min-height: 450px;
+    box-shadow: var(--shadow-light);
 }
 
 .wc-block-product:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-heavy);
+    border-color: var(--primary-color);
 }
 
-/* Images produits - Format carré et centré */
+/* Container image moderne avec gestion badges */
 .wc-block-components-product-image {
-    margin: 0 auto 1rem auto;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f9fafb;
+    position: relative;
+    margin: 0 auto 1.5rem auto;
+    border-radius: var(--radius-small);
+    overflow: visible; /* Permettre débordement badges */
+    background: var(--light-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     height: var(--image-size);
     width: var(--image-size);
     flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.wc-block-components-product-image:hover {
+    transform: scale(1.02);
 }
 
 .wc-block-components-product-image a {
@@ -61,24 +94,74 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    border-radius: var(--radius-small);
 }
 
 .wc-block-components-product-image img {
-    max-width: 80%;
+    max-width: 85%;
     max-height: 100%;
     object-fit: contain;
     display: block;
+    transition: var(--transition-fast);
 }
 
-/* Titres produits - Hauteur adaptative */
+/* Gestion moderne des badges promo */
+.wc-block-components-product-image .promo-bubble,
+.wc-block-components-product-image .promo-bubble-quantity {
+    position: absolute !important;
+    top: -12px !important;
+    left: -12px !important;
+    background: linear-gradient(135deg, #5899E2, #4a7bc8) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+    z-index: 15 !important;
+    box-shadow: var(--shadow-medium) !important;
+    border: 3px solid white !important;
+    animation: pulsePromo 2s infinite;
+}
+
+.promo-bubble:first-of-type {
+    opacity: 1 !important;
+}
+
+.promo-bubble:nth-of-type(n+2) {
+    display: none !important; /* Masquer les doublons */
+}
+
+@keyframes pulsePromo {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Badge WooCommerce natif repositionné */
+.wc-block-components-product-sale-badge {
+    position: absolute !important;
+    top: -12px !important;
+    right: -12px !important;
+    z-index: 10 !important;
+    background: var(--primary-color) !important;
+    color: var(--dark-color) !important;
+    padding: 6px 12px !important;
+    border-radius: var(--radius-small) !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    border: 2px solid white !important;
+    box-shadow: var(--shadow-medium) !important;
+}
+
+/* Titres modernes */
 .wp-block-post-title {
-    font-size: var(--title-font-size) !important;
-    font-weight: 500;
-    color: #000000;
+    font-size: 1rem !important;
+    font-weight: 600;
+    color: var(--dark-color);
     margin-bottom: 1rem !important;
     line-height: 1.4;
     text-align: center;
-    height: var(--title-height);
+    min-height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -86,181 +169,365 @@
 
 .wp-block-post-title a {
     text-decoration: none;
-    color: #000000;
-    transition: color 0.3s ease;
+    color: var(--dark-color);
+    transition: var(--transition-fast);
 }
 
 .wp-block-post-title a:hover {
-    color: #333333;
+    color: var(--primary-color);
 }
 
-/* Prix - Hauteur fixe */
+/* Prix moderne avec meilleur contraste */
 .wc-block-components-product-price {
     margin-bottom: 1.5rem;
     text-align: center;
-    height: 2rem;
+    min-height: 2.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .woocommerce-Price-amount {
-    font-size: var(--price-font-size);
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #1f2937;
+    color: var(--dark-color);
 }
 
 .woocommerce-Price-currencySymbol {
     font-weight: 700;
+    color: var(--dark-color);
 }
 
-/* Plage de prix */
-.wc-block-components-product-price .wc-block-grid__product-price span[aria-hidden="true"] {
-    color: #1f2937;
+/* Prix promo moderne */
+.promo-price-vertical del {
+    color: #999 !important;
+    text-decoration: line-through !important;
+    font-size: 0.9rem;
 }
 
-/* Boutons */
+.promo-price-vertical span:last-child {
+    color: #5899E2 !important;
+    font-weight: bold !important;
+    font-size: 1.1rem;
+}
+
+/* Boutons modernes */
 .wc-block-components-product-button {
     margin-top: auto;
-    margin-bottom: 0;
+    width: 100%;
 }
 
 .wc-block-components-product-button .wp-block-button__link,
 .wc-block-components-product-button button {
-    background: #f1bb69;
-    color: black;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--dark-color);
     border: none;
-    border-radius: 6px;
-    padding: var(--button-padding);
+    border-radius: var(--radius-small);
+    padding: 12px 24px;
     font-weight: 600;
-    font-size: var(--button-font-size);
+    font-size: 0.9rem;
     text-transform: none;
-    letter-spacing: normal;
-    transition: all 0.3s ease;
+    letter-spacing: 0.025em;
+    transition: var(--transition);
     cursor: pointer;
-    box-shadow: none;
+    box-shadow: var(--shadow-light);
     width: 100%;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.wc-block-components-product-button .wp-block-button__link::before,
+.wc-block-components-product-button button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s;
+}
+
+.wc-block-components-product-button .wp-block-button__link:hover::before,
+.wc-block-components-product-button button:hover::before {
+    left: 100%;
 }
 
 .wc-block-components-product-button .wp-block-button__link:hover,
 .wc-block-components-product-button button:hover {
-    background: #e29a3d;
-    transform: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, var(--primary-dark), #d89234);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
 }
 
-/* Ajustement pour que les cartes aient la même hauteur */
-.wc-block-product {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
+/* ====================================
+   RESPONSIVE DESIGN MODERNE
+   ==================================== */
 
-/* CSS Custom Properties pour une approche responsive moderne */
-:root {
-    --grid-columns: 4;
-    --grid-gap: 3rem;
-    --card-padding: 3rem;
-    --card-height: 550px;
-    --image-size: 250px;
-    --title-font-size: 1.1rem;
-    --title-height: 4rem;
-    --price-font-size: 1.125rem;
-    --button-font-size: 0.875rem;
-    --button-padding: 10px 20px;
-    --container-padding: 0 2rem;
-}
-
-/* Breakpoints avec spécificité maximale */
-@media (max-width: 1050px) {
+/* Tablette - passage à 2x2 encore plus tôt */
+@media (max-width: 1300px) {
     :root {
-        --grid-gap: 2rem;
-        --card-padding: 2.5rem;
-        --card-height: 520px;
-        --image-size: 200px;
-        --title-font-size: 1rem;
-        --title-height: 3.8rem;
+        --grid-columns: 2;
+        --grid-gap: 1.5rem;
+        --card-padding: 1.8rem;
+        --image-size: 220px;
         --container-padding: 0 1.5rem;
     }
     
-    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
-        grid-template-columns: repeat(3, 1fr) !important;
-        display: grid !important;
-    }
-}
-
-@media (max-width: 768px) {
-    :root {
-        --grid-gap: 1rem;
-        --card-padding: 1.5rem;
-        --card-height: 420px;
-        --image-size: 140px;
-        --title-font-size: 0.9rem;
-        --title-height: 3rem;
-        --price-font-size: 0.95rem;
-        --button-font-size: 0.8rem;
-        --button-padding: 8px 16px;
-        --container-padding: 0 0.5rem;
+    .wp-block-woocommerce-product-collection .wc-block-product-template {
+        grid-template-columns: repeat(2, 1fr) !important;
     }
     
-    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
-        grid-template-columns: repeat(2, 1fr) !important;
-        display: grid !important;
+    .wc-block-product {
+        min-height: 450px;
+    }
+    
+    /* Ajuster badges pour 2x2 */
+    .wc-block-components-product-image .promo-bubble,
+    .wc-block-components-product-image .promo-bubble-quantity {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 10px !important;
+        top: -10px !important;
+        left: -10px !important;
+    }
+    
+    .wc-block-components-product-sale-badge {
+        padding: 5px 10px !important;
+        font-size: 10px !important;
+        top: -10px !important;
+        right: -10px !important;
     }
 }
 
+/* Tablette mobile */
+@media (max-width: 768px) {
+    :root {
+        --grid-gap: 1.2rem;
+        --card-padding: 1.5rem;
+        --image-size: 200px;
+        --container-padding: 0 1rem;
+    }
+    
+    .wc-block-product {
+        min-height: 400px;
+    }
+    
+    /* Badges tablette mobile */
+    .wc-block-components-product-image .promo-bubble,
+    .wc-block-components-product-image .promo-bubble-quantity {
+        width: 55px !important;
+        height: 55px !important;
+        font-size: 9px !important;
+        top: -8px !important;
+        left: -8px !important;
+    }
+    
+    .wc-block-components-product-sale-badge {
+        padding: 4px 8px !important;
+        font-size: 9px !important;
+        top: -8px !important;
+        right: -8px !important;
+    }
+}
+
+/* Mobile large */
+@media (max-width: 600px) {
+    :root {
+        --grid-gap: 1rem;
+        --card-padding: 1.2rem;
+        --image-size: 160px;
+        --container-padding: 0 0.8rem;
+    }
+    
+    .wc-block-product {
+        min-height: 350px;
+    }
+    
+    .wp-block-post-title {
+        font-size: 0.9rem !important;
+        min-height: 2.2rem;
+    }
+    
+    .woocommerce-Price-amount {
+        font-size: 1rem;
+    }
+    
+    .wc-block-components-product-button .wp-block-button__link,
+    .wc-block-components-product-button button {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+    
+    /* Badges mobile large */
+    .wc-block-components-product-image .promo-bubble,
+    .wc-block-components-product-image .promo-bubble-quantity {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 8px !important;
+        top: -6px !important;
+        left: -6px !important;
+        border: 2px solid white !important;
+    }
+    
+    .wc-block-components-product-sale-badge {
+        padding: 3px 6px !important;
+        font-size: 8px !important;
+        top: -6px !important;
+        right: -6px !important;
+        border: 1px solid white !important;
+    }
+}
+
+/* Mobile standard */
 @media (max-width: 480px) {
     :root {
         --grid-gap: 0.8rem;
         --card-padding: 1rem;
-        --card-height: 350px;
-        --image-size: 120px;
-        --title-font-size: 0.85rem;
-        --title-height: 2.5rem;
-        --price-font-size: 0.9rem;
-        --button-font-size: 0.75rem;
-        --button-padding: 6px 12px;
+        --image-size: 140px;
         --container-padding: 0 0.5rem;
     }
     
-    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
-        grid-template-columns: repeat(2, 1fr) !important;
-        display: grid !important;
+    .wp-block-woocommerce-product-collection .wc-block-product-template {
+        margin: 2rem 0;
+    }
+    
+    .wc-block-product {
+        min-height: 320px;
+        border-radius: var(--radius-small);
+    }
+    
+    .wc-block-components-product-image {
+        margin-bottom: 1rem;
+    }
+    
+    .wp-block-post-title {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.8rem !important;
+        min-height: 2rem;
+    }
+    
+    .wc-block-components-product-price {
+        margin-bottom: 1rem;
+        min-height: 2rem;
+    }
+    
+    .woocommerce-Price-amount {
+        font-size: 0.95rem;
+    }
+    
+    /* Badges mobile standard */
+    .wc-block-components-product-image .promo-bubble,
+    .wc-block-components-product-image .promo-bubble-quantity {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 7px !important;
+        top: -5px !important;
+        left: -5px !important;
+        border: 2px solid white !important;
+    }
+    
+    .wc-block-components-product-sale-badge {
+        padding: 2px 5px !important;
+        font-size: 7px !important;
+        top: -5px !important;
+        right: -5px !important;
+        border: 1px solid white !important;
     }
 }
 
-@media (max-width: 350px) {
+/* Très petit mobile */
+@media (max-width: 380px) {
     :root {
-        --grid-gap: 0.5rem;
+        --grid-gap: 0.6rem;
         --card-padding: 0.8rem;
-        --card-height: 320px;
-        --image-size: 100px;
-        --title-font-size: 0.8rem;
-        --title-height: 2.2rem;
-        --price-font-size: 0.85rem;
-        --button-font-size: 0.7rem;
-        --button-padding: 5px 10px;
+        --image-size: 120px;
         --container-padding: 0 0.3rem;
     }
     
-    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
-    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
-        grid-template-columns: repeat(2, 1fr) !important;
-        display: grid !important;
+    .wp-block-woocommerce-product-collection .wc-block-product-template {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .wc-block-product {
+        min-height: 300px;
+    }
+    
+    .wp-block-post-title {
+        font-size: 0.8rem !important;
+        min-height: 1.8rem;
+    }
+    
+    .woocommerce-Price-amount {
+        font-size: 0.9rem;
+    }
+    
+    .wc-block-components-product-button .wp-block-button__link,
+    .wc-block-components-product-button button {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+    }
+    
+    /* Badges très petit mobile */
+    .wc-block-components-product-image .promo-bubble,
+    .wc-block-components-product-image .promo-bubble-quantity {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 6px !important;
+        top: -4px !important;
+        left: -4px !important;
+        border: 1px solid white !important;
+    }
+    
+    .wc-block-components-product-sale-badge {
+        padding: 2px 4px !important;
+        font-size: 6px !important;
+        top: -4px !important;
+        right: -4px !important;
+        border: 1px solid white !important;
     }
 }
 
-/* ====== SECTION SKILLS/AVANTAGES ====== */
+/* ====================================
+   ANIMATIONS ET MICRO-INTERACTIONS
+   ==================================== */
 
-/* Container principal - Annuler le fond Bootstrap et appliquer le nôtre */
+/* Animation d'entrée */
+.wc-block-product {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.wc-block-product:nth-child(1) { animation-delay: 0.1s; }
+.wc-block-product:nth-child(2) { animation-delay: 0.2s; }
+.wc-block-product:nth-child(3) { animation-delay: 0.3s; }
+.wc-block-product:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation de chargement pour les images */
+.wc-block-components-product-image img[src=""] {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ====================================
+   SECTION SKILLS/AVANTAGES (conservée)
+   ==================================== */
+
 .wp-block-group.bg-primary {
     background: linear-gradient(135deg, #2A3E6A 0%, #1e2f5a 100%) !important;
     --bs-bg-opacity: 0 !important;
@@ -268,13 +535,11 @@
     margin: 3rem 0;
 }
 
-/* Annuler spécifiquement le fond Bootstrap sur cette section */
 .wp-block-columns.skills.bg-primary {
     background-color: transparent !important;
     --bs-bg-opacity: 0 !important;
 }
 
-/* Colonnes skills */
 .wp-block-columns.skills {
     max-width: 1200px;
     margin: 0 auto;
@@ -287,7 +552,6 @@
     position: relative;
 }
 
-/* Icônes Lucide uniformisées */
 .wp-block-columns.skills .wp-block-image {
     margin: 0 auto 1.2rem auto !important;
     display: flex;
@@ -308,7 +572,6 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Style pour les icônes Lucide */
 .wp-block-columns.skills .wp-block-image i {
     font-size: 28px !important;
     color: #ffffff !important;
@@ -320,7 +583,6 @@
     transform: scale(1.1);
 }
 
-/* Textes */
 .wp-block-columns.skills p {
     color: #ffffff !important;
     font-size: 0.95rem;
@@ -333,7 +595,6 @@
     color: #f0f8ff !important;
 }
 
-/* Corriger la couleur des liens téléphone sur mobile */
 .wp-block-columns.skills p a,
 .wp-block-columns.skills p a:link,
 .wp-block-columns.skills p a:visited,
@@ -352,7 +613,6 @@
     text-decoration: none !important;
 }
 
-/* Séparateurs visuels entre colonnes */
 .wp-block-columns.skills .wp-block-column:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -364,9 +624,7 @@
     background: rgba(255, 255, 255, 0.15);
 }
 
-/* ====== RESPONSIVE DESIGN ====== */
-
-/* Tablettes */
+/* Responsive Skills */
 @media (max-width: 1024px) {
     .wp-block-group.bg-primary {
         padding: 3rem 0;
@@ -396,7 +654,6 @@
     }
 }
 
-/* Mobile large */
 @media (max-width: 768px) {
     .wp-block-group.bg-primary {
         padding: 2rem 0;
@@ -445,7 +702,6 @@
     }
 }
 
-/* Mobile petit */
 @media (max-width: 480px) {
     .wp-block-group.bg-primary {
         padding: 1.5rem 0;
@@ -477,7 +733,6 @@
     }
 }
 
-/* Très petit mobile */
 @media (max-width: 350px) {
     .wp-block-columns.skills {
         grid-template-columns: 1fr !important;
@@ -502,14 +757,10 @@
     }
 }
 
-/* ====== FONCTIONNALITÉ PANIER HOMEPAGE ====== */
+/* ====================================
+   SECTION MARQUES PARTENAIRES
+   ==================================== */
 
-/* Les boutons homepage utilisent maintenant le même système que single product */
-/* Le JavaScript est ajouté dans functions.php pour activer le mini cart */
-
-/* ====== SECTION MARQUES PARTENAIRES ====== */
-
-/* Forcer l'affichage sur une seule ligne */
 .wp-block-gallery.container {
     display: flex !important;
     flex-wrap: nowrap !important;
@@ -526,29 +777,24 @@
     margin: 0 !important;
 }
 
-/* ====== RESPONSIVE MARQUES ====== */
-
-/* Desktop - taille des images et padding de la section */
+/* Responsive Marques */
 @media (min-width: 1025px) {
-    /* Images des marques */
     body .wp-block-gallery.has-nested-images.columns-default.is-cropped.container.wp-block-gallery-1.is-layout-flex .wp-block-image.size-full img,
     .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img,
     figure.wp-block-gallery.container .wp-block-image img {
         width: auto !important;
-        height: 80px !important; /* Taille originale */
+        height: 80px !important;
         max-width: 100% !important;
-        object-fit: contain !important; /* Pas de crop, réduction complète */
+        object-fit: contain !important;
         max-height: 80px !important;
     }
     
-    /* Padding sous la section marques partenaires */
     .wp-block-gallery.has-nested-images.container {
         padding-bottom: 3rem !important;
         margin-bottom: 2rem !important;
     }
 }
 
-/* Tablette */
 @media (max-width: 1024px) {
     .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img {
         height: 60px !important;
@@ -556,7 +802,6 @@
     }
 }
 
-/* Mobile large */
 @media (max-width: 768px) {
     .wp-block-gallery.has-nested-images.container {
         gap: 0.5rem;
@@ -568,7 +813,6 @@
     }
 }
 
-/* Mobile standard */
 @media (max-width: 480px) {
     .wp-block-gallery.has-nested-images.container {
         gap: 0.3rem;
@@ -580,7 +824,6 @@
     }
 }
 
-/* Très petit mobile */
 @media (max-width: 350px) {
     .wp-block-gallery.has-nested-images.container {
         gap: 0.2rem;

@@ -1,0 +1,593 @@
+/* CSS pour transformer la première section comme la deuxième */
+
+/* Container pour centrer la section */
+.wp-block-woocommerce-product-collection {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--container-padding);
+}
+
+/* Grille des produits - section "Découvrez nos produits" */
+.wp-block-woocommerce-product-collection .wc-block-product-template {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--grid-gap);
+    list-style: none;
+    padding: 0;
+    margin: 3rem 0;
+    justify-content: center;
+}
+
+/* Cartes produits - Hauteur fixe et flex pour uniformiser */
+.wc-block-product {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: var(--card-padding);
+    box-shadow: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    height: var(--card-height);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.wc-block-product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Images produits - Format carré et centré */
+.wc-block-components-product-image {
+    margin: 0 auto 1rem auto;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--image-size);
+    width: var(--image-size);
+    flex-shrink: 0;
+}
+
+.wc-block-components-product-image a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.wc-block-components-product-image img {
+    max-width: 80%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+/* Titres produits - Hauteur adaptative */
+.wp-block-post-title {
+    font-size: var(--title-font-size) !important;
+    font-weight: 500;
+    color: #000000;
+    margin-bottom: 1rem !important;
+    line-height: 1.4;
+    text-align: center;
+    height: var(--title-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wp-block-post-title a {
+    text-decoration: none;
+    color: #000000;
+    transition: color 0.3s ease;
+}
+
+.wp-block-post-title a:hover {
+    color: #333333;
+}
+
+/* Prix - Hauteur fixe */
+.wc-block-components-product-price {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.woocommerce-Price-amount {
+    font-size: var(--price-font-size);
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.woocommerce-Price-currencySymbol {
+    font-weight: 700;
+}
+
+/* Plage de prix */
+.wc-block-components-product-price .wc-block-grid__product-price span[aria-hidden="true"] {
+    color: #1f2937;
+}
+
+/* Boutons */
+.wc-block-components-product-button {
+    margin-top: auto;
+    margin-bottom: 0;
+}
+
+.wc-block-components-product-button .wp-block-button__link,
+.wc-block-components-product-button button {
+    background: #f1bb69;
+    color: black;
+    border: none;
+    border-radius: 6px;
+    padding: var(--button-padding);
+    font-weight: 600;
+    font-size: var(--button-font-size);
+    text-transform: none;
+    letter-spacing: normal;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: none;
+    width: 100%;
+    text-align: center;
+}
+
+.wc-block-components-product-button .wp-block-button__link:hover,
+.wc-block-components-product-button button:hover {
+    background: #e29a3d;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Ajustement pour que les cartes aient la même hauteur */
+.wc-block-product {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* CSS Custom Properties pour une approche responsive moderne */
+:root {
+    --grid-columns: 4;
+    --grid-gap: 3rem;
+    --card-padding: 3rem;
+    --card-height: 550px;
+    --image-size: 250px;
+    --title-font-size: 1.1rem;
+    --title-height: 4rem;
+    --price-font-size: 1.125rem;
+    --button-font-size: 0.875rem;
+    --button-padding: 10px 20px;
+    --container-padding: 0 2rem;
+}
+
+/* Breakpoints avec spécificité maximale */
+@media (max-width: 1050px) {
+    :root {
+        --grid-gap: 2rem;
+        --card-padding: 2.5rem;
+        --card-height: 520px;
+        --image-size: 200px;
+        --title-font-size: 1rem;
+        --title-height: 3.8rem;
+        --container-padding: 0 1.5rem;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: repeat(3, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --grid-gap: 1rem;
+        --card-padding: 1.5rem;
+        --card-height: 420px;
+        --image-size: 140px;
+        --title-font-size: 0.9rem;
+        --title-height: 3rem;
+        --price-font-size: 0.95rem;
+        --button-font-size: 0.8rem;
+        --button-padding: 8px 16px;
+        --container-padding: 0 0.5rem;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: repeat(2, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --grid-gap: 0.8rem;
+        --card-padding: 1rem;
+        --card-height: 350px;
+        --image-size: 120px;
+        --title-font-size: 0.85rem;
+        --title-height: 2.5rem;
+        --price-font-size: 0.9rem;
+        --button-font-size: 0.75rem;
+        --button-padding: 6px 12px;
+        --container-padding: 0 0.5rem;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: repeat(2, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+@media (max-width: 350px) {
+    :root {
+        --grid-gap: 0.5rem;
+        --card-padding: 0.8rem;
+        --card-height: 320px;
+        --image-size: 100px;
+        --title-font-size: 0.8rem;
+        --title-height: 2.2rem;
+        --price-font-size: 0.85rem;
+        --button-font-size: 0.7rem;
+        --button-padding: 5px 10px;
+        --container-padding: 0 0.3rem;
+    }
+    
+    body .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .container .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template,
+    .wp-block-woocommerce-product-collection .wc-block-product-template.wc-block-product-template {
+        grid-template-columns: repeat(2, 1fr) !important;
+        display: grid !important;
+    }
+}
+
+/* ====== SECTION SKILLS/AVANTAGES ====== */
+
+/* Container principal - Annuler le fond Bootstrap et appliquer le nôtre */
+.wp-block-group.bg-primary {
+    background: linear-gradient(135deg, #2A3E6A 0%, #1e2f5a 100%) !important;
+    --bs-bg-opacity: 0 !important;
+    padding: 3rem 0;
+    margin: 3rem 0;
+}
+
+/* Annuler spécifiquement le fond Bootstrap sur cette section */
+.wp-block-columns.skills.bg-primary {
+    background-color: transparent !important;
+    --bs-bg-opacity: 0 !important;
+}
+
+/* Colonnes skills */
+.wp-block-columns.skills {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.wp-block-columns.skills .wp-block-column {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    position: relative;
+}
+
+/* Icônes Lucide uniformisées */
+.wp-block-columns.skills .wp-block-image {
+    margin: 0 auto 1.2rem auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.wp-block-columns.skills .wp-block-image:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #f1bb69;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Style pour les icônes Lucide */
+.wp-block-columns.skills .wp-block-image i {
+    font-size: 28px !important;
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+.wp-block-columns.skills .wp-block-column:hover .wp-block-image i {
+    color: #f1bb69 !important;
+    transform: scale(1.1);
+}
+
+/* Textes */
+.wp-block-columns.skills p {
+    color: #ffffff !important;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0 !important;
+}
+
+.wp-block-columns.skills .wp-block-column:hover p {
+    color: #f0f8ff !important;
+}
+
+/* Corriger la couleur des liens téléphone sur mobile */
+.wp-block-columns.skills p a,
+.wp-block-columns.skills p a:link,
+.wp-block-columns.skills p a:visited,
+.wp-block-columns.skills p a:hover,
+.wp-block-columns.skills p a:active {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+.wp-block-columns.skills .wp-block-column:hover p a,
+.wp-block-columns.skills .wp-block-column:hover p a:link,
+.wp-block-columns.skills .wp-block-column:hover p a:visited,
+.wp-block-columns.skills .wp-block-column:hover p a:hover,
+.wp-block-columns.skills .wp-block-column:hover p a:active {
+    color: #f0f8ff !important;
+    text-decoration: none !important;
+}
+
+/* Séparateurs visuels entre colonnes */
+.wp-block-columns.skills .wp-block-column:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 50%;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ====== RESPONSIVE DESIGN ====== */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+    .wp-block-group.bg-primary {
+        padding: 3rem 0;
+    }
+    
+    .wp-block-columns.skills {
+        padding: 0 1.5rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-column {
+        padding: 1.5rem 0.5rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-image {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 1rem !important;
+    }
+    
+    .wp-block-columns.skills .wp-block-image img {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .wp-block-columns.skills p {
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile large */
+@media (max-width: 768px) {
+    .wp-block-group.bg-primary {
+        padding: 2rem 0;
+        margin: 2rem 0;
+    }
+    
+    .wp-block-columns.skills {
+        padding: 0 1rem;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-column {
+        padding: 1.2rem 0.8rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .wp-block-columns.skills .wp-block-column:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(241, 187, 105, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .wp-block-columns.skills .wp-block-column::after {
+        display: none;
+    }
+    
+    .wp-block-columns.skills .wp-block-image {
+        width: 55px;
+        height: 55px;
+        margin-bottom: 0.8rem !important;
+        border-radius: 12px;
+    }
+    
+    .wp-block-columns.skills .wp-block-image i {
+        font-size: 22px !important;
+    }
+    
+    .wp-block-columns.skills p {
+        font-size: 0.85rem;
+        line-height: 1.3;
+    }
+}
+
+/* Mobile petit */
+@media (max-width: 480px) {
+    .wp-block-group.bg-primary {
+        padding: 1.5rem 0;
+    }
+    
+    .wp-block-columns.skills {
+        padding: 0 0.8rem;
+        gap: 0.8rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-column {
+        padding: 1rem 0.6rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-image {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 0.6rem !important;
+        border-radius: 10px;
+    }
+    
+    .wp-block-columns.skills .wp-block-image i {
+        font-size: 20px !important;
+    }
+    
+    .wp-block-columns.skills p {
+        font-size: 0.8rem;
+        line-height: 1.2;
+    }
+}
+
+/* Très petit mobile */
+@media (max-width: 350px) {
+    .wp-block-columns.skills {
+        grid-template-columns: 1fr !important;
+        gap: 0.6rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-column {
+        padding: 0.8rem;
+    }
+    
+    .wp-block-columns.skills .wp-block-image {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .wp-block-columns.skills .wp-block-image i {
+        font-size: 18px !important;
+    }
+    
+    .wp-block-columns.skills p {
+        font-size: 0.75rem;
+    }
+}
+
+/* ====== FONCTIONNALITÉ PANIER HOMEPAGE ====== */
+
+/* Les boutons homepage utilisent maintenant le même système que single product */
+/* Le JavaScript est ajouté dans functions.php pour activer le mini cart */
+
+/* ====== SECTION MARQUES PARTENAIRES ====== */
+
+/* Forcer l'affichage sur une seule ligne */
+.wp-block-gallery.container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wp-block-gallery.container .wp-block-image {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+}
+
+/* ====== RESPONSIVE MARQUES ====== */
+
+/* Desktop - taille des images et padding de la section */
+@media (min-width: 1025px) {
+    /* Images des marques */
+    body .wp-block-gallery.has-nested-images.columns-default.is-cropped.container.wp-block-gallery-1.is-layout-flex .wp-block-image.size-full img,
+    .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img,
+    figure.wp-block-gallery.container .wp-block-image img {
+        width: auto !important;
+        height: 80px !important; /* Taille originale */
+        max-width: 100% !important;
+        object-fit: contain !important; /* Pas de crop, réduction complète */
+        max-height: 80px !important;
+    }
+    
+    /* Padding sous la section marques partenaires */
+    .wp-block-gallery.has-nested-images.container {
+        padding-bottom: 3rem !important;
+        margin-bottom: 2rem !important;
+    }
+}
+
+/* Tablette */
+@media (max-width: 1024px) {
+    .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img {
+        height: 60px !important;
+        object-fit: contain !important;
+    }
+}
+
+/* Mobile large */
+@media (max-width: 768px) {
+    .wp-block-gallery.has-nested-images.container {
+        gap: 0.5rem;
+    }
+    
+    .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img {
+        height: 40px !important;
+        object-fit: contain !important;
+    }
+}
+
+/* Mobile standard */
+@media (max-width: 480px) {
+    .wp-block-gallery.has-nested-images.container {
+        gap: 0.3rem;
+    }
+    
+    .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img {
+        height: 30px !important;
+        object-fit: contain !important;
+    }
+}
+
+/* Très petit mobile */
+@media (max-width: 350px) {
+    .wp-block-gallery.has-nested-images.container {
+        gap: 0.2rem;
+    }
+    
+    .wp-block-gallery.has-nested-images.container .wp-block-image.size-full img {
+        height: 25px !important;
+        object-fit: contain !important;
+    }
+}

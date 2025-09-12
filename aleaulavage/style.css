@@ -1,0 +1,456 @@
+/*
+Theme Name: aleaulavage
+Theme URI: https://aleaulavage.com
+Author: YannQ & Paul Mazzon
+Author URI: https://aleaulavage.com
+Description: Theme for Aleaulavage
+Version: 1.1
+Tested up to: 6.0.1
+Requires PHP: 5.6
+License: MIT License
+License URI: https://opensource.org/licenses/MIT
+Text Domain: aleaulavage
+
+/* Don't overwrite this file. Compile "/assets/main.scss" to "/assets/dist/main.css" */
+
+
+/* From http://codex.wordpress.org/CSS */
+
+/* CSS global pour restaurer le padding du footer sur toutes les pages */
+footer,
+.footer,
+#footer,
+.site-footer {
+  margin-top: 3rem !important;
+  padding-top: 3rem !important;
+}
+
+/* Restaurer le padding normal de .pt-5 sur toutes les pages */
+.pt-5 {
+  padding-top: 3rem !important;
+}
+
+/* Exception pour la page panier sur mobile seulement */
+@media (max-width: 768px) {
+  body.woocommerce-cart .pt-5 {
+    padding-top: 0 !important;
+  }
+}
+
+/* Styles pour la description de catégorie */
+.category-description-top {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f7f7f7;
+  border-radius: 5px;
+  border: 1px solid #e7e7e7;
+}
+
+.category-description-short {
+  line-height: 1.6;
+  color: #333;
+}
+
+.dots {
+  color: #666;
+}
+
+.read-more {
+  color: #007cba;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+  margin-left: 5px;
+  transition: color 0.3s ease;
+}
+
+.read-more:hover {
+  color: #005a87;
+}
+
+.category-description-full {
+  margin: 40px 0;
+  padding: 0;
+  background: none;
+  width: 100%;
+  scroll-margin-top: 20px;
+}
+
+.category-description-full .term-description {
+  line-height: 1.6;
+  color: #333;
+}
+
+.category-description-full .term-description p {
+  margin-bottom: 15px;
+}
+
+.category-description-full .term-description p:last-child {
+  margin-bottom: 0;
+}
+
+.alignnone {
+	margin: 5px 20px 20px 0;
+}
+
+.aligncenter,
+div.aligncenter {
+	display: block;
+	margin: 5px auto 5px auto;
+}
+
+.alignright {
+	float: right;
+	margin: 5px 0 20px 20px;
+}
+
+.alignleft {
+	float: left;
+	margin: 5px 20px 20px 0;
+}
+
+a img.alignright {
+	float: right;
+	margin: 5px 0 20px 20px;
+}
+
+a img.alignnone {
+	margin: 5px 20px 20px 0;
+}
+
+a img.alignleft {
+	float: left;
+	margin: 5px 20px 20px 0;
+}
+
+a img.aligncenter {
+	display: block;
+	margin-left: auto;
+	margin-right: auto
+}
+
+.wp-caption {
+	max-width: 96%; /* Image does not overflow the content area */
+	padding: 5px 3px 10px;
+	text-align: center;
+}
+.wp-caption.alignnone {
+	margin: 5px 20px 20px 0;
+}
+.wp-caption.alignleft {
+	margin: 5px 20px 20px 0;
+}
+.wp-caption.alignright {
+	margin: 5px 0 20px 20px;
+}
+.wp-caption img {
+	border: 0 none;
+	height: auto;
+	margin: 0;
+	max-width: 98.5%;
+	padding: 0;
+	width: auto;
+}
+.wp-caption p.wp-caption-text {
+	font-size: 11px;
+	line-height: 17px;
+	margin: 0;
+	padding: 0 4px 5px;
+}
+
+.gallery-item {
+	display: inline-block;
+	text-align: left;
+	vertical-align: top;
+	width: 50%;
+}
+
+.gallery-item a,
+.gallery-item a:hover,
+.gallery-item a:focus {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	background: none;
+	display: inline-block;
+	max-width: 100%;
+}
+
+.gallery-item a img {
+	display: block;
+	-webkit-transition: -webkit-filter 0.2s ease-in;
+	transition: -webkit-filter 0.2s ease-in;
+	transition: filter 0.2s ease-in;
+	transition: filter 0.2s ease-in, -webkit-filter 0.2s ease-in;
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+}
+
+.gallery-item a:hover img,
+.gallery-item a:focus img {
+	-webkit-filter: opacity(60%);
+	filter: opacity(60%);
+}
+
+.gallery-caption {
+	display: block;
+	text-align: left;
+	padding: 0 10px 0 0;
+	margin-bottom: 0;
+}
+
+.gallery-columns-1 .gallery-item {
+	max-width: 100%;
+}
+
+.gallery-columns-2 .gallery-item {
+	max-width: 50%;
+}
+
+.gallery-columns-3 .gallery-item {
+	max-width: 33%;
+}
+
+.gallery-columns-4 .gallery-item {
+	max-width: 25%;
+}
+
+.gallery-columns-5 .gallery-item {
+	max-width: 20%;
+}
+
+.gallery-columns-6 .gallery-item {
+	max-width: 16.66%;
+}
+
+.gallery-columns-7 .gallery-item {
+	max-width: 14.28%;
+}
+
+.gallery-columns-8 .gallery-item {
+	max-width: 12.5%;
+}
+
+.gallery-columns-9 .gallery-item {
+	max-width: 11.11%;
+}
+
+.gallery-columns-6 .gallery-caption,
+.gallery-columns-7 .gallery-caption,
+.gallery-columns-8 .gallery-caption,
+.gallery-columns-9 .gallery-caption {
+	display: none;
+}
+
+.bypostauthor {
+	font-weight: bold;
+}
+
+/* Text meant only for screen readers. */
+.screen-reader-text {
+	clip: rect(1px, 1px, 1px, 1px);
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+}
+
+.screen-reader-text:focus {
+	background-color: #f1f1f1;
+	border-radius: 3px;
+	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
+	clip: auto !important;
+	color: #21759b;
+	display: block;
+	font-size: 14px;
+	font-size: 0.875rem;
+	font-weight: bold;
+	height: auto;
+	left: 5px;
+	line-height: normal;
+	padding: 15px 23px 14px;
+	text-decoration: none;
+	top: 5px;
+	width: auto;
+	z-index: 100000; /* Above WP toolbar. */
+}
+
+
+.term-description {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f7f7f7;
+    border-radius: 5px;
+    border: 1px solid #e7e7e7;
+}
+
+
+
+/* Last paragraph no margin */
+.term-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Links within description */
+.term-description a {
+    color: #0066cc;
+}
+
+/* Styles pour les messages d'erreur WooCommerce */
+.woocommerce-error,
+.woocommerce-info,
+.woocommerce-message {
+    margin: 20px 0 !important;
+    padding: 15px 20px !important;
+    border-radius: 8px !important;
+    border-left: 4px solid;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Messages d'erreur - Rouge */
+.woocommerce-error {
+    background-color: #fdf2f2 !important;
+    border-left-color: #e53e3e !important;
+    color: #742a2a !important;
+}
+
+.woocommerce-error li {
+    color: #742a2a !important;
+    margin: 0 !important;
+    list-style: none !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.woocommerce-error a,
+.woocommerce-error .button {
+    background-color: #e53e3e !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 5px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    margin-left: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.3s ease !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+}
+
+.woocommerce-error a:hover,
+.woocommerce-error .button:hover {
+    background-color: #c53030 !important;
+    text-decoration: none !important;
+}
+
+/* Messages d'information - Bleu */
+.woocommerce-info {
+    background-color: #ebf8ff !important;
+    border-left-color: #3182ce !important;
+    color: #2c5282 !important;
+}
+
+.woocommerce-info li {
+    color: #2c5282 !important;
+    margin: 0 !important;
+    list-style: none !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.woocommerce-info a,
+.woocommerce-info .button {
+    background-color: #3182ce !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 5px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    margin-left: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+}
+
+.woocommerce-info a:hover,
+.woocommerce-info .button:hover {
+    background-color: #2c5282 !important;
+}
+
+/* Messages de succès - Vert */
+.woocommerce-message {
+    background-color: #f0fff4 !important;
+    border-left-color: #38a169 !important;
+    color: #22543d !important;
+}
+
+.woocommerce-message li {
+    color: #22543d !important;
+    margin: 0 !important;
+    list-style: none !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.woocommerce-message a,
+.woocommerce-message .button {
+    background-color: #38a169 !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 5px !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    margin-left: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+}
+
+.woocommerce-message a:hover,
+.woocommerce-message .button:hover {
+    background-color: #2f855a !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .woocommerce-error,
+    .woocommerce-info,
+    .woocommerce-message {
+        margin: 15px 0 !important;
+        padding: 12px 15px !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .woocommerce-error a,
+    .woocommerce-error .button,
+    .woocommerce-info a,
+    .woocommerce-info .button,
+    .woocommerce-message a,
+    .woocommerce-message .button {
+        padding: 6px 12px !important;
+        font-size: 0.9rem !important;
+        margin-left: 8px !important;
+        margin-top: 5px !important;
+        display: inline-block !important;
+    }
+}
+
+/* Description headings if used */
+.term-description h1,
+.term-description h2,
+.term-description h3 {
+    color: #333;
+    margin: 15px 0;
+    font-weight: 600;
+}
+

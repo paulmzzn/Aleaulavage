@@ -186,7 +186,6 @@ if ( post_password_required() ) {
           var adpTable = document.querySelector('.wdp_pricing_table');
           
           if (adpTable) {
-              console.log('📊 Tableau ADP trouvé, extraction des règles...');
               
               // Extraire les règles de prix du tableau ADP
               extractPricingRules();
@@ -195,7 +194,6 @@ if ( post_password_required() ) {
               elecxOverrideActive = true;
               setupPriceManagement();
           } else {
-              console.log('❌ Aucun tableau ADP trouvé');
               // Pas de tableau ADP, désactiver la logique custom
               elecxOverrideActive = false;
           }
@@ -208,7 +206,6 @@ if ( post_password_required() ) {
           var adpTableRows = document.querySelectorAll('.wdp_pricing_table tbody tr');
           
           if (adpTableRows.length > 0) {
-              console.log('📊 Extraction des règles ADP:', adpTableRows.length, 'règles trouvées');
               
               adpTableRows.forEach(function(row) {
                   var cells = row.querySelectorAll('td');
@@ -219,7 +216,6 @@ if ( post_password_required() ) {
                       var discountText = cells[1].textContent.trim(); // ex: "5%"
                       var priceText = cells[2].textContent.trim(); // ex: "4,93 €"
                       
-                      console.log('🔍 Analyse 3 colonnes:', {quantite: quantityText, remise: discountText, prix: priceText});
                       
                       // Extraire les quantités min et max
                       var minQty = 0;
@@ -245,7 +241,6 @@ if ( post_password_required() ) {
                               max: maxQty,
                               price: priceValue
                           });
-                          console.log('✅ Règle 3 colonnes ajoutée:', {min: minQty, max: maxQty, price: priceValue});
                       }
                       
                   } else if (cells.length >= 2) {
@@ -253,7 +248,6 @@ if ( post_password_required() ) {
                       var quantityText = cells[0].textContent.trim(); // ex: "100 - 199"
                       var priceText = cells[1].textContent.trim(); // ex: "6,50 €"
                       
-                      console.log('🔍 Analyse 2 colonnes:', {quantite: quantityText, prix: priceText});
                       
                       // Extraire les quantités min et max
                       var minQty = 0;
@@ -279,13 +273,11 @@ if ( post_password_required() ) {
                               max: maxQty,
                               price: priceValue
                           });
-                          console.log('✅ Règle 2 colonnes ajoutée:', {min: minQty, max: maxQty, price: priceValue});
                       }
                   }
               });
           }
           
-          console.log('📋 Règles de prix finales:', pricingRules);
       }
       
       function setupPriceManagement() {
@@ -403,7 +395,6 @@ if ( post_password_required() ) {
           if (!qtyInput) return;
           
           var currentQty = parseInt(qtyInput.value) || 1;
-          console.log('🔢 Changement quantité:', currentQty, 'règles:', pricingRules);
           
           // Trouver la règle active (prix fixe)
           var activeRule = null;
@@ -416,10 +407,8 @@ if ( post_password_required() ) {
           }
           
           if (activeRule) {
-              console.log('✅ Règle active:', activeRule);
               displayFixedPrice(activeRule);
           } else {
-              console.log('❌ Aucune règle, prix original');
               restoreOriginalPrice();
           }
       }
@@ -431,7 +420,6 @@ if ( post_password_required() ) {
           isUpdatingPrice = true;
           var newPrice = rule.price;
           
-          console.log('💰 Affichage prix fixe:', newPrice, '€');
           
           priceElement.innerHTML = '<del style="color: #999; text-decoration: line-through;">' + 
                                  originalPriceData.price.toFixed(2).replace('.', ',') + '&nbsp;€</del> ' + 

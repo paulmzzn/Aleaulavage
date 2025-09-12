@@ -33,7 +33,6 @@ class SPANavigation {
         this.bindEvents();
         this.setupLoadingIndicator();
         this.preloadCurrentPage();
-        console.log('🚀 SPA Navigation initialized');
     }
     
     bindEvents() {
@@ -51,7 +50,7 @@ class SPANavigation {
             if (this.shouldInterceptLink(link, e)) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('🔗 SPA intercepting link:', link.href);
+                //console.log('🔗 SPA intercepting link:', link.href);
                 this.navigateTo(link.href);
             }
         });
@@ -77,7 +76,7 @@ class SPANavigation {
         if (!link || !link.href || link.href === '') return false;
         if (!link.getAttribute('href')) return false; // Pas d'attribut href
         
-        console.log('🔍 Checking link:', link.href, 'target:', link.target);
+        //console.log('🔍 Checking link:', link.href, 'target:', link.target);
         
         // Touches modificatrices
         if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return false;
@@ -115,7 +114,7 @@ class SPANavigation {
         
         for (const selector of excludeSelectors) {
             if (link.matches(selector)) {
-                console.log('❌ Link excluded by selector:', selector);
+                //console.log('❌ Link excluded by selector:', selector);
                 return false;
             }
         }
@@ -126,15 +125,15 @@ class SPANavigation {
             const currentUrl = new URL(window.location.href);
             
             if (linkUrl.origin !== currentUrl.origin) {
-                console.log('❌ External link detected');
+                //console.log('❌ External link detected');
                 return false;
             }
             
-            console.log('✅ Link approved for SPA');
+            //console.log('✅ Link approved for SPA');
             return true;
             
         } catch (error) {
-            console.log('❌ Invalid URL:', error);
+            //console.log('❌ Invalid URL:', error);
             return false;
         }
     }
@@ -223,14 +222,14 @@ class SPANavigation {
     async navigateTo(url) {
         if (this.isLoading || url === this.currentUrl) return;
         
-        console.log(`🧭 Navigating to: ${url}`);
+        //console.log(`🧭 Navigating to: ${url}`);
         this.targetUrl = url; // Stocker l'URL cible pour les fallbacks
         
         try {
             await this.loadPage(url, true);
             this.currentUrl = url;
         } catch (error) {
-            console.error('Navigation error:', error);
+            //console.error('Navigation error:', error);
             // Fallback vers navigation classique vers l'URL cible
             window.location.href = url;
         }
@@ -249,7 +248,7 @@ class SPANavigation {
             
             // Vérifier que le contenu n'est pas vide
             if (!content || !content.content || content.content.trim().length < 100) {
-                console.warn('⚠️ Content seems empty or too short, forcing page reload');
+                //console.warn('⚠️ Content seems empty or too short, forcing page reload');
                 window.location.href = url;
                 return;
             }
@@ -269,11 +268,11 @@ class SPANavigation {
     async fetchPageContent(url) {
         // Vérifier le cache
         if (this.cache.has(url)) {
-            console.log(`📦 Loading from cache: ${url}`);
+            //console.log(`📦 Loading from cache: ${url}`);
             return this.cache.get(url);
         }
         
-        console.log(`🌐 Fetching via AJAX: ${url}`);
+        //console.log(`🌐 Fetching via AJAX: ${url}`);
         
         try {
             // Utiliser l'endpoint AJAX WordPress pour une meilleure compatibilité
@@ -312,13 +311,13 @@ class SPANavigation {
             
         } catch (error) {
             // Fallback vers fetch classique si AJAX échoue
-            console.warn('🔄 AJAX failed, falling back to fetch:', error);
+            //console.warn('🔄 AJAX failed, falling back to fetch:', error);
             return this.fetchPageContentFallback(url);
         }
     }
     
     async fetchPageContentFallback(url) {
-        console.log(`🌐 Fallback fetch: ${url}`);
+        //console.log(`🌐 Fallback fetch: ${url}`);
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
@@ -441,7 +440,7 @@ class SPANavigation {
         for (const selector of selectors) {
             const element = document.querySelector(selector);
             if (element && element.offsetHeight > 0) { // Vérifier que l'élément est visible
-                console.log(`📍 Content found with selector: ${selector}`);
+                //console.log(`📍 Content found with selector: ${selector}`);
                 return element;
             }
         }
@@ -466,7 +465,7 @@ class SPANavigation {
         for (const selector of selectors) {
             const element = containerElement.querySelector(selector);
             if (element) {
-                console.log(`📍 New content found with selector: ${selector}`);
+                //console.log(`📍 New content found with selector: ${selector}`);
                 return element;
             }
         }
@@ -478,11 +477,11 @@ class SPANavigation {
         let mainElement = this.findMainContentElement();
         
         if (!mainElement) {
-            console.error('❌ No main content element found, falling back to page reload');
+            //console.error('❌ No main content element found, falling back to page reload');
             // NE JAMAIS remplacer tout le body car cela supprime header/footer
             // Utiliser un rechargement complet vers l'URL cible stockée
             const fallbackUrl = this.targetUrl || window.location.href;
-            console.log('🔄 Redirecting to:', fallbackUrl);
+            //console.log('🔄 Redirecting to:', fallbackUrl);
             window.location.href = fallbackUrl;
             return;
         }
@@ -505,7 +504,7 @@ class SPANavigation {
             // Remplacer le contenu avec le bon élément
             mainElement.outerHTML = newMainContent.outerHTML;
         } else {
-            console.warn('⚠️ Could not find main content in response, using innerHTML');
+            //console.warn('⚠️ Could not find main content in response, using innerHTML');
             // Dernier recours : remplacer seulement le innerHTML
             mainElement.innerHTML = newContent;
         }
@@ -553,7 +552,7 @@ class SPANavigation {
             });
         }
         
-        console.log(`✅ Page loaded: ${url}`);
+        //console.log(`✅ Page loaded: ${url}`);
     }
     
     loadPageSpecificStyles(url) {
@@ -561,7 +560,7 @@ class SPANavigation {
         const isProductPage = this.isProductPageUrl(url) || document.querySelector('.product-container, .single-product, .woocommerce-product-gallery');
         
         if (isProductPage) {
-            console.log('🎨 Loading product page styles');
+            //console.log('🎨 Loading product page styles');
             this.loadProductPageStyles();
         } else {
             // Supprimer les styles produit si on quitte une page produit
@@ -653,7 +652,7 @@ class SPANavigation {
         `;
         document.head.appendChild(inlineStyles);
         
-        console.log('✅ Product styles loaded via SPA');
+        //console.log('✅ Product styles loaded via SPA');
     }
     
     removeProductPageStyles() {
@@ -663,7 +662,7 @@ class SPANavigation {
         
         if (productCSS) {
             productCSS.remove();
-            console.log('🗑️ Product styles removed');
+            //console.log('🗑️ Product styles removed');
         }
         
         if (productInlineCSS) {
@@ -728,9 +727,9 @@ class SPANavigation {
             if (typeof jQuery !== 'undefined' && jQuery.fn.wc_product_gallery) {
                 try {
                     jQuery(gallery).wc_product_gallery();
-                    console.log('✅ WooCommerce gallery reinitialized');
+                    //console.log('✅ WooCommerce gallery reinitialized');
                 } catch (error) {
-                    console.log('⚠️ WooCommerce gallery init failed:', error);
+                    //console.log('⚠️ WooCommerce gallery init failed:', error);
                 }
             }
             
@@ -793,7 +792,7 @@ class SPANavigation {
         newGallery.addEventListener('mousemove', onMouseMove);
         newGallery.addEventListener('mouseleave', onMouseLeave);
         
-        console.log('✅ Product zoom reinitialized');
+        //console.log('✅ Product zoom reinitialized');
     }
     
     preloadCurrentPage() {
@@ -809,9 +808,9 @@ class SPANavigation {
         
         try {
             await this.fetchPageContent(url);
-            console.log(`🔮 Preloaded: ${url}`);
+            //console.log(`🔮 Preloaded: ${url}`);
         } catch (error) {
-            console.warn(`Failed to preload ${url}:`, error);
+            //console.warn(`Failed to preload ${url}:`, error);
         }
     }
     
@@ -830,7 +829,7 @@ class SPANavigation {
     
     clearCache() {
         this.cache.clear();
-        console.log('🗑️ Cache cleared');
+        //console.log('🗑️ Cache cleared');
     }
     
     getCacheStats() {
@@ -855,28 +854,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // Debug en développement
         if (window.location.hostname === 'localhost' || window.location.search.includes('debug=1') || true) {
             window.spaDebug = () => {
-                console.log('SPA Cache Stats:', window.spaNavigation.getCacheStats());
-                console.log('Current content selector:', window.spaNavigation.contentSelector);
-                console.log('Current main element:', document.querySelector(window.spaNavigation.contentSelector));
+                //console.log('SPA Cache Stats:', window.spaNavigation.getCacheStats());
+                //console.log('Current content selector:', window.spaNavigation.contentSelector);
+                //console.log('Current main element:', document.querySelector(window.spaNavigation.contentSelector));
             };
             
             window.spaTest = (url) => {
-                console.log('🧪 Testing navigation to:', url);
+                //console.log('🧪 Testing navigation to:', url);
                 window.spaNavigation.navigateTo(url);
             };
             
             window.spaForceReload = () => {
-                console.log('🔄 Forcing page reload...');
+                //console.log('🔄 Forcing page reload...');
                 window.location.reload();
             };
             
             window.spaDisable = () => {
-                console.log('🚫 Disabling SPA temporarily...');
+                //console.log('🚫 Disabling SPA temporarily...');
                 window.location.href = window.location.href + (window.location.search ? '&' : '?') + 'no-spa=1';
             };
             
             // Ajouter un indicateur visuel du debug
-            console.log('🎯 SPA Debug Mode Active - Use spaDebug(), spaDisable(), etc.');
+            //console.log('🎯 SPA Debug Mode Active - Use spaDebug(), spaDisable(), etc.');
         }
     }
 });

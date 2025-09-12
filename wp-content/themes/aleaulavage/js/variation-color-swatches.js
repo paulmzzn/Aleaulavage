@@ -211,30 +211,24 @@ function createAttributeButtons(select, label, attrName, form) {
 
 // Simplified function to update attribute availability based on stock
 function updateAttributeAvailability(form) {
-  console.log('=== UPDATING ATTRIBUTE AVAILABILITY ===');
   
   // Get variation data from form
   const variationData = form.getAttribute('data-product_variations');
   if (!variationData) {
-    console.log('❌ No variation data found');
     return;
   }
   
   let variations = [];
   try {
     variations = JSON.parse(variationData);
-    console.log('✅ Found', variations.length, 'variations');
   } catch (e) {
-    console.log('❌ Failed to parse variation data');
     return;
   }
   
   // Get current form values
   const formData = new FormData(form);
-  console.log('📋 Current form selections:');
   for (let [key, value] of formData.entries()) {
     if (key.startsWith('attribute_') && value) {
-      console.log(`  ${key}: ${value}`);
     }
   }
   
@@ -246,13 +240,11 @@ function updateAttributeAvailability(form) {
     // For colors, look for color swatches
     if (attrName === 'attribute_couleur') {
       const colorSwatches = form.querySelectorAll('.color-swatch');
-      console.log(`🎨 Processing ${colorSwatches.length} color swatches`);
       
       colorSwatches.forEach(function(swatch) {
         const colorValue = swatch.getAttribute('data-value');
         const isAvailable = checkAvailability(variations, formData, attrName, colorValue);
         
-        console.log(`🎨 ${colorValue}: ${isAvailable ? '✅' : '❌'}`);
         
         if (!isAvailable) {
           swatch.style.opacity = '0.4';
@@ -273,13 +265,11 @@ function updateAttributeAvailability(form) {
       const buttonContainer = select.parentNode.querySelector('.attribute-buttons');
       if (buttonContainer) {
         const buttons = buttonContainer.querySelectorAll('.attribute-button');
-        console.log(`🔘 Processing ${buttons.length} buttons for ${attrName}`);
         
         buttons.forEach(function(button) {
           const buttonValue = button.getAttribute('data-value');
           const isAvailable = checkAvailability(variations, formData, attrName, buttonValue);
           
-          console.log(`🔘 ${buttonValue}: ${isAvailable ? '✅' : '❌'}`);
           
           if (!isAvailable) {
             button.style.opacity = '0.4';
@@ -329,11 +319,9 @@ function checkAvailability(variations, currentFormData, testAttrName, testValue)
 
 // Initialize availability checking when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 Initializing availability checker');
   
   setTimeout(function() {
     const forms = document.querySelectorAll('.variations_form');
-    console.log('📝 Found', forms.length, 'variation forms');
     
     forms.forEach(function(form) {
       // Initial check
@@ -341,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Listen for any changes in the form
       form.addEventListener('change', function() {
-        console.log('🔄 Form changed, updating availability');
         setTimeout(() => updateAttributeAvailability(form), 100);
       });
     });
@@ -490,7 +477,6 @@ function setupWishlistButton() {
     
     // Vérifier que les données AJAX sont disponibles
     if (typeof wishlist_ajax === 'undefined') {
-      console.log('Wishlist AJAX not available');
       return;
     }
     
@@ -528,7 +514,6 @@ function setupWishlistButton() {
       })
       .then(response => response.json())
       .then(data => {
-        console.log('Réponse AJAX wishlist:', data); // Debug
         
         if (data.success) {
           // Basculer l'état visuel
@@ -536,27 +521,22 @@ function setupWishlistButton() {
             this.classList.add('active');
             heartIcon.classList.remove('fa-regular');
             heartIcon.classList.add('fa-solid');
-            console.log('Produit ajouté aux favoris');
           } else if (data.data && data.data.action === 'removed') {
             this.classList.remove('active');
             heartIcon.classList.remove('fa-solid');
             heartIcon.classList.add('fa-regular');
-            console.log('Produit retiré des favoris');
           }
           
           // Afficher le message de succès (optionnel)
           if (data.data && data.data.message) {
-            console.log(data.data.message);
           }
         } else {
           // Gérer les erreurs
           const errorMessage = (data.data && data.data.message) ? data.data.message : 'Erreur inconnue';
-          console.error('Erreur wishlist:', errorMessage);
           alert(errorMessage);
         }
       })
       .catch(error => {
-        console.error('Erreur AJAX:', error);
         alert('Erreur de connexion. Veuillez réessayer.');
       })
       .finally(() => {
@@ -817,7 +797,6 @@ function showLoginModal() {
       }
     })
     .catch(error => {
-      console.error('Erreur AJAX:', error);
       showLoginError('Erreur de connexion. Veuillez réessayer.');
       resetLoginButton();
     });

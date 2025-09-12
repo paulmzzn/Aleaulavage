@@ -1,0 +1,853 @@
+// Compile "main.scss" as "css/main.css"
+/**
+ * Import Bootstrap sources
+ * https://getbootstrap.com/docs/5.2/customize/sass
+ */
+
+@import "scss/variables";
+@import "scss/_admin_bar";
+@import "scss/_article";
+@import "scss/_bloc";
+@import "scss/_container";
+@import "scss/_footer";
+@import "scss/_form";
+@import "scss/_header";
+@import "scss/_home";
+@import "scss/_product";
+
+// 1. Include functions first (so you can manipulate colors, SVGs, calc, etc)
+
+// 2. Include any default variable overrides here
+
+// Options
+$enable-caret: true;
+$enable-rounded: true;
+$enable-shadows: false;
+$enable-gradients: false;
+$enable-transitions: true;
+$enable-reduced-motion: true;
+$enable-smooth-scroll: true;
+$enable-grid-classes: true;
+$enable-button-pointers: true;
+$enable-rfs: true;
+$enable-validation-icons: true;
+$enable-negative-margins: false;
+$enable-deprecation-messages: true;
+$enable-important-utilities: true;
+
+$primary:       #2A3E6A;
+$secondary:     #F1BB69;
+$success:       #3AE5A8;
+$warning:       #F8C222;
+$danger:        #E9665C;
+$special:       #5899E2;
+
+$spacer: 1rem;
+
+// Grayscale vars
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+// Color vars
+$blue: #0d6efd;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #d63384;
+$red: #dc3545;
+$orange: #fd7e14;
+$yellow: #ffc107;
+$green: #198754;
+$teal: #20c997;
+$cyan: #0dcaf0;
+
+@font-face {
+	font-family: 'GeneralSans-Variable';
+	src: url('../fonts/GeneralSans-Variable.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Variable.woff') format('woff'),
+		 url('../fonts/GeneralSans-Variable.ttf') format('truetype');
+		 font-weight: 200 700;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+  @font-face {
+	font-family: 'GeneralSans-VariableItalic';
+	src: url('../fonts/GeneralSans-VariableItalic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-VariableItalic.woff') format('woff'),
+		 url('../fonts/GeneralSans-VariableItalic.ttf') format('truetype');
+		 font-weight: 200 700;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-Extralight';
+	src: url('../fonts/GeneralSans-Extralight.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Extralight.woff') format('woff'),
+		 url('../fonts/GeneralSans-Extralight.ttf') format('truetype');
+		 font-weight: 200;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-ExtralightItalic';
+	src: url('../fonts/GeneralSans-ExtralightItalic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-ExtralightItalic.woff') format('woff'),
+		 url('../fonts/GeneralSans-ExtralightItalic.ttf') format('truetype');
+		 font-weight: 200;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-Light';
+	src: url('../fonts/GeneralSans-Light.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Light.woff') format('woff'),
+		 url('../fonts/GeneralSans-Light.ttf') format('truetype');
+		 font-weight: 300;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-LightItalic';
+	src: url('../fonts/GeneralSans-LightItalic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-LightItalic.woff') format('woff'),
+		 url('../fonts/GeneralSans-LightItalic.ttf') format('truetype');
+		 font-weight: 300;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-Regular';
+	src: url('../fonts/GeneralSans-Regular.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Regular.woff') format('woff'),
+		 url('../fonts/GeneralSans-Regular.ttf') format('truetype');
+		 font-weight: 400;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-Italic';
+	src: url('../fonts/GeneralSans-Italic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Italic.woff') format('woff'),
+		 url('../fonts/GeneralSans-Italic.ttf') format('truetype');
+		 font-weight: 400;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-Medium';
+	src: url('../fonts/GeneralSans-Medium.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Medium.woff') format('woff'),
+		 url('../fonts/GeneralSans-Medium.ttf') format('truetype');
+		 font-weight: 500;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-MediumItalic';
+	src: url('../fonts/GeneralSans-MediumItalic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-MediumItalic.woff') format('woff'),
+		 url('../fonts/GeneralSans-MediumItalic.ttf') format('truetype');
+		 font-weight: 500;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+  @font-face {
+	font-family: 'GeneralSans-Semibold';
+	src: url('../fonts/GeneralSans-Semibold.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Semibold.woff') format('woff'),
+		 url('../fonts/GeneralSans-Semibold.ttf') format('truetype');
+		 font-weight: 600;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-SemiboldItalic';
+	src: url('../fonts/GeneralSans-SemiboldItalic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-SemiboldItalic.woff') format('woff'),
+		 url('../fonts/GeneralSans-SemiboldItalic.ttf') format('truetype');
+		 font-weight: 600;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-Bold';
+	src: url('../fonts/GeneralSans-Bold.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-Bold.woff') format('woff'),
+		 url('../fonts/GeneralSans-Bold.ttf') format('truetype');
+		 font-weight: 700;
+		 font-display: swap;
+		 font-style: normal;
+  }
+
+
+  @font-face {
+	font-family: 'GeneralSans-BoldItalic';
+	src: url('../fonts/GeneralSans-BoldItalic.woff2') format('woff2'),
+		 url('../fonts/GeneralSans-BoldItalic.woff') format('woff'),
+		 url('../fonts/GeneralSans-BoldItalic.ttf') format('truetype');
+		 font-weight: 700;
+		 font-display: swap;
+		 font-style: italic;
+  }
+
+// Fonts
+$font-family-sans-serif: "GeneralSans-Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+$font-family-serif: Georgia, "Times New Roman", Times, serif;
+$font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$font-family-base: $font-family-sans-serif;
+
+$link-decoration: none;
+
+// 3. Include remainder of required Bootstrap stylesheets
+
+// 4. Include any default map overrides here
+
+// 5. Include remainder of required parts
+
+// 6. Optionally include any other parts as needed: Uncomment components to reduce the filesize
+
+// 7. Optionally include utilities API last to generate classes based on the Sass map in `_utilities.scss`
+
+/**
+ * General
+ */
+
+body {
+	&.page-template-page-full {
+		#main {
+			max-width: 100%;
+		}
+	}
+
+	/* If WP-Adminbar is visible */
+	&.admin-bar {
+		#header.fixed-top {
+			top: var(--wp-admin--admin-bar--height);
+		}
+
+		.edit-link a {
+			color: #fff !important;
+			font-weight: normal !important;
+			text-decoration: none !important;
+
+			&::before {
+				content: '\270E';
+				display: inline-block;
+				margin-right: 5px;
+			}
+		}
+	}
+}
+
+img {
+	vertical-align: middle;
+}
+
+
+/**
+ * WordPress customization
+ */
+
+/* WordPress Embeds */
+
+.post-thumbnail,
+.wp-video,
+.embed-responsive {
+	margin: 5px 0;
+	width: 100% !important;
+}
+
+.post,
+.post-thumbnail {
+	img {
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+/* Header */
+
+#header {
+	.search-form {
+		min-width: 250px;
+	}
+}
+
+.navbar-brand {
+	img {
+		height: 40px;
+	}
+}
+
+.navbar-static-top {
+	margin-bottom: $grid-gutter-width;
+}
+
+/* Main */
+
+#main {
+	margin-top: $spacer;
+}
+
+/* Footer */
+
+#footer {
+	.menu-item {
+		a {
+			&[aria-current='page'] {
+				color: white;
+			}
+		}
+	}
+}
+
+/* Sidebar */
+
+.widget-area {
+	ul {
+		list-style: none;
+		padding: 0;
+	}
+}
+
+#sidebar {
+	width: 60px;
+	transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	overflow-x: hidden;
+
+	&.sidebar-expanded {
+		width: 280px;
+		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		overflow-x: visible;
+	}
+}
+
+/* Author */
+
+.author-avatar {
+	.avatar {
+		width: 64px;
+		height: auto;
+	}
+}
+
+.author-info {
+	margin: 40px 0;
+
+	h2,
+	h3 {
+		margin-top: 0;
+	}
+}
+
+/* Posts */
+
+.sticky {
+	.card {
+		background-color: $gray-100;
+	}
+}
+
+.card {
+	border-radius: 12px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	position: relative;
+
+	&:hover {
+		transform: translateY(-5px);
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+	}
+
+	.card-img-top,
+	.wp-post-image {
+		transition: transform 0.5s ease;
+		height: 220px;
+		object-fit: contain;
+		background-color: #f9f9f9;
+		padding: 10px;
+	}
+
+	&:hover .card-img-top,
+	&:hover .wp-post-image {
+		transform: scale(1.03);
+	}
+
+	.card-body {
+		padding: 1.25rem;
+	}
+
+	.card-title,
+	.woocommerce-loop-product__title {
+		font-size: 1rem;
+		font-weight: 600;
+		margin-bottom: 0.75rem;
+		color: $gray-800;
+		line-height: 1.4;
+		min-height: 2.8rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.price {
+		font-weight: 700;
+		color: $primary;
+		font-size: 1.15rem;
+		display: flex;
+		align-items: center;
+
+		del {
+			margin-right: 8px;
+			font-size: 0.9rem;
+			color: $gray-500;
+			text-decoration: line-through;
+		}
+
+		ins {
+			text-decoration: none;
+		}
+	}
+
+	.button,
+	.add_to_cart_button {
+		border-radius: 8px;
+		padding: 0.5rem 1rem;
+		text-transform: uppercase;
+		font-size: 0.8rem;
+		letter-spacing: 0.5px;
+		font-weight: 600;
+		transition: all 0.2s;
+
+		&:hover {
+			transform: translateY(-2px);
+		}
+	}
+
+	.add-to-cart-button {
+		position: absolute;
+		bottom: 15px;
+		right: 15px;
+		width: 42px;
+		height: 42px;
+		border-radius: 50%;
+		background-color: $primary;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+		transition: all 0.3s ease;
+		opacity: 1;
+		transform: translateY(0);
+		z-index: 2;
+
+		&:hover {
+			background-color: darken($primary, 10%);
+			transform: translateY(-2px) scale(1.05);
+		}
+
+		i {
+			font-size: 1rem;
+		}
+	}
+
+	&:hover .add-to-cart-button {
+		background-color: darken($primary, 10%);
+	}
+
+	/* Hide the "View Cart" link that appears after adding a product to cart */
+	.added_to_cart.wc-forward {
+		display: none !important;
+	}
+	
+	/* Out of stock styling */
+	&.outofstock {
+		.price {
+			display: none;
+		}
+		
+		.out-of-stock-notice {
+			font-weight: 400;
+			color: $danger;
+			font-size: 1.15rem;
+			display: flex;
+			align-items: center;
+			height: 42px;
+			margin-top: 0;
+			margin-bottom: 0.5rem;
+			position: absolute;
+			left: 15px;
+			bottom: 5px;
+			right: auto;
+		}
+		
+		.add_to_cart_button,
+		.add-to-cart-button {
+			display: none;
+		}
+		
+		.out-of-stock-indicator {
+			position: absolute;
+			bottom: 15px;
+			right: 15px;
+			width: 42px;
+			height: 42px;
+			border-radius: 50%;
+			background-color: $danger;
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+			
+			&::before {
+				content: '×';
+				font-size: 1.5rem;
+				font-weight: 700;
+				line-height: 1;
+			}
+		}
+	}
+}
+
+.card-container,
+.wc-block-grid__product {
+	margin-bottom: 2rem;
+	padding: 0.5rem;
+}
+
+.card .price {
+	color: #000000 !important; // rose vif
+}
+
+.entry-meta {
+	font-size: small;
+	margin-top: ($grid-gutter-width * .5);
+}
+
+.single {
+	.entry-content,
+	.post-navigation,
+	#comments-title {
+		margin: $grid-gutter-width 0;
+	}
+}
+
+#comments {
+	margin-top: $grid-gutter-width;
+}
+
+.comment-meta {
+	height: 40px;
+}
+
+.comment-reply-title {
+	margin: $grid-gutter-width 0 ($grid-gutter-width * .5);
+}
+
+.commentlist {
+	list-style: none;
+	margin: 0 auto;
+	width: 68.9%;
+
+	> li.comment {
+		margin: 0 0 1.625em;
+		padding: 1.625em;
+		position: relative;
+	}
+
+	.children {
+		list-style: none;
+		margin-top: $grid-gutter-width;
+
+		> li.comment {
+			border-top: 1px solid $gray-300;
+			padding-top: $grid-gutter-width;
+			position: relative;
+		}
+	}
+
+	.avatar {
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		box-shadow: 0 1px 2px $gray-600;
+		padding: 0;
+		position: absolute;
+		top: 0;
+		left: -102px;
+	}
+}
+
+/* WordPress Blocks */
+
+// Buttons
+
+.wp-block-button {
+	&.is-style-outline {
+		.wp-block-button__link {
+			@extend .btn !optional;
+			@extend .btn-outline-primary !optional;
+		}
+	}
+
+	&.btn-lg {
+		.wp-block-button__link {
+			@extend .btn-lg !optional;
+		}
+	}
+	&.btn-sm {
+		.wp-block-button__link {
+			@extend .btn-sm !optional;
+		}
+	}
+
+	.wp-block-button__link {
+		@extend .btn !optional;
+		@extend .btn-secondary !optional;
+		text-decoration: none;
+	}
+}
+
+// Table
+
+.wp-block-table {
+	td,
+	th {
+		border: inherit;
+	}
+
+	table {
+		@extend .table !optional;
+	}
+}
+
+// Image, Media and Text
+
+.wp-block-image,
+.wp-block-media-text__media {
+	img,
+	video {
+		height: auto;
+	}
+}
+
+.alert-danger {
+	display: flex;
+	gap: 6px;
+
+	&::before {
+		position: relative;
+		top: 0;
+		left: 0;
+	}
+}
+
+.term-description {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f7f7f7;
+    border-radius: 5px;
+    border: 1px solid #e7e7e7;
+}
+
+/* Description text styling */
+.term-description p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+/* Last paragraph no margin */
+.term-description p:last-child {
+    margin-bottom: 0;
+}
+
+/* Links within description */
+.term-description a {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+/* Description headings if used */
+.term-description h1,
+.term-description h2,
+.term-description h3 {
+    color: #333;
+    margin: 15px 0;
+    font-weight: 600;
+}
+
+/* WooCommerce My Account Page */
+
+.account-wrapper {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-nav.card {
+  border-radius: 14px;
+  border: none;
+  background: #fff;
+  overflow: hidden;
+  min-height: 350px;
+  min-width: 220px;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.account-nav .list-group {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.account-nav .list-group-item {
+  border: none;
+  font-size: 1.08rem;
+  padding: 1rem 1.5rem;
+  color: #2A3E6A;
+  background: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.account-nav .list-group-item.active,
+.account-nav .list-group-item:hover {
+  background: #2A3E6A;
+  color: #fff;
+}
+
+.account-nav .list-group-item a {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+}
+
+.account-content.card {
+  border-radius: 14px;
+  border: none;
+  background: #fff;
+  min-height: 400px;
+}
+
+@media (max-width: 991px) {
+  .account-wrapper .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .account-nav.card, .account-content.card {
+    border-radius: 10px;
+    min-width: 0;
+  }
+  .account-nav.card {
+    margin-bottom: 1.5rem;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .account-nav .list-group-item {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    min-height: 44px;
+  }
+  .account-content.card {
+    padding: 1rem !important;
+  }
+  .account-nav.card {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/**
+ * WooCommerce Pagination
+ */
+
+.woocommerce-pagination {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.woocommerce-pagination a.button,
+.woocommerce-pagination .button {
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  min-width: 110px;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 575px) {
+  .woocommerce-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  .woocommerce-pagination a.button,
+  .woocommerce-pagination .button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/**
+ * Responsive Design using "mixins/_breakpoints.scss"
+ */
+
+@media (max-width: breakpoint-max(sm)) {
+	#sidebar {
+		margin-top: 60px;
+	}
+}
+
+// 8. Others

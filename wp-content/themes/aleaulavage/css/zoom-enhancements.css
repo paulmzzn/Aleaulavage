@@ -1,0 +1,286 @@
+/* Améliorations CSS pour le zoom multi-niveaux */
+
+/* ========================================
+   ZOOM GALERIE PRODUIT
+   ======================================== */
+
+/* Améliorations pour les images de la galerie WooCommerce */
+.woocommerce-product-gallery {
+    position: relative;
+}
+
+.woocommerce-product-gallery__image {
+    position: relative;
+    background: white;
+    overflow: hidden;
+}
+
+.woocommerce-product-gallery__image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: white;
+    position: relative;
+    z-index: 1;
+}
+
+/* Améliorer la visibilité de l'image active */
+.woocommerce-product-gallery__image.flex-active-slide {
+    position: relative;
+    z-index: 1;
+}
+
+/* Container avec zoom */
+.product-gallery .zoom-follow {
+    position: relative;
+    overflow: hidden;
+    cursor: zoom-in;
+    background: white; /* Fond blanc pour éviter les problèmes de transparence */
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Image avec zoom - transitions rapides pour réactivité */
+.product-gallery .zoom-follow img {
+    transition: transform 0.15s ease, cursor 0.1s ease;
+    will-change: transform;
+    position: relative;
+    z-index: 1;
+    background: white; /* Fond blanc pour les images avec transparence */
+    width: 100%;
+    height: auto;
+}
+
+/* Image en cours de zoom souris - pas de transition pour instantanéité */
+.product-gallery .zoom-follow img.is-zooming {
+    transition: none !important; /* Pas de transition pendant le zoom souris pour instantanéité */
+    z-index: 2;
+    position: relative;
+}
+
+/* Container en mode zoom */
+.product-gallery .zoom-follow.zooming {
+    z-index: 10;
+}
+
+/* Container avec zoom clic actif */
+.product-gallery .zoom-follow.click-zoomed,
+.woocommerce-product-gallery__image.click-zoomed {
+    overflow: visible; /* Permettre le débordement pour le zoom clic */
+    background: white; /* Fond blanc pour éviter les glitches */
+    z-index: 100; /* S'assurer que l'image zoomée passe au-dessus */
+}
+
+.product-gallery .zoom-follow.click-zoomed img,
+.woocommerce-product-gallery__image.click-zoomed img {
+    z-index: 20;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white; /* Assurer un fond blanc pendant le zoom */
+    max-width: none; /* Permettre le dépassement lors du zoom clic */
+    max-height: none;
+}
+
+/* Curseurs adaptatifs */
+.product-gallery .zoom-follow[data-zoom-level="0"] img {
+    cursor: zoom-in;
+}
+
+.product-gallery .zoom-follow[data-zoom-level="1"] img {
+    cursor: zoom-in;
+}
+
+.product-gallery .zoom-follow[data-zoom-level="2"] img {
+    cursor: zoom-out;
+}
+
+/* ========================================
+   INDICATEURS VISUELS
+   ======================================== */
+
+/* Indicateur de niveau de zoom */
+.zoom-level-indicator {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.product-gallery .click-zoomed .zoom-level-indicator {
+    opacity: 1;
+}
+
+/* ========================================
+   AIDE VISUELLE ZOOM
+   ======================================== */
+
+/* Instructions de zoom (masquées par défaut) */
+.zoom-instructions {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.product-gallery .woocommerce-product-gallery:hover .zoom-instructions {
+    opacity: 1;
+}
+
+/* Icône de zoom dans le coin */
+.zoom-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #0e2141;
+    z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.zoom-icon:before {
+    content: '🔍';
+}
+
+.product-gallery .click-zoomed .zoom-icon:before {
+    content: '🔍';
+    filter: brightness(1.2);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* Désactiver zoom souris sur mobile */
+    .product-gallery .zoom-follow {
+        cursor: default;
+    }
+    
+    .product-gallery .zoom-follow img {
+        cursor: default;
+    }
+    
+    /* Instructions adaptées mobile */
+    .zoom-instructions {
+        bottom: 5px;
+        right: 5px;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+    
+    /* Masquer indicateur niveau sur mobile */
+    .zoom-level-indicator {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Zoom clic plus modéré sur très petits écrans */
+    .product-gallery .click-zoomed img {
+        max-width: 150% !important;
+    }
+}
+
+/* ========================================
+   ANIMATIONS PERSONNALISÉES
+   ======================================== */
+
+/* Animation d'entrée pour le zoom clic */
+@keyframes zoomIn {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(var(--zoom-scale, 2));
+    }
+}
+
+/* Animation de sortie pour le zoom clic */
+@keyframes zoomOut {
+    from {
+        transform: scale(var(--zoom-scale, 2));
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Classe d'animation */
+.product-gallery .zoom-animate-in img {
+    animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.product-gallery .zoom-animate-out img {
+    animation: zoomOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ========================================
+   AMÉLIORATION UX
+   ======================================== */
+
+/* Overlay subtil pendant zoom clic */
+.zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.zoom-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Focus outline pour accessibilité */
+.product-gallery .zoom-follow:focus-within {
+    outline: 2px solid #f1bb69;
+    outline-offset: 2px;
+}
+
+/* ========================================
+   CORRECTIONS SIMPLES POUR GALERIE
+   ======================================== */
+
+/* Fond blanc pour éviter les problèmes de transparence */
+.woocommerce-product-gallery .flexslider .slides > li {
+    background: white;
+}
+
+/* Zoom sur toutes les images */
+.woocommerce-product-gallery__image img:hover {
+    cursor: zoom-in;
+}

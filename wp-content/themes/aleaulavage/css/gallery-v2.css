@@ -1,0 +1,601 @@
+/**
+ * Galerie d'Images Moderne - Styles Professionnels
+ * Aleaulavage - E-commerce
+ */
+
+/* ========================================
+   VARIABLES MODERNES
+   ======================================== */
+:root {
+    --v2-primary: #f1bb69;
+    --v2-primary-dark: #e29a3d;
+    --v2-dark: #0E2141;
+    --v2-light: #fafbfc;
+    --v2-border: #e3e5e8;
+    --v2-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --v2-shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --v2-shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.25);
+    --v2-radius: 16px;
+    --v2-radius-small: 8px;
+    --v2-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --v2-transition-fast: all 0.2s ease;
+}
+
+/* ========================================
+   MASQUER L'ANCIEN SYSTÈME QUAND V2 ACTIF
+   ======================================== */
+body.gallery-v2-active .woocommerce-product-gallery:not(.modern-gallery-v2) {
+    display: none !important;
+}
+
+/* ========================================
+   CONTAINER PRINCIPAL V2
+   ======================================== */
+.modern-gallery-v2 {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ========================================
+   GALERIE PRINCIPALE V2
+   ======================================== */
+.gallery-v2-main {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.v2-image-container {
+    position: relative;
+    background: white;
+    border-radius: var(--v2-radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--v2-transition);
+    width: 500px;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v2-image-container:hover {
+    /* Pas d'effet halo - zoom simple */
+}
+
+.v2-image-container.zooming {
+    cursor: pointer;
+}
+
+/* Classe supprimée car plus de zoom par clic */
+
+.v2-main-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: center center;
+    transition: none; /* Supprimer transition pour zoom instantané */
+    user-select: none;
+    -webkit-user-drag: none;
+    display: block;
+    margin: auto;
+}
+
+.v2-zoom-overlay {
+    display: none; /* Complètement désactivé */
+}
+
+/* ========================================
+   CONTRÔLES DE NAVIGATION V2 - SUPPRIMÉS
+   ======================================== */
+
+
+/* ========================================
+   THUMBNAILS V2
+   ======================================== */
+.v2-thumbnails-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 120px;
+    height: 100%;
+    z-index: 1;
+}
+
+.v2-thumbnails {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--v2-radius);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--v2-primary) transparent;
+    max-height: 320px;
+}
+
+.v2-thumbnails::-webkit-scrollbar {
+    width: 6px;
+}
+
+.v2-thumbnails::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+.v2-thumbnails::-webkit-scrollbar-thumb {
+    background: var(--v2-primary);
+    border-radius: 3px;
+}
+
+.v2-thumb {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border: 3px solid transparent;
+    border-radius: var(--v2-radius-small);
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--v2-transition);
+    background: white;
+    box-shadow: var(--v2-shadow-light);
+}
+
+.v2-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: var(--v2-transition);
+}
+
+.v2-thumb:hover {
+    border-color: var(--v2-primary);
+    transform: translateY(-3px);
+    box-shadow: var(--v2-shadow-medium);
+}
+
+.v2-thumb.active {
+    border-color: var(--v2-primary);
+    box-shadow: 0 0 0 2px var(--v2-primary), var(--v2-shadow-medium);
+}
+
+.v2-thumb.active img {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   COMPTEUR ET FULLSCREEN
+   ======================================== */
+.v2-counter {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--v2-dark);
+    background: var(--v2-light);
+    border: 2px solid var(--v2-primary);
+    padding: 6px 10px;
+    border-radius: 15px;
+    margin-top: auto;
+    text-align: center;
+    align-self: flex-start;
+    width: auto;
+    min-width: 40px;
+}
+
+.v2-fullscreen-btn {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--v2-dark);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    transition: var(--v2-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.v2-fullscreen-btn:hover {
+    background: var(--v2-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* ========================================
+   LIGHTBOX V2 AMÉLIORÉ
+   ======================================== */
+.modern-lightbox-v2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--v2-transition);
+}
+
+.modern-lightbox-v2.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lightbox-v2-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
+}
+
+.lightbox-v2-content {
+    position: relative;
+    max-width: 80vw;
+    max-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-v2-image-container {
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--v2-radius);
+    box-shadow: var(--v2-shadow-heavy);
+}
+
+.lightbox-v2-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.lightbox-v2-close {
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--v2-transition);
+    backdrop-filter: blur(10px);
+}
+
+.lightbox-v2-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.lightbox-v2-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: calc(100% + 160px);
+    left: -80px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.lightbox-v2-prev,
+.lightbox-v2-next {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--v2-transition);
+    pointer-events: auto;
+    backdrop-filter: blur(10px);
+}
+
+.lightbox-v2-prev:hover,
+.lightbox-v2-next:hover {
+    background: var(--v2-primary);
+    transform: scale(1.1);
+}
+
+.lightbox-v2-zoom-controls {
+    position: absolute;
+    bottom: -80px;
+    right: -80px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+}
+
+.lightbox-v2-zoom-out,
+.lightbox-v2-zoom-in {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--v2-transition);
+}
+
+.lightbox-v2-zoom-out:hover,
+.lightbox-v2-zoom-in:hover {
+    background: var(--v2-primary);
+    transform: scale(1.1);
+}
+
+.lightbox-v2-zoom-out:disabled,
+.lightbox-v2-zoom-in:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.lightbox-v2-zoom-level {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 50px;
+    text-align: center;
+}
+
+.lightbox-v2-counter {
+    position: absolute;
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 16px;
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN V2
+   ======================================== */
+@media (max-width: 768px) {
+    .modern-gallery-v2 {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: var(--v2-radius-small);
+    }
+    
+    .gallery-v2-main {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .v2-thumbnails-container {
+        order: 1; /* Remettre après sur mobile */
+    }
+    
+    .v2-thumbnails {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: visible;
+        max-height: none;
+    }
+    
+    .v2-image-container {
+        width: 95vw;
+        height: 280px;
+        cursor: pointer;
+    }
+    
+    
+    .v2-thumb {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .v2-thumbnails {
+        padding: 10px;
+        gap: 8px;
+    }
+    
+    .v2-image-info {
+        padding: 12px 15px;
+        margin-top: 10px;
+    }
+    
+    /* Lightbox mobile */
+    .lightbox-v2-content {
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+    
+    .lightbox-v2-image-container {
+        border-radius: 0;
+    }
+    
+    .lightbox-v2-close {
+        top: 20px;
+        right: 20px;
+        position: fixed;
+        z-index: 1000;
+    }
+    
+    .lightbox-v2-nav {
+        width: 100%;
+        left: 0;
+        padding: 0 20px;
+    }
+    
+    .lightbox-v2-prev,
+    .lightbox-v2-next {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    .lightbox-v2-zoom-controls {
+        bottom: 20px;
+        right: 20px;
+        position: fixed;
+    }
+    
+    .lightbox-v2-counter {
+        bottom: 20px;
+        left: 20px;
+        position: fixed;
+        transform: none;
+    }
+}
+
+/* ========================================
+   ANIMATIONS PERSONNALISÉES V2
+   ======================================== */
+@keyframes v2-fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes v2-slideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Animations supprimées pour un chargement plus rapide */
+
+/* Badge couleur - aligner avec le bouton plein écran */
+.gallery-v2-active .color-dot {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    z-index: 15 !important;
+    transform: none;
+}
+
+/* Badge promo - intégré dans la zone image (côté droit) */
+.gallery-v2-active .onsale,
+.gallery-v2-active .woocommerce-onsale,
+.gallery-v2-active .sale-badge,
+.gallery-v2-active .promo-badge,
+.gallery-v2-active .promo-bubble-single.promo-bubble-quantity {
+    position: absolute !important;
+    top: 10px !important;
+    right: 60px !important;
+    z-index: 15 !important;
+    transform: none !important;
+}
+
+/* ========================================
+   ÉTATS DE CHARGEMENT V2
+   ======================================== */
+.v2-main-image[src=""] {
+    background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: v2-loading 2s infinite;
+}
+
+@keyframes v2-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ========================================
+   ACCESSIBILITÉ V2
+   ======================================== */
+.v2-nav-btn:focus,
+.v2-thumb:focus,
+.v2-fullscreen-btn:focus,
+.v2-toggle-btn:focus,
+.lightbox-v2-close:focus,
+.lightbox-v2-prev:focus,
+.lightbox-v2-next:focus {
+    outline: 3px solid var(--v2-primary);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .v2-thumbnails {
+        scroll-behavior: auto;
+    }
+}

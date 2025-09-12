@@ -1,0 +1,29 @@
+/*--------------------------------------------------------------
+WooCommerce Forms
+--------------------------------------------------------------*/
+
+// Reset form-row
+.woocommerce form .form-row {
+  input.input-text,
+  textarea {
+    line-height: inherit;
+  }
+}
+
+.woocommerce form .form-row {
+  padding: 0;
+  margin: 0 0 1rem;
+  label {
+    line-height: 1.5;
+  }
+}
+
+// Account password
+#account_password {
+  background-position: right 2.25rem center;
+}
+
+.woocommerce form .show-password-input,
+.woocommerce-page form .show-password-input {
+  top: 0.5em;
+}
