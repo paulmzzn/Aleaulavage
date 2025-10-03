@@ -70,6 +70,45 @@ if (!function_exists('bs_mini_cart')) :
   <?php
     $fragments['span.cart-content'] = ob_get_clean();
 
+    // Ajouter le fragment pour le contenu complet du mini-cart
+    ob_start();
+    woocommerce_mini_cart();
+    $fragments['div.widget_shopping_cart_content'] = '<div class="widget_shopping_cart_content">' . ob_get_clean() . '</div>';
+
+    // Ajouter le fragment pour le message de réapprovisionnement dans le footer
+    ob_start();
+
+    // Vérifier s'il y a des produits en réapprovisionnement
+    $has_backorder_items = false;
+    foreach (WC()->cart->get_cart() as $cart_item) {
+      $_product = $cart_item['data'];
+      $stock_status = $_product->get_stock_status();
+      $stock_quantity = $_product->get_stock_quantity();
+      $backorders = $_product->get_backorders();
+      $current_qty = $cart_item['quantity'];
+
+      if ($stock_status === 'outofstock' || $stock_status === 'onbackorder' ||
+          (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null))) {
+        $has_backorder_items = true;
+        break;
+      }
+
+      if (($backorders === 'yes' || $backorders === 'notify') &&
+          $stock_quantity !== null && $current_qty > $stock_quantity) {
+        $has_backorder_items = true;
+        break;
+      }
+    }
+
+    if ($has_backorder_items) {
+      echo '<div style="background: #FFF8E7; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.8rem; color: #8B6914; display: flex; align-items: start; gap: 8px;">';
+      echo '<i class="fa-solid fa-clock" style="color: #E9A825; font-size: 0.85rem; margin-top: 2px;"></i>';
+      echo '<span style="line-height: 1.4;">Certains articles sont en réapprovisionnement. Délais de livraison susceptibles d\'être allongés.</span>';
+      echo '</div>';
+    }
+
+    $fragments['.mini-cart-backorder-notice'] = '<div class="mini-cart-backorder-notice">' . ob_get_clean() . '</div>';
+
     return $fragments;
   }
   add_filter('woocommerce_add_to_cart_fragments', 'bs_mini_cart');
@@ -429,4 +468,145 @@ function sf_update_woo_flexslider_options( $options ) {
     $options['controlNav'] = true;
 
     return $options;
+}
+
+/**
+ * Gestion des commandes en réapprovisionnement
+ */
+add_action('woocommerce_before_single_product', 'aleaulavage_backorder_notification');
+function aleaulavage_backorder_notification() {
+    global $product;
+
+    if (!$product) {
+        return;
+    }
+
+    // Vérifier si le produit est en backorder
+    $backorders = $product->get_backorders();
+    $stock_status = $product->get_stock_status();
+
+    // Si backorders activé avec notification et produit hors stock
+    if ($backorders === 'notify' && $stock_status === 'onbackorder') {
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Afficher la popup au chargement de la page
+            showBackorderPopup();
+
+            function showBackorderPopup() {
+                var popupHtml = '<div id="backorder-popup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;">' +
+                    '<div style="background:#fff;padding:30px;border-radius:12px;max-width:500px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.3);position:relative;">' +
+                    '<button id="close-backorder-popup" style="position:absolute;top:15px;right:15px;background:transparent;border:none;font-size:24px;cursor:pointer;color:#999;line-height:1;">&times;</button>' +
+                    '<div style="text-align:center;">' +
+                    '<i class="fa fa-info-circle" style="font-size:48px;color:#5899E2;margin-bottom:20px;"></i>' +
+                    '<h3 style="margin-bottom:15px;color:#0E2141;">Produit en réapprovisionnement</h3>' +
+                    '<p style="color:#6c757d;font-size:16px;line-height:1.6;">Ce produit est actuellement en commande chez notre fournisseur. La date de livraison peut varier selon les délais d\'approvisionnement.</p>' +
+                    '<p style="color:#6c757d;font-size:16px;line-height:1.6;margin-top:15px;">Vous pouvez passer commande dès maintenant et nous vous livrerons dès réception du stock.</p>' +
+                    '<button id="confirm-backorder" style="margin-top:20px;padding:12px 30px;background:#5899E2;color:#fff;border:none;border-radius:6px;font-size:16px;cursor:pointer;font-weight:600;">J\'ai compris</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                $('body').append(popupHtml);
+
+                $('#close-backorder-popup, #confirm-backorder').on('click', function() {
+                    $('#backorder-popup').fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                });
+
+                $('#backorder-popup').on('click', function(e) {
+                    if (e.target.id === 'backorder-popup') {
+                        $(this).fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    }
+                });
+            }
+        });
+        </script>
+        <?php
+    }
+}
+
+/**
+ * Modifier l'affichage de la livraison pour les produits en réapprovisionnement
+ */
+add_action('wp_footer', 'aleaulavage_modify_delivery_display_for_backorders');
+function aleaulavage_modify_delivery_display_for_backorders() {
+    if (!is_product()) {
+        return;
+    }
+
+    global $product;
+
+    if (!$product) {
+        return;
+    }
+
+    $backorders = $product->get_backorders();
+    $stock_status = $product->get_stock_status();
+
+    // Si backorders activé (avec ou sans notification) et produit hors stock
+    if (($backorders === 'yes' || $backorders === 'notify') && $stock_status === 'onbackorder') {
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            // Modifier le texte de livraison
+            var deliveryCard = $('.livraison-card');
+            if (deliveryCard.length > 0) {
+                var deliveryText = deliveryCard.find('p').first();
+                if (deliveryText.length > 0) {
+                    deliveryText.html('La date de livraison peut varier selon les délais de réapprovisionnement.');
+                    deliveryText.css({
+                        'color': '#e67e22',
+                        'font-weight': '600'
+                    });
+                }
+                // Supprimer le deuxième paragraphe "Commandez avant 16h30"
+                var secondP = deliveryCard.find('p').eq(1);
+                if (secondP.length > 0) {
+                    secondP.remove();
+                }
+            }
+        });
+        </script>
+        <?php
+    }
+}
+
+/**
+ * AJAX pour mettre à jour la quantité dans le mini-cart
+ */
+add_action('wp_ajax_update_mini_cart_quantity', 'aleaulavage_update_mini_cart_quantity');
+add_action('wp_ajax_nopriv_update_mini_cart_quantity', 'aleaulavage_update_mini_cart_quantity');
+
+function aleaulavage_update_mini_cart_quantity() {
+    check_ajax_referer('update_mini_cart_quantity', 'security');
+
+    if (!isset($_POST['cart_item_key']) || !isset($_POST['quantity'])) {
+        wp_send_json_error('Paramètres manquants');
+    }
+
+    $cart_item_key = sanitize_text_field($_POST['cart_item_key']);
+    $quantity = intval($_POST['quantity']);
+
+    if ($quantity < 0) {
+        wp_send_json_error('Quantité invalide');
+    }
+
+    // Mettre à jour la quantité dans le panier
+    if ($quantity == 0) {
+        WC()->cart->remove_cart_item($cart_item_key);
+    } else {
+        WC()->cart->set_quantity($cart_item_key, $quantity, true);
+    }
+
+    // Recalculer les totaux
+    WC()->cart->calculate_totals();
+
+    wp_send_json_success(array(
+        'message' => 'Quantité mise à jour',
+        'cart_hash' => WC()->cart->get_cart_hash()
+    ));
 }

@@ -14,7 +14,9 @@ the_post();
         <?php the_post_thumbnail() ?>
 		<div class="home-baseline">
 			<h1 class="text-light">Votre Station de Lavage <br/> Notre Priorité !</h1>
-			<a class="btn bg-secondary me-2 mt-4" href=<?php echo esc_url(home_url('boutique')); ?>>Boutique</a>
+			<div class="d-flex gap-2 mt-4">
+				<a class="btn bg-secondary" href="<?php echo esc_url(home_url('boutique')); ?>">Boutique</a>
+			</div>
 		</div>
     </div>
 	<div>

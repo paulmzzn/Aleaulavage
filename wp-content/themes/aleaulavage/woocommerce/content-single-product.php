@@ -69,10 +69,17 @@ if ( post_password_required() ) {
             $is_out_of_stock = !$product->is_in_stock();
         }
 
+        // Vérifier si les backorders sont autorisés
+        $backorders = $product->get_backorders();
+        $backorders_allowed = ($backorders === 'yes' || $backorders === 'notify');
+
+        // Ne griser le bouton que si hors stock ET backorders non autorisés
+        $should_disable = $is_out_of_stock && !$backorders_allowed;
+
         // Classes et attributs pour les éléments grisés
-        $disabled_class = $is_out_of_stock ? ' disabled-out-of-stock' : '';
-        $disabled_attr = $is_out_of_stock ? ' disabled' : '';
-        $tooltip_attr = $is_out_of_stock ? ' title="Plus de stock disponible" data-toggle="tooltip"' : '';
+        $disabled_class = $should_disable ? ' disabled-out-of-stock' : '';
+        $disabled_attr = $should_disable ? ' disabled' : '';
+        $tooltip_attr = $should_disable ? ' title="Plus de stock disponible" data-toggle="tooltip"' : '';
         ?>
         
         <form class="cart purchase-form" action="<?php echo esc_url( apply_filters( 'woocommerce_add_to_cart_form_action', $product->get_permalink() ) ); ?>" method="post" enctype='multipart/form-data'>

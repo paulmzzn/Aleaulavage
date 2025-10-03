@@ -105,5 +105,21 @@
 	<?php
 		wp_footer();
 	?>
+	<script>
+	// Redirection automatique pour le menu déroulant de catégories
+	document.addEventListener('DOMContentLoaded', function() {
+		// Sélectionner tous les selects de catégories WooCommerce
+		const categorySelects = document.querySelectorAll('.wc-block-product-categories select');
+
+		categorySelects.forEach(function(select) {
+			select.addEventListener('change', function() {
+				const url = this.value;
+				if (url && url !== 'false') {
+					window.location.href = url;
+				}
+			});
+		});
+	});
+	</script>
 </body>
 </html>

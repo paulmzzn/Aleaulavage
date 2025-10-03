@@ -3354,4 +3354,135 @@ function add_category_description_before_products() {
     }
 }
 
+// ========================================
+// SYSTÈME DE BORNE TACTILE
+// ========================================
+
+// Ajouter les champs personnalisés au profil utilisateur
+add_action('show_user_profile', 'aleaulavage_add_borne_fields');
+add_action('edit_user_profile', 'aleaulavage_add_borne_fields');
+
+function aleaulavage_add_borne_fields($user) {
+    ?>
+    <h3>Options Borne Tactile</h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="mode_borne_active">Mode Borne Tactile</label></th>
+            <td>
+                <input type="checkbox" name="mode_borne_active" id="mode_borne_active" value="1" <?php checked(get_user_meta($user->ID, 'mode_borne_active', true), '1'); ?>>
+                <label for="mode_borne_active">Activer le mode borne tactile pour cet utilisateur</label>
+                <p class="description">Lorsque activé, cet utilisateur sera automatiquement redirigé vers la page borne tactile après inactivité.</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="borne_delai_inactivite">Délai d'inactivité (secondes)</label></th>
+            <td>
+                <input type="number" name="borne_delai_inactivite" id="borne_delai_inactivite" value="<?php echo esc_attr(get_user_meta($user->ID, 'borne_delai_inactivite', true) ?: '30'); ?>" min="10" max="300" class="regular-text">
+                <p class="description">Temps d'inactivité avant retour automatique à la page borne (entre 10 et 300 secondes).</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="borne_page_id">Page de la borne</label></th>
+            <td>
+                <?php
+                $borne_pages = get_pages(array(
+                    'meta_key' => '_wp_page_template',
+                    'meta_value' => 'page-borne-tactile.php'
+                ));
+
+                if (!empty($borne_pages)) {
+                    $selected_page = get_user_meta($user->ID, 'borne_page_id', true);
+                    ?>
+                    <select name="borne_page_id" id="borne_page_id" class="regular-text">
+                        <option value="">Sélectionner une page</option>
+                        <?php foreach ($borne_pages as $page) : ?>
+                            <option value="<?php echo esc_attr($page->ID); ?>" <?php selected($selected_page, $page->ID); ?>>
+                                <?php echo esc_html($page->post_title); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description">Page de borne tactile vers laquelle rediriger automatiquement.</p>
+                <?php } else { ?>
+                    <p class="description">Aucune page avec le template "Borne Tactile" n'a été créée. <a href="<?php echo admin_url('post-new.php?post_type=page'); ?>">Créer une page</a></p>
+                <?php } ?>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+
+// Sauvegarder les champs personnalisés
+add_action('personal_options_update', 'aleaulavage_save_borne_fields');
+add_action('edit_user_profile_update', 'aleaulavage_save_borne_fields');
+
+function aleaulavage_save_borne_fields($user_id) {
+    if (!current_user_can('edit_user', $user_id)) {
+        return false;
+    }
+
+    update_user_meta($user_id, 'mode_borne_active', isset($_POST['mode_borne_active']) ? '1' : '0');
+
+    if (isset($_POST['borne_delai_inactivite'])) {
+        $delai = intval($_POST['borne_delai_inactivite']);
+        $delai = max(10, min(300, $delai)); // Entre 10 et 300 secondes
+        update_user_meta($user_id, 'borne_delai_inactivite', $delai);
+    }
+
+    if (isset($_POST['borne_page_id'])) {
+        update_user_meta($user_id, 'borne_page_id', intval($_POST['borne_page_id']));
+    }
+}
+
+// Ajouter le script de redirection automatique sur toutes les pages (sauf la borne elle-même)
+add_action('wp_footer', 'aleaulavage_borne_auto_redirect_script');
+
+function aleaulavage_borne_auto_redirect_script() {
+    // Ne pas ajouter le script sur la page de la borne elle-même
+    if (is_page_template('page-borne-tactile.php')) {
+        return;
+    }
+
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return;
+    }
+
+    $mode_borne = get_user_meta($user_id, 'mode_borne_active', true);
+    if ($mode_borne !== '1') {
+        return;
+    }
+
+    $delai_inactivite = get_user_meta($user_id, 'borne_delai_inactivite', true) ?: 30;
+    $borne_page_id = get_user_meta($user_id, 'borne_page_id', true);
+
+    if (!$borne_page_id) {
+        return;
+    }
+
+    $borne_url = get_permalink($borne_page_id);
+    ?>
+    <script>
+    (function() {
+        let borneInactivityTimer;
+        const borneDelay = <?php echo intval($delai_inactivite); ?> * 1000;
+        const borneUrl = '<?php echo esc_js($borne_url); ?>';
+
+        function resetBorneTimer() {
+            clearTimeout(borneInactivityTimer);
+            borneInactivityTimer = setTimeout(function() {
+                window.location.href = borneUrl;
+            }, borneDelay);
+        }
+
+        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        events.forEach(function(event) {
+            document.addEventListener(event, resetBorneTimer, true);
+        });
+
+        resetBorneTimer();
+    })();
+    </script>
+    <?php
+}
+
 

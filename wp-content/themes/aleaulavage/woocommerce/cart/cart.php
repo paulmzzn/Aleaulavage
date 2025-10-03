@@ -164,7 +164,17 @@ do_action('woocommerce_before_cart'); ?>
                                     echo wp_kses_post($_product->get_name());
                                     if ($product_permalink) echo '</a>';
                                     echo wc_get_formatted_cart_item_data($cart_item);
+
+                                    // Afficher "En réapprovisionnement" si le produit est en rupture ou en backorder
+                                    $stock_status = $_product->get_stock_status();
+                                    $stock_quantity = $_product->get_stock_quantity();
+
+                                    // Afficher si hors stock OU si stock est 0/null et pas en stock
+                                    if ($stock_status === 'outofstock' || $stock_status === 'onbackorder' || (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null))) {
+                                      echo '<div class="out-of-stock-notice" style="color: #e67e22; font-size: 0.85rem; margin: 4px 0; font-weight: 600;">En réapprovisionnement</div>';
+                                    }
                                   ?>
+                                  <div class="cart-stock-notice" data-cart-key="<?php echo esc_attr($cart_item_key); ?>" style="display: none;"></div>
                                 </div>
                                 <div class="product-price-mobile">
                                   <span class="price-label">Prix unitaire:</span>
@@ -191,18 +201,19 @@ do_action('woocommerce_before_cart'); ?>
                                   <?php else : ?>
                                     <div class="quantity-controls-mobile">
                                       <?php
-                                        if ($_product->managing_stock()) {
-                                          $max_qty = $_product->get_stock_quantity();
-                                        } else {
-                                          $max_qty = 20;
-                                        }
-                                        $current_qty = (int) $cart_item['quantity'];
+                                        $backorders_mobile = $_product->get_backorders();
+                                        $managing_stock_mobile = $_product->managing_stock();
+                                        $stock_qty_mobile = $_product->get_stock_quantity();
+                                        $current_qty_mobile = (int) $cart_item['quantity'];
                                       ?>
-                                      <div class="custom-qty-box d-flex align-items-center justify-content-center" data-cart-key="<?php echo esc_attr($cart_item_key); ?>" data-max="<?php echo $max_qty; ?>">
+                                      <div class="custom-qty-box d-flex align-items-center justify-content-center"
+                                           data-cart-key="<?php echo esc_attr($cart_item_key); ?>"
+                                           data-stock-qty="<?php echo esc_attr($stock_qty_mobile !== null ? $stock_qty_mobile : 999999); ?>"
+                                           data-backorders="<?php echo esc_attr($backorders_mobile); ?>">
                                         <button type="button" class="qty-btn qty-minus" aria-label="Diminuer la quantité">
-                                          <span>&minus;</span>
+                                          <span>−</span>
                                         </button>
-                                        <input type="number" class="qty-input mx-2" value="<?php echo $current_qty; ?>" min="1" max="<?php echo $max_qty; ?>" data-cart-key="<?php echo esc_attr($cart_item_key); ?>">
+                                        <input type="number" class="qty-input mx-2" value="<?php echo $current_qty_mobile; ?>" min="1" data-cart-key="<?php echo esc_attr($cart_item_key); ?>">
                                         <button type="button" class="qty-btn qty-plus" aria-label="Augmenter la quantité">
                                           <span>+</span>
                                         </button>
@@ -255,7 +266,17 @@ do_action('woocommerce_before_cart'); ?>
                               echo wp_kses_post($_product->get_name());
                               if ($product_permalink) echo '</a>';
                               echo wc_get_formatted_cart_item_data($cart_item);
+
+                              // Afficher "En réapprovisionnement" si le produit est en rupture ou en backorder
+                              $stock_status = $_product->get_stock_status();
+                              $stock_quantity = $_product->get_stock_quantity();
+
+                              // Afficher si hors stock OU si stock est 0/null et pas en stock
+                              if ($stock_status === 'outofstock' || $stock_status === 'onbackorder' || (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null))) {
+                                echo '<div class="out-of-stock-notice" style="color: #e67e22; font-size: 0.85rem; margin: 4px 0; font-weight: 600;">En réapprovisionnement</div>';
+                              }
                             ?>
+                            <div class="cart-stock-notice" data-cart-key="<?php echo esc_attr($cart_item_key); ?>" style="display: none;"></div>
                           </div>
                         </div>
                       </td>
@@ -266,23 +287,24 @@ do_action('woocommerce_before_cart'); ?>
                         <?php if ($_product->is_sold_individually()) : ?>
                           <span class="qty-display">1</span>
                         <?php else : ?>
-                          <div class="quantity-controls quantity-group d-flex align-items-center justify-content-center">
+                          <div class="quantity-controls quantity-group d-flex align-items-center justify-content-center flex-column">
         <?php
           if ($_product->is_sold_individually()) {
             echo '<span class="qty-display">1</span>';
           } else {
-            if ($_product->managing_stock()) {
-              $max_qty = $_product->get_stock_quantity();
-            } else {
-              $max_qty = 20;
-            }
+            $backorders = $_product->get_backorders();
+            $managing_stock = $_product->managing_stock();
+            $stock_qty = $_product->get_stock_quantity();
             $current_qty = (int) $cart_item['quantity'];
         ?>
-            <div class="custom-qty-box d-flex align-items-center justify-content-center" data-cart-key="<?php echo esc_attr($cart_item_key); ?>" data-max="<?php echo $max_qty; ?>">
+            <div class="custom-qty-box d-flex align-items-center justify-content-center"
+                 data-cart-key="<?php echo esc_attr($cart_item_key); ?>"
+                 data-stock-qty="<?php echo esc_attr($stock_qty !== null ? $stock_qty : 999999); ?>"
+                 data-backorders="<?php echo esc_attr($backorders); ?>">
               <button type="button" class="qty-btn qty-minus" aria-label="Diminuer la quantité">
-                <span>&minus;</span>
+                <span>−</span>
               </button>
-              <input type="number" class="qty-input mx-2" value="<?php echo $current_qty; ?>" min="1" max="<?php echo $max_qty; ?>" data-cart-key="<?php echo esc_attr($cart_item_key); ?>">
+              <input type="number" class="qty-input mx-2" value="<?php echo $current_qty; ?>" min="1" data-cart-key="<?php echo esc_attr($cart_item_key); ?>">
               <button type="button" class="qty-btn qty-plus" aria-label="Augmenter la quantité">
                 <span>+</span>
               </button>
@@ -399,6 +421,39 @@ do_action('woocommerce_before_cart'); ?>
           <h5 class="mb-0"><?php esc_html_e('Livraison', 'woocommerce'); ?></h5>
         </div>
         <div class="card-body small text-muted">
+          <?php
+          // Vérifier s'il y a des produits en réapprovisionnement dans le panier
+          $has_backorder_items = false;
+          foreach (WC()->cart->get_cart() as $cart_item) {
+            $_product = $cart_item['data'];
+            $stock_status = $_product->get_stock_status();
+            $stock_quantity = $_product->get_stock_quantity();
+            $backorders = $_product->get_backorders();
+            $current_qty = $cart_item['quantity'];
+
+            // Vérifier si produit en réapprovisionnement
+            if ($stock_status === 'outofstock' || $stock_status === 'onbackorder' ||
+                (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null))) {
+              $has_backorder_items = true;
+              break;
+            }
+
+            // Vérifier si quantité dépasse le stock avec backorders
+            if (($backorders === 'yes' || $backorders === 'notify') &&
+                $stock_quantity !== null && $current_qty > $stock_quantity) {
+              $has_backorder_items = true;
+              break;
+            }
+          }
+
+          // Afficher le message de réapprovisionnement si nécessaire
+          if ($has_backorder_items) {
+            echo '<div class="delivery-backorder-notice" style="background: #FFF8E7; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.8rem; color: #8B6914; display: flex; align-items: start; gap: 8px;">';
+            echo '<i class="fa-solid fa-clock" style="color: #E9A825; font-size: 0.85rem; margin-top: 2px;"></i>';
+            echo '<span style="line-height: 1.4;">Certains articles sont en réapprovisionnement. Délais de livraison susceptibles d\'être allongés.</span>';
+            echo '</div>';
+          }
+          ?>
           <p class="mb-0">
             <strong><?php esc_html_e('Livraison', 'woocommerce'); ?></strong> <?php esc_html_e('à domicile', 'woocommerce'); ?> <br>
             <em><?php esc_html_e('1 à 4 jours ouvrables', 'woocommerce'); ?></em><br>
@@ -551,6 +606,34 @@ jQuery(function($) {
     }
 
 
+  // Fonction pour mettre à jour l'affichage du stock
+  function updateCartStockNotice(cartKey, currentQty) {
+    const $qtyBox = $('.custom-qty-box[data-cart-key="' + cartKey + '"]');
+    const stockQty = parseInt($qtyBox.data('stock-qty')) || 999999;
+    const backorders = $qtyBox.data('backorders');
+    const $plusBtn = $qtyBox.find('.qty-plus');
+    const $notice = $('.cart-stock-notice[data-cart-key="' + cartKey + '"]');
+
+    // Reset
+    $plusBtn.removeClass('at-limit');
+    $notice.hide().html('');
+
+    // Si on dépasse le stock
+    if (currentQty >= stockQty && stockQty < 999999) {
+      if (backorders === 'no') {
+        // Stock max atteint, mettre le bouton + en rouge
+        $plusBtn.addClass('at-limit');
+      } else if (backorders === 'yes' || backorders === 'notify') {
+        // Afficher message de réapprovisionnement
+        const inStock = stockQty;
+        const toOrder = currentQty - stockQty;
+        if (toOrder > 0) {
+          $notice.html(inStock + ' en stock, ' + toOrder + ' en cours de réapprovisionnement').show();
+        }
+      }
+    }
+  }
+
   // Gestion des boutons + et - pour la quantité
   $(document).on('click', '.custom-qty-box .qty-btn', function() {
     const $box = $(this).closest('.custom-qty-box');
@@ -559,28 +642,28 @@ jQuery(function($) {
     let qty = parseInt($input.val()) || 1;
     const isPlus = $(this).hasClass('qty-plus');
     const isMinus = $(this).hasClass('qty-minus');
-    let max = parseInt($input.attr('max')) || 20;
+    const stockQty = parseInt($box.data('stock-qty')) || 999999;
+    const backorders = $box.data('backorders');
     let min = parseInt($input.attr('min')) || 1;
-    
-    if (isPlus && qty < max) {
+
+    if (isPlus) {
+      // Bloquer si stock max atteint et backorders non autorisés
+      if (qty >= stockQty && backorders === 'no') {
+        return;
+      }
       qty++;
-    } else if (isPlus && qty >= max) {
-      // Feedback visuel quand on atteint la limite max
-      showMessage('Quantité maximale atteinte: ' + max, 'error');
-      return;
     }
-    
+
     if (isMinus && qty > min) {
       qty--;
     } else if (isMinus && qty <= min) {
-      // Feedback visuel quand on atteint la limite min
       showMessage('Quantité minimale: ' + min, 'error');
       return;
     }
-    
+
     $input.val(qty);
     updateCart(cartKey, qty);
-    
+
     // Met à jour la couleur du bouton moins
     const $minusBtn = $box.find('.qty-minus');
     if (qty === 1) {
@@ -588,14 +671,9 @@ jQuery(function($) {
     } else {
       $minusBtn.removeClass('danger');
     }
-    
-    // Met à jour la couleur du bouton plus si on atteint le max
-    const $plusBtn = $box.find('.qty-plus');
-    if (qty >= max) {
-      $plusBtn.addClass('disabled').prop('disabled', true);
-    } else {
-      $plusBtn.removeClass('disabled').prop('disabled', false);
-    }
+
+    // Mettre à jour l'affichage du stock
+    updateCartStockNotice(cartKey, qty);
   });
 
   // Gestion de la saisie directe dans le champ quantité
@@ -604,41 +682,33 @@ jQuery(function($) {
     const $box = $input.closest('.custom-qty-box');
     const cartKey = $input.data('cart-key');
     let qty = parseInt($input.val()) || 1;
-    let originalQty = qty;
     const min = parseInt($input.attr('min')) || 1;
-    const max = parseInt($input.attr('max')) || 20;
-    
+    const stockQty = parseInt($box.data('stock-qty')) || 999999;
+    const backorders = $box.data('backorders');
+
     // Validation des limites
     if (qty < min) {
       qty = min;
-      showMessage('Quantité minimale: ' + min, 'error');
-    }
-    if (qty > max) {
-      qty = max;
-      showMessage('Quantité maximale disponible: ' + max, 'error');
-    }
-    
-    // Seulement mettre à jour si la valeur a changé
-    if (originalQty !== qty) {
       $input.val(qty);
     }
-    
+
+    // Bloquer si dépasse le stock et backorders non autorisés
+    if (qty > stockQty && backorders === 'no') {
+      qty = stockQty;
+      $input.val(qty);
+    }
+
+    // Mettre à jour l'affichage du stock
+    updateCartStockNotice(cartKey, qty);
+
     updateCart(cartKey, qty);
-    
+
     // Met à jour la couleur du bouton moins
     const $minusBtn = $box.find('.qty-minus');
     if (qty === 1) {
       $minusBtn.addClass('danger');
     } else {
       $minusBtn.removeClass('danger');
-    }
-    
-    // Met à jour la couleur du bouton plus
-    const $plusBtn = $box.find('.qty-plus');
-    if (qty >= max) {
-      $plusBtn.addClass('disabled').prop('disabled', true);
-    } else {
-      $plusBtn.removeClass('disabled').prop('disabled', false);
     }
   });
 
@@ -672,13 +742,60 @@ jQuery(function($) {
     return false;
   });
 
+  // Fonction pour mettre à jour le message de réapprovisionnement dans la section livraison
+  function updateBackorderNotice() {
+    try {
+      let hasBackorder = false;
+
+      // Parcourir tous les produits du panier
+      $('.custom-qty-box').each(function() {
+        const $box = $(this);
+        const stockQty = parseInt($box.data('stock-qty')) || 999999;
+        const backorders = $box.data('backorders');
+        const $input = $box.find('.qty-input');
+        const currentQty = parseInt($input.val()) || 1;
+
+        // Vérifier si le produit est en réapprovisionnement
+        // 1. Si le stock est à 0 ou très bas
+        if (stockQty === 0 || stockQty === null) {
+          hasBackorder = true;
+          return false; // break
+        }
+
+        // 2. Si la quantité commandée dépasse le stock et backorders autorisés
+        if ((backorders === 'yes' || backorders === 'notify') && currentQty > stockQty && stockQty < 999999) {
+          hasBackorder = true;
+          return false; // break
+        }
+      });
+
+      // Afficher ou masquer le message
+      const $notice = $('.delivery-backorder-notice');
+      if (hasBackorder && $notice.length === 0) {
+        // Créer le message s'il n'existe pas
+        const noticeHtml = '<div class="delivery-backorder-notice" style="background: #FFF8E7; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.8rem; color: #8B6914; display: flex; align-items: start; gap: 8px;">' +
+          '<i class="fa-solid fa-clock" style="color: #E9A825; font-size: 0.85rem; margin-top: 2px;"></i>' +
+          '<span style="line-height: 1.4;">Certains articles sont en réapprovisionnement. Délais de livraison susceptibles d\'être allongés.</span>' +
+          '</div>';
+        $('.card-body.small.text-muted p').first().before(noticeHtml);
+      } else if (!hasBackorder && $notice.length > 0) {
+        // Supprimer le message s'il existe
+        $notice.remove();
+      }
+    } catch (error) {
+      console.error('Erreur dans updateBackorderNotice:', error);
+    }
+  }
+
     // Gestion de la suppression
     $(document).on('click', '.remove-item', function(e) {
         e.preventDefault();
         const cartKey = $(this).data('cart-key');
-        
+
         if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
             updateCart(cartKey, 0);
+            // Mettre à jour le message de réapprovisionnement après suppression
+            setTimeout(updateBackorderNotice, 800);
         }
     });
 
@@ -687,10 +804,10 @@ jQuery(function($) {
         $('.custom-qty-box').each(function() {
             const $box = $(this);
             const $input = $box.find('.qty-input');
+            const cartKey = $box.data('cart-key');
             const qty = parseInt($input.val()) || 1;
             const min = parseInt($input.attr('min')) || 1;
-            const max = parseInt($input.attr('max')) || 20;
-            
+
             // État du bouton moins
             const $minusBtn = $box.find('.qty-minus');
             if (qty <= min) {
@@ -698,19 +815,27 @@ jQuery(function($) {
             } else {
                 $minusBtn.removeClass('danger');
             }
-            
-            // État du bouton plus
-            const $plusBtn = $box.find('.qty-plus');
-            if (qty >= max) {
-                $plusBtn.addClass('disabled').prop('disabled', true);
-            } else {
-                $plusBtn.removeClass('disabled').prop('disabled', false);
-            }
+
+            // Initialiser l'affichage du stock
+            updateCartStockNotice(cartKey, qty);
         });
     }
-    
+
     // Initialiser au chargement
     initializeButtonStates();
+
+    // Mettre à jour le message après chaque modification du panier
+    $(document.body).on('updated_cart_totals', function() {
+      setTimeout(function() {
+        updateBackorderNotice();
+        initializeButtonStates();
+      }, 100);
+    });
+
+    // Mettre à jour aussi après les modifications de quantité
+    $(document).on('change', '.qty-input', function() {
+      setTimeout(updateBackorderNotice, 700);
+    });
 
     // Empêcher la soumission du formulaire par défaut
     $(document).on('submit', '.woocommerce-cart-form', function(e) {
@@ -1071,6 +1196,20 @@ jQuery(function($) {
         width: 100%;
     }
 }
+
+/* Stock notice styles */
+.cart-stock-notice {
+  color: #e67e22;
+  font-size: 0.85rem;
+  margin: 4px 0;
+  font-weight: 600;
+}
+
+.qty-btn.at-limit {
+  color: #d32d2f !important;
+  cursor: not-allowed;
+}
+
 /* Custom quantity box styles */
 /* Réduction du sélecteur de quantité */
 .custom-qty-box {

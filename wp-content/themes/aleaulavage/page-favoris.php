@@ -102,7 +102,7 @@ get_header(); ?>
                                     <div class="d-flex align-items-center justify-content-between px-3 mb-4 cta_container">
                                         <div class="price order-1">
                                             <?php if (!$product->is_in_stock()) {
-                                                echo '<span class="out-of-stock-notice">Rupture de stock</span>';
+                                                echo '<span class="out-of-stock-notice">En réapprovisionnement</span>';
                                             } else {
                                                 echo $product->get_price_html();
                                             }

@@ -189,8 +189,7 @@ $promo_banner = get_theme_mod('promo_banner_message');
 											'order'      => 'ASC',
 											'hide_empty' => true,
 											'parent'     => 0,
-											'exclude'    => [16],
-											'number'     => 8 // Limiter pour le menu mobile
+											'exclude'    => [16]
 										);
 
 										$product_categories = get_terms('product_cat', $cat_args);
@@ -222,14 +221,10 @@ $promo_banner = get_theme_mod('promo_banner_message');
 													echo '<div class="menu-card-icon"><i class="' . $icon . '"></i></div>';
 												}
 												
-												// Raccourcir le nom si nécessaire
+												// Afficher le nom complet sans le couper
 												$category_name = esc_html($category->name);
-												if (strlen($category_name) > 20) {
-													$category_name = substr($category_name, 0, 20) . '...';
-												}
-												
+
 												echo '<div class="menu-card-title">' . $category_name . '</div>';
-												echo '<div class="menu-card-subtitle">' . $category->count . ' produits</div>';
 												echo '</a>';
 											}
 										}
@@ -239,7 +234,7 @@ $promo_banner = get_theme_mod('promo_banner_message');
 
 								<!-- Section Navigation -->
 								<div class="menu-section">
-									<p class="menu-section-title">Navigation</p>>
+									<p class="menu-section-title">Navigation</p>
 									<div class="menu-grid">
 										<a href="<?php echo esc_url(home_url('mon-compte/')); ?>" class="menu-card">
 											<div class="menu-card-icon"><i class="fa-solid fa-user"></i></div>
@@ -349,10 +344,62 @@ $promo_banner = get_theme_mod('promo_banner_message');
 					   <div class="cart-list flex-grow-1 overflow-auto">
 						   <div class="widget_shopping_cart_content"><?php woocommerce_mini_cart(); ?></div>
 					   </div>
+					   <script>
+					   // Forcer le rafraîchissement du mini-cart à l'ouverture
+					   document.addEventListener('DOMContentLoaded', function() {
+						   var offcanvasCart = document.getElementById('offcanvas-cart');
+						   if (offcanvasCart) {
+							   offcanvasCart.addEventListener('shown.bs.offcanvas', function () {
+								   // Trigger le refresh du mini-cart
+								   jQuery(document.body).trigger('wc_fragment_refresh');
+							   });
+						   }
+					   });
+					   </script>
 					   <div class="cart-footer bg-light p-3 border-top mt-auto">
 						   <?php
 						   if (function_exists('WC')) {
 							   $cart = WC()->cart;
+
+							   // Conteneur pour le message de réapprovisionnement (mis à jour via AJAX)
+							   ?>
+							   <div class="mini-cart-backorder-notice">
+								   <?php
+								   // Vérifier s'il y a des produits en réapprovisionnement dans le panier
+								   $has_backorder_items = false;
+								   foreach ($cart->get_cart() as $cart_item) {
+									   $_product = $cart_item['data'];
+									   $stock_status = $_product->get_stock_status();
+									   $stock_quantity = $_product->get_stock_quantity();
+									   $backorders = $_product->get_backorders();
+									   $current_qty = $cart_item['quantity'];
+
+									   // Vérifier si produit en réapprovisionnement
+									   if ($stock_status === 'outofstock' || $stock_status === 'onbackorder' ||
+										   (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null))) {
+										   $has_backorder_items = true;
+										   break;
+									   }
+
+									   // Vérifier si quantité dépasse le stock avec backorders
+									   if (($backorders === 'yes' || $backorders === 'notify') &&
+										   $stock_quantity !== null && $current_qty > $stock_quantity) {
+										   $has_backorder_items = true;
+										   break;
+									   }
+								   }
+
+								   // Afficher le message de réapprovisionnement si nécessaire
+								   if ($has_backorder_items) {
+									   echo '<div style="background: #FFF8E7; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 0.8rem; color: #8B6914; display: flex; align-items: start; gap: 8px;">';
+									   echo '<i class="fa-solid fa-clock" style="color: #E9A825; font-size: 0.85rem; margin-top: 2px;"></i>';
+									   echo '<span style="line-height: 1.4;">Certains articles sont en réapprovisionnement. Délais de livraison susceptibles d\'être allongés.</span>';
+									   echo '</div>';
+								   }
+								   ?>
+							   </div>
+							   <?php
+
 							   echo '<div class="d-flex justify-content-between align-items-center mb-2">';
 							   echo '<span class="fw-bold">Total :</span>';
 							   echo '<span class="fw-bold">' . wc_price($cart->get_total('edit')) . '</span>';
