@@ -2429,6 +2429,156 @@ add_action('wp_head', function() {
 
 /**
  * =====================================================
+ * FLUX PRODUIT GOOGLE SHOPPING (XML)
+ * =====================================================
+ */
+
+// Ajouter une URL personnalisée pour le flux produit
+add_action('init', function() {
+    add_rewrite_rule('^product-feed\.xml$', 'index.php?google_product_feed=1', 'top');
+});
+
+// Ajouter la variable de requête personnalisée
+add_filter('query_vars', function($vars) {
+    $vars[] = 'google_product_feed';
+    return $vars;
+});
+
+// Générer le flux XML quand l'URL est appelée
+add_action('template_redirect', function() {
+    if (!get_query_var('google_product_feed')) {
+        return;
+    }
+
+    // Headers XML
+    header('Content-Type: application/xml; charset=utf-8');
+    
+    // Récupérer tous les produits publiés
+    $args = array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'orderby'        => 'date',
+        'order'          => 'DESC'
+    );
+    
+    $products = get_posts($args);
+    
+    // Démarrer le XML
+    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+    echo '<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">' . "\n";
+    echo '  <channel>' . "\n";
+    echo '    <title>' . esc_xml(get_bloginfo('name')) . '</title>' . "\n";
+    echo '    <link>' . esc_url(home_url()) . '</link>' . "\n";
+    echo '    <description>' . esc_xml(get_bloginfo('description')) . '</description>' . "\n";
+    
+    foreach ($products as $post) {
+        $product = wc_get_product($post->ID);
+        
+        if (!$product || !$product->is_purchasable()) {
+            continue;
+        }
+        
+        // ID unique du produit
+        $product_id = $product->get_id();
+        
+        // Titre
+        $title = $product->get_name();
+        
+        // Description
+        $description = $product->get_short_description();
+        if (empty($description)) {
+            $description = wp_strip_all_tags($product->get_description());
+        }
+        $description = wp_trim_words($description, 50, '...');
+        
+        // URL du produit
+        $link = get_permalink($product_id);
+        
+        // Image principale
+        $image_id = $product->get_image_id();
+        $image_url = $image_id ? wp_get_attachment_url($image_id) : wc_placeholder_img_src();
+        
+        // Prix
+        $price = $product->get_regular_price();
+        $sale_price = $product->get_sale_price();
+        
+        // Stock
+        $availability = $product->is_in_stock() ? 'in stock' : 'out of stock';
+        
+        // Condition
+        $condition = 'new';
+        
+        // Catégorie Google (prendre la catégorie principale du produit)
+        $categories = wp_get_post_terms($product_id, 'product_cat', array('fields' => 'names'));
+        $google_category = !empty($categories) ? $categories[0] : 'Équipement professionnel';
+        
+        // Brand (marque)
+        $brand = get_post_meta($product_id, 'brand', true);
+        if (empty($brand)) {
+            $brand = get_bloginfo('name');
+        }
+        
+        // SKU / GTIN / MPN
+        $sku = $product->get_sku();
+        $gtin = get_post_meta($product_id, '_gtin', true);
+        $mpn = get_post_meta($product_id, '_mpn', true);
+        
+        // Commencer l'item
+        echo '    <item>' . "\n";
+        echo '      <g:id>' . esc_xml($product_id) . '</g:id>' . "\n";
+        echo '      <g:title>' . esc_xml($title) . '</g:title>' . "\n";
+        echo '      <g:description>' . esc_xml($description) . '</g:description>' . "\n";
+        echo '      <g:link>' . esc_url($link) . '</g:link>' . "\n";
+        echo '      <g:image_link>' . esc_url($image_url) . '</g:image_link>' . "\n";
+        
+        // Images supplémentaires
+        $gallery_ids = $product->get_gallery_image_ids();
+        if (!empty($gallery_ids)) {
+            $count = 0;
+            foreach ($gallery_ids as $gallery_id) {
+                if ($count >= 10) break; // Google limite à 10 images supplémentaires
+                $gallery_url = wp_get_attachment_url($gallery_id);
+                if ($gallery_url) {
+                    echo '      <g:additional_image_link>' . esc_url($gallery_url) . '</g:additional_image_link>' . "\n";
+                    $count++;
+                }
+            }
+        }
+        
+        echo '      <g:availability>' . esc_xml($availability) . '</g:availability>' . "\n";
+        echo '      <g:price>' . esc_xml($price) . ' EUR</g:price>' . "\n";
+        
+        if (!empty($sale_price)) {
+            echo '      <g:sale_price>' . esc_xml($sale_price) . ' EUR</g:sale_price>' . "\n";
+        }
+        
+        echo '      <g:brand>' . esc_xml($brand) . '</g:brand>' . "\n";
+        echo '      <g:condition>' . esc_xml($condition) . '</g:condition>' . "\n";
+        echo '      <g:google_product_category>' . esc_xml($google_category) . '</g:google_product_category>' . "\n";
+        
+        if (!empty($sku)) {
+            echo '      <g:identifier_exists>yes</g:identifier_exists>' . "\n";
+            echo '      <g:mpn>' . esc_xml($sku) . '</g:mpn>' . "\n";
+        } else {
+            echo '      <g:identifier_exists>no</g:identifier_exists>' . "\n";
+        }
+        
+        if (!empty($gtin)) {
+            echo '      <g:gtin>' . esc_xml($gtin) . '</g:gtin>' . "\n";
+        }
+        
+        echo '    </item>' . "\n";
+    }
+    
+    echo '  </channel>' . "\n";
+    echo '</rss>';
+    
+    exit;
+});
+
+/**
+ * =====================================================
  * OPTIMISATION PERFORMANCE SCRIPTS - PHASE 3
  * =====================================================
  * Améliore le temps de chargement avec scripts différés/asynchrones
@@ -3354,135 +3504,7 @@ function add_category_description_before_products() {
     }
 }
 
-// ========================================
-// SYSTÈME DE BORNE TACTILE
-// ========================================
-
-// Ajouter les champs personnalisés au profil utilisateur
-add_action('show_user_profile', 'aleaulavage_add_borne_fields');
-add_action('edit_user_profile', 'aleaulavage_add_borne_fields');
-
-function aleaulavage_add_borne_fields($user) {
-    ?>
-    <h3>Options Borne Tactile</h3>
-    <table class="form-table">
-        <tr>
-            <th><label for="mode_borne_active">Mode Borne Tactile</label></th>
-            <td>
-                <input type="checkbox" name="mode_borne_active" id="mode_borne_active" value="1" <?php checked(get_user_meta($user->ID, 'mode_borne_active', true), '1'); ?>>
-                <label for="mode_borne_active">Activer le mode borne tactile pour cet utilisateur</label>
-                <p class="description">Lorsque activé, cet utilisateur sera automatiquement redirigé vers la page borne tactile après inactivité.</p>
-            </td>
-        </tr>
-        <tr>
-            <th><label for="borne_delai_inactivite">Délai d'inactivité (secondes)</label></th>
-            <td>
-                <input type="number" name="borne_delai_inactivite" id="borne_delai_inactivite" value="<?php echo esc_attr(get_user_meta($user->ID, 'borne_delai_inactivite', true) ?: '30'); ?>" min="10" max="300" class="regular-text">
-                <p class="description">Temps d'inactivité avant retour automatique à la page borne (entre 10 et 300 secondes).</p>
-            </td>
-        </tr>
-        <tr>
-            <th><label for="borne_page_id">Page de la borne</label></th>
-            <td>
-                <?php
-                $borne_pages = get_pages(array(
-                    'meta_key' => '_wp_page_template',
-                    'meta_value' => 'page-borne-tactile.php'
-                ));
-
-                if (!empty($borne_pages)) {
-                    $selected_page = get_user_meta($user->ID, 'borne_page_id', true);
-                    ?>
-                    <select name="borne_page_id" id="borne_page_id" class="regular-text">
-                        <option value="">Sélectionner une page</option>
-                        <?php foreach ($borne_pages as $page) : ?>
-                            <option value="<?php echo esc_attr($page->ID); ?>" <?php selected($selected_page, $page->ID); ?>>
-                                <?php echo esc_html($page->post_title); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <p class="description">Page de borne tactile vers laquelle rediriger automatiquement.</p>
-                <?php } else { ?>
-                    <p class="description">Aucune page avec le template "Borne Tactile" n'a été créée. <a href="<?php echo admin_url('post-new.php?post_type=page'); ?>">Créer une page</a></p>
-                <?php } ?>
-            </td>
-        </tr>
-    </table>
-    <?php
-}
-
-// Sauvegarder les champs personnalisés
-add_action('personal_options_update', 'aleaulavage_save_borne_fields');
-add_action('edit_user_profile_update', 'aleaulavage_save_borne_fields');
-
-function aleaulavage_save_borne_fields($user_id) {
-    if (!current_user_can('edit_user', $user_id)) {
-        return false;
-    }
-
-    update_user_meta($user_id, 'mode_borne_active', isset($_POST['mode_borne_active']) ? '1' : '0');
-
-    if (isset($_POST['borne_delai_inactivite'])) {
-        $delai = intval($_POST['borne_delai_inactivite']);
-        $delai = max(10, min(300, $delai)); // Entre 10 et 300 secondes
-        update_user_meta($user_id, 'borne_delai_inactivite', $delai);
-    }
-
-    if (isset($_POST['borne_page_id'])) {
-        update_user_meta($user_id, 'borne_page_id', intval($_POST['borne_page_id']));
-    }
-}
-
-// Ajouter le script de redirection automatique sur toutes les pages (sauf la borne elle-même)
-add_action('wp_footer', 'aleaulavage_borne_auto_redirect_script');
-
-function aleaulavage_borne_auto_redirect_script() {
-    // Ne pas ajouter le script sur la page de la borne elle-même
-    if (is_page_template('page-borne-tactile.php')) {
-        return;
-    }
-
-    $user_id = get_current_user_id();
-    if (!$user_id) {
-        return;
-    }
-
-    $mode_borne = get_user_meta($user_id, 'mode_borne_active', true);
-    if ($mode_borne !== '1') {
-        return;
-    }
-
-    $delai_inactivite = get_user_meta($user_id, 'borne_delai_inactivite', true) ?: 30;
-    $borne_page_id = get_user_meta($user_id, 'borne_page_id', true);
-
-    if (!$borne_page_id) {
-        return;
-    }
-
-    $borne_url = get_permalink($borne_page_id);
-    ?>
-    <script>
-    (function() {
-        let borneInactivityTimer;
-        const borneDelay = <?php echo intval($delai_inactivite); ?> * 1000;
-        const borneUrl = '<?php echo esc_js($borne_url); ?>';
-
-        function resetBorneTimer() {
-            clearTimeout(borneInactivityTimer);
-            borneInactivityTimer = setTimeout(function() {
-                window.location.href = borneUrl;
-            }, borneDelay);
-        }
-
-        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-        events.forEach(function(event) {
-            document.addEventListener(event, resetBorneTimer, true);
-        });
-
-        resetBorneTimer();
-    })();
-    </script>
-    <?php
-}
+// TPE Salon functionality moved to plugin: wp-content/plugins/aleaulavage-tpe-salon/aleaulavage-tpe-salon.php
+// Activate that plugin to enable TPE Salon behavior (gateway, redirects, checkout overrides, etc.).
 
 

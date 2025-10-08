@@ -407,8 +407,11 @@ do_action('woocommerce_before_cart'); ?>
             </li>
           </ul>
           <?php if (!WC()->cart->is_empty()) : ?>
-            <a href="<?php echo esc_url(wc_get_checkout_url()); ?>" 
-               class="btn w-100 text-uppercase" 
+            <?php
+              // Style du bouton personnalisé désormais géré par le plugin aleaulavage-tpe-salon
+            ?>
+            <a href="<?php echo esc_url(wc_get_checkout_url()); ?>"
+               class="btn w-100 text-uppercase checkout-btn-cart"
                style="background-color: #2A3E6A; color: #fff; border: none;">
               <?php esc_html_e('Commander', 'woocommerce'); ?>
             </a>

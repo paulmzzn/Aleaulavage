@@ -758,6 +758,236 @@
 }
 
 /* ====================================
+   SECTION JEUX
+   ==================================== */
+
+.home-games-section {
+    max-width: 1400px;
+    margin: 3rem auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+.home-games-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 2rem;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.game-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 2rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-heavy);
+    border-color: var(--primary-color);
+}
+
+.game-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.game-card:hover .game-icon {
+    transform: rotate(180deg);
+}
+
+.game-icon i {
+    font-size: 2.5rem;
+    color: var(--dark-color);
+}
+
+.game-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.8rem;
+}
+
+.game-card p {
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.game-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: var(--dark-color);
+    border: none;
+    border-radius: var(--radius-small);
+    padding: 12px 32px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.game-btn:hover {
+    background: linear-gradient(135deg, var(--primary-dark), #d89234);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Modal pour les jeux */
+.game-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.game-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    height: 90vh;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.game-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10000;
+    transition: var(--transition-fast);
+}
+
+.game-modal-close:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: rotate(90deg);
+}
+
+#game-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Responsive jeux */
+@media (max-width: 768px) {
+    .home-games-section {
+        padding: 1.5rem;
+        margin: 2rem auto;
+    }
+
+    .home-games-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .games-grid {
+        gap: 1.5rem;
+    }
+
+    .game-card {
+        padding: 1.5rem;
+    }
+
+    .game-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .game-icon i {
+        font-size: 2rem;
+    }
+
+    .game-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .game-modal-content {
+        width: 95%;
+        height: 85vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-games-section {
+        padding: 1rem;
+    }
+
+    .game-card {
+        padding: 1rem;
+    }
+
+    .game-btn {
+        padding: 10px 24px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ====================================
    SECTION MARQUES PARTENAIRES
    ==================================== */
 

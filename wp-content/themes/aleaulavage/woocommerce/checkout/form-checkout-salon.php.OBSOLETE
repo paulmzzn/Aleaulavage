@@ -1,0 +1,976 @@
+<?php
+/**
+ * Checkout Form Salon - Formulaire personnalisé pour borne-salon
+ */
+
+if (!defined('ABSPATH')) {
+  exit;
+}
+?>
+
+<style>
+.salon-checkout-wrapper {
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+.salon-checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.salon-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+.salon-section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0E2141;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1bb69;
+}
+.salon-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.salon-form-row.full {
+  grid-template-columns: 1fr;
+}
+.salon-field {
+  margin-bottom: 1rem;
+}
+.salon-field label {
+  display: block;
+  font-weight: 600;
+  color: #0E2141;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.salon-field label .optional {
+  color: #666;
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+.salon-field label .required {
+  color: #e74c3c;
+}
+.salon-field input,
+.salon-field select,
+.salon-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e3e5e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+.salon-field input:focus,
+.salon-field select:focus,
+.salon-field textarea:focus {
+  outline: none;
+  border-color: #f1bb69;
+  box-shadow: 0 0 0 3px rgba(241, 187, 105, 0.1);
+}
+.salon-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.salon-field small {
+  display: block;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+.salon-order-review {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+.salon-order-items {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.salon-order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e3e5e8;
+}
+.salon-order-item:last-child {
+  border-bottom: none;
+}
+.salon-item-details {
+  flex: 1;
+}
+.salon-item-name {
+  font-weight: 600;
+  color: #0E2141;
+  margin-bottom: 0.3rem;
+}
+.salon-item-qty {
+  color: #666;
+  font-size: 0.9rem;
+}
+.salon-item-price {
+  font-weight: 600;
+  color: #0E2141;
+  white-space: nowrap;
+  margin-left: 1rem;
+}
+.salon-totals {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid #e3e5e8;
+  margin-bottom: 1.5rem;
+}
+.salon-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.salon-total-row:last-child {
+  border-bottom: none;
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #0E2141;
+}
+.salon-total-row.final {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0E2141;
+}
+.salon-submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #f1bb69, #e29a3d);
+  color: #0E2141;
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  box-shadow: 0 4px 15px rgba(241, 187, 105, 0.3);
+}
+.salon-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(241, 187, 105, 0.5);
+}
+.salon-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Styles pour le bon d'achat / coupon */
+.woocommerce-form-coupon-toggle,
+.checkout_coupon {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.woocommerce-form-coupon-toggle .woocommerce-info {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  color: #0E2141;
+}
+
+.woocommerce-form-coupon-toggle .woocommerce-info::before {
+  color: #f1bb69;
+}
+
+.checkout_coupon {
+  display: none;
+  border: 2px solid #e3e5e8;
+}
+
+.checkout_coupon.show {
+  display: block;
+}
+
+.checkout_coupon p {
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.checkout_coupon .form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.checkout_coupon .form-row-first,
+.checkout_coupon .form-row-last {
+  flex: 1;
+  margin: 0;
+}
+
+.checkout_coupon label {
+  display: block;
+  font-weight: 600;
+  color: #0E2141;
+  margin-bottom: 0.5rem;
+}
+
+.checkout_coupon input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e3e5e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.checkout_coupon input[type="text"]:focus {
+  outline: none;
+  border-color: #f1bb69;
+  box-shadow: 0 0 0 3px rgba(241, 187, 105, 0.1);
+}
+
+.checkout_coupon button[type="submit"] {
+  background: linear-gradient(135deg, #f1bb69, #e29a3d);
+  color: #0E2141;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.checkout_coupon button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(241, 187, 105, 0.3);
+}
+
+/* Styles pour le bon d'achat avancé (AAV) */
+.aav-form-group {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid #e3e5e8;
+}
+
+.aav-input-wrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.aav-form-control {
+  flex: 1;
+  padding: 12px 14px;
+  border: 2px solid #e3e5e8;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.aav-form-control:focus {
+  outline: none;
+  border-color: #f1bb69;
+  box-shadow: 0 0 0 3px rgba(241, 187, 105, 0.1);
+}
+
+.aav-form-control::placeholder {
+  color: #999;
+}
+
+.aav-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.aav-btn-primary {
+  background: linear-gradient(135deg, #f1bb69, #e29a3d);
+  color: #0E2141;
+  box-shadow: 0 2px 8px rgba(241, 187, 105, 0.2);
+}
+
+.aav-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(241, 187, 105, 0.4);
+}
+
+.aav-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.aav-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc;
+}
+
+.aav-btn-loading {
+  display: inline-block;
+}
+
+.aav-form-help {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+.aav-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Cacher les éléments WooCommerce par défaut */
+.salon-checkout-wrapper .woocommerce-checkout-review-order-table,
+.salon-checkout-wrapper .woocommerce-checkout-payment,
+.salon-checkout-wrapper #payment {
+  display: none !important;
+}
+
+/* Cacher les doublons du formulaire AAV (garder seulement le premier) */
+.aav-voucher-form-container ~ .aav-voucher-form-container,
+.aav-voucher-form ~ .aav-voucher-form {
+  display: none !important;
+}
+
+/* Styles pour l'autocomplete d'adresse */
+.address-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 2px solid #f1bb69;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.address-suggestion-item {
+  padding: 12px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.address-suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.address-suggestion-item:hover {
+  background-color: #fff8e6;
+}
+
+.address-suggestion-item strong {
+  color: #0E2141;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.address-suggestion-item small {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 992px) {
+  .salon-checkout-grid {
+    grid-template-columns: 1fr;
+  }
+  .salon-order-review {
+    position: static;
+  }
+  .salon-form-row {
+    grid-template-columns: 1fr;
+  }
+  .checkout_coupon .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .checkout_coupon button[type="submit"] {
+    width: 100%;
+  }
+  .aav-input-wrapper {
+    flex-direction: column;
+  }
+  .aav-btn {
+    width: 100%;
+  }
+}
+</style>
+
+<?php 
+// Supprimer temporairement l'affichage du formulaire de coupon par défaut pour éviter la duplication
+remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
+
+do_action('woocommerce_before_checkout_form', WC()->checkout()); 
+?>
+
+<form name="checkout" method="post" class="salon-checkout-wrapper checkout woocommerce-checkout" action="<?php echo esc_url(wc_get_checkout_url()); ?>" enctype="multipart/form-data">
+
+  <?php do_action('woocommerce_checkout_before_customer_details'); ?>
+
+  <div class="salon-checkout-grid">
+    <!-- Colonne Gauche: Formulaire -->
+    <div class="salon-forms">
+
+      <!-- Détails de facturation -->
+      <div class="salon-section">
+        <h2 class="salon-section-title">Détails de facturation</h2>
+
+        <div class="salon-form-row">
+          <div class="salon-field">
+            <label for="billing_first_name">Prénom <span class="required">*</span></label>
+            <input type="text" name="billing_first_name" id="billing_first_name">
+          </div>
+
+          <div class="salon-field">
+            <label for="billing_last_name">Nom <span class="required">*</span></label>
+            <input type="text" name="billing_last_name" id="billing_last_name" required>
+          </div>
+        </div>
+
+        <div class="salon-field">
+          <label for="billing_company">Nom de l'entreprise <span class="required">*</span></label>
+          <input type="text" name="billing_company" id="billing_company" required>
+        </div>
+
+        <div class="salon-field">
+          <label for="billing_country">Pays/région <span class="required">*</span></label>
+          <select name="billing_country" id="billing_country" required>
+            <option value="FR" selected>France</option>
+          </select>
+        </div>
+
+        <div class="salon-field" style="position: relative;">
+          <label for="billing_address_1">Adresse complète <span class="required">*</span></label>
+          <input type="text" name="billing_address_1" id="billing_address_1" placeholder="Tapez votre adresse (ex: 10 rue de la Paix, Tours)" required autocomplete="off">
+          <div id="billing_address_suggestions" class="address-suggestions" style="display: none;"></div>
+        </div>
+
+        <div class="salon-form-row">
+          <div class="salon-field">
+            <label for="billing_postcode">Code postal <span class="required">*</span></label>
+            <input type="text" name="billing_postcode" id="billing_postcode" required readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Auto-rempli">
+          </div>
+
+          <div class="salon-field" id="billing_city_field">
+            <label for="billing_city">Ville <span class="required">*</span></label>
+            <input type="text" name="billing_city" id="billing_city" required readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Auto-rempli">
+          </div>
+        </div>
+
+        <div class="salon-field" id="billing_state_field">
+          <label for="billing_state">Région / Département <span class="required">*</span></label>
+          <input type="text" name="billing_state" id="billing_state" required readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Auto-rempli">
+        </div>
+
+        <div class="salon-field">
+          <label for="billing_phone">Téléphone <span class="required">*</span></label>
+          <input type="tel" name="billing_phone" id="billing_phone" required>
+        </div>
+
+        <div class="salon-field">
+          <label for="billing_siret">Siret <span class="required">*</span></label>
+          <input type="text" name="billing_siret" id="billing_siret" required>
+          <small>Nous ne vendons qu'au professionnel</small>
+        </div>
+
+        <div class="salon-field">
+          <label for="billing_email">E-mail <span class="required">*</span></label>
+          <input type="email" name="billing_email" id="billing_email" required>
+        </div>
+      </div>
+
+      <!-- Détails d'expédition -->
+      <div class="salon-section" style="margin-top: 2rem;">
+        <h2 class="salon-section-title">Détails d'expédition</h2>
+
+        <div class="salon-field">
+          <label>
+            <input type="checkbox" id="ship_to_different_address" name="ship_to_different_address" value="1" style="width: auto; margin-right: 8px;">
+            Expédier à une adresse différente ?
+          </label>
+        </div>
+
+        <div id="shipping_fields" style="display: none; margin-top: 1rem;">
+          <div class="salon-form-row">
+            <div class="salon-field">
+              <label for="shipping_first_name">Prénom <span class="optional">(facultatif)</span></label>
+              <input type="text" name="shipping_first_name" id="shipping_first_name">
+            </div>
+
+            <div class="salon-field">
+              <label for="shipping_last_name">Nom <span class="optional">(facultatif)</span></label>
+              <input type="text" name="shipping_last_name" id="shipping_last_name">
+            </div>
+          </div>
+
+          <div class="salon-field">
+            <label for="shipping_company">Nom de l'entreprise <span class="optional">(facultatif)</span></label>
+            <input type="text" name="shipping_company" id="shipping_company">
+          </div>
+
+          <div class="salon-field">
+            <label for="shipping_country">Pays/région <span class="optional">(facultatif)</span></label>
+            <select name="shipping_country" id="shipping_country">
+              <option value="FR" selected>France</option>
+            </select>
+          </div>
+
+          <div class="salon-field" style="position: relative;">
+            <label for="shipping_address_1">Adresse complète <span class="optional">(facultatif)</span></label>
+            <input type="text" name="shipping_address_1" id="shipping_address_1" placeholder="Tapez votre adresse" autocomplete="off">
+            <div id="shipping_address_suggestions" class="address-suggestions" style="display: none;"></div>
+          </div>
+
+          <div class="salon-form-row">
+            <div class="salon-field">
+              <label for="shipping_postcode">Code postal <span class="optional">(facultatif)</span></label>
+              <input type="text" name="shipping_postcode" id="shipping_postcode" readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Auto-rempli">
+            </div>
+
+            <div class="salon-field" id="shipping_city_field">
+              <label for="shipping_city">Ville <span class="optional">(facultatif)</span></label>
+              <input type="text" name="shipping_city" id="shipping_city" readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Auto-rempli">
+            </div>
+          </div>
+
+          <div class="salon-field" id="shipping_state_field">
+            <label for="shipping_state">Région / Département <span class="optional">(facultatif)</span></label>
+            <input type="text" name="shipping_state" id="shipping_state" readonly style="background-color: #f5f5f5; cursor: not-allowed;" placeholder="Auto-rempli">
+          </div>
+        </div>
+
+        <div class="salon-field" style="margin-top: 1.5rem;">
+          <label for="order_comments">Notes de commande <span class="optional">(facultatif)</span></label>
+          <textarea name="order_comments" id="order_comments" placeholder="Notes concernant votre commande, par exemple des remarques spéciales pour la livraison."></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Colonne Droite: Récapitulatif -->
+    <div >
+      <div class="salon-section">
+        <h2 class="salon-section-title">Votre commande</h2>
+
+        <div class="salon-order-items">
+          <?php foreach (WC()->cart->get_cart() as $cart_item) :
+            $_product = $cart_item['data'];
+            $quantity = $cart_item['quantity'];
+          ?>
+            <div class="salon-order-item">
+              <div class="salon-item-details">
+                <div class="salon-item-name"><?php echo $_product->get_name(); ?></div>
+                <div class="salon-item-qty">Quantité: <?php echo $quantity; ?></div>
+              </div>
+              <div class="salon-item-price">
+                <?php echo WC()->cart->get_product_subtotal($_product, $quantity); ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+
+        <div class="salon-totals">
+          <div class="salon-total-row">
+            <span>Sous-total HT</span>
+            <strong><?php echo wc_price(WC()->cart->get_subtotal()); ?></strong>
+          </div>
+
+          <div class="salon-total-row">
+            <span>TVA</span>
+            <strong><?php echo wc_price(WC()->cart->get_taxes_total()); ?></strong>
+          </div>
+
+          <div class="salon-total-row">
+            <span>Livraison</span>
+            <strong>
+              <?php
+                $subtotal = WC()->cart->get_subtotal();
+                if ($subtotal >= 550) {
+                  echo 'Offerte';
+                } else {
+                  echo wc_price(19);
+                }
+              ?>
+            </strong>
+          </div>
+
+          <div class="salon-total-row final">
+            <span>Total TTC</span>
+            <strong><?php echo wc_price(WC()->cart->total); ?></strong>
+          </div>
+        </div>
+
+        <!-- Méthode de paiement -->
+        <?php
+        // Forcer directement tpe_salon sans vérification
+        echo '<input type="hidden" name="payment_method" value="tpe_salon" />';
+        
+        // Debug
+        $all_gateways = WC()->payment_gateways->payment_gateways();
+        $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+        
+        echo '<!-- DEBUG Payment Gateways -->';
+        echo '<!-- All gateways: ' . print_r(array_keys($all_gateways), true) . ' -->';
+        echo '<!-- Available gateways: ' . print_r(array_keys($available_gateways), true) . ' -->';
+        echo '<!-- User: ' . wp_get_current_user()->user_login . ' -->';
+        
+        if (isset($all_gateways['tpe_salon'])) {
+            echo '<!-- TPE Salon exists: YES -->';
+            echo '<!-- TPE Salon enabled: ' . $all_gateways['tpe_salon']->enabled . ' -->';
+            echo '<!-- TPE Salon available: ' . (isset($available_gateways['tpe_salon']) ? 'YES' : 'NO') . ' -->';
+        } else {
+            echo '<!-- TPE Salon exists: NO -->';
+        }
+        ?>
+
+        <button type="submit" class="salon-submit-btn" name="woocommerce_checkout_place_order" id="place_order_salon">
+          Valider la commande - Paiement Salon
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <?php 
+  do_action('woocommerce_checkout_after_customer_details');
+  wp_nonce_field('woocommerce-process_checkout', 'woocommerce-process-checkout-nonce'); 
+  wp_nonce_field('woocommerce-process_checkout', '_wpnonce');
+  ?>
+</form>
+
+<?php do_action('woocommerce_after_checkout_form', WC()->checkout()); ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checkoutForm = document.querySelector('form.checkout');
+  
+  if (checkoutForm) {
+    // Intercepter TOUTES les réponses du checkout WooCommerce
+    jQuery(document.body).on('checkout_error', function(event, error_message) {
+      console.log('Checkout error:', error_message);
+    });
+    
+    jQuery(document.body).on('updated_checkout', function() {
+      console.log('Checkout updated');
+    });
+    
+    // LE PLUS IMPORTANT: intercepter le succès du checkout
+    jQuery(document.body).on('checkout_place_order_success', function(event, result) {
+      console.log('=== CHECKOUT SUCCESS INTERCEPTED ===');
+      console.log('Result:', result);
+      
+      if (result && result.result === 'success' && result.redirect) {
+        // Empêcher la redirection WooCommerce
+        event.preventDefault();
+        
+        // Extraire l'order_id de l'URL
+        const urlMatch = result.redirect.match(/order-received\/(\d+)/);
+        const orderKeyMatch = result.redirect.match(/key=([^&]+)/);
+        
+        if (urlMatch && orderKeyMatch) {
+          const orderId = urlMatch[1];
+          const orderKey = orderKeyMatch[1];
+          
+          console.log('Order ID:', orderId);
+          console.log('Order Key:', orderKey);
+          
+          // Afficher directement le popup ICI
+          showTPESalonPopup(orderId);
+          
+          // Après 5 secondes, rediriger vers l'accueil
+          setTimeout(function() {
+            window.location.href = '<?php echo home_url('/'); ?>';
+          }, 5000);
+          
+          return false;
+        }
+      }
+    });
+  }
+  
+  // Fonction pour afficher le popup de confirmation
+  function showTPESalonPopup(orderId) {
+    const overlay = document.createElement('div');
+    overlay.id = 'tpe-salon-popup';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-out;
+    `;
+    
+    overlay.innerHTML = `
+      <div style="
+        background: white;
+        border-radius: 20px;
+        padding: 60px;
+        text-align: center;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: slideUp 0.5s ease-out;
+      ">
+        <div style="
+          width: 100px;
+          height: 100px;
+          margin: 0 auto 30px;
+          background: #10b981;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <svg viewBox="0 0 24 24" style="width: 60px; height: 60px; stroke: white; stroke-width: 3; fill: none;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h1 style="font-size: 42px; color: #1f2937; margin: 0 0 20px; font-weight: 700;">Commande effectuée !</h1>
+        <p style="font-size: 24px; color: #6b7280; margin: 0 0 30px; font-weight: 500;">Commande N° ${orderId}</p>
+        <p style="font-size: 28px; color: #10b981; margin: 0 0 40px; font-weight: 600; line-height: 1.5;">
+          Veuillez vous rendre au comptoir<br>pour effectuer le paiement
+        </p>
+        <p style="font-size: 18px; color: #6b7280; margin: 0;">
+          Redirection dans <span id="countdown-tpe">5</span>s...
+        </p>
+      </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Compte à rebours
+    let seconds = 5;
+    const countdownEl = document.getElementById('countdown-tpe');
+    const interval = setInterval(function() {
+      seconds--;
+      if (countdownEl) countdownEl.textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+  }
+  
+  // Gestion des champs d'expédition
+  const shipToDifferent = document.getElementById('ship_to_different_address');
+  const shippingFields = document.getElementById('shipping_fields');
+
+  if (shipToDifferent && shippingFields) {
+    shipToDifferent.addEventListener('change', function() {
+      shippingFields.style.display = this.checked ? 'block' : 'none';
+    });
+  }
+
+  // ==========================================
+  // AUTO-COMPLÉTION ADRESSE FACTURATION
+  // ==========================================
+  
+  const billingAddress = document.getElementById('billing_address_1');
+  const billingSuggestions = document.getElementById('billing_address_suggestions');
+  const billingPostcode = document.getElementById('billing_postcode');
+  const billingCity = document.getElementById('billing_city');
+  const billingState = document.getElementById('billing_state');
+
+  if (billingAddress && billingSuggestions) {
+    billingAddress.addEventListener('input', debounce(async function() {
+      const query = this.value.trim();
+      
+      if (query.length >= 3) {
+        try {
+          const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=10`);
+          const data = await response.json();
+          
+          if (data.features && data.features.length > 0) {
+            billingSuggestions.innerHTML = '';
+            billingSuggestions.style.display = 'block';
+            
+            data.features.forEach(feature => {
+              const item = document.createElement('div');
+              item.className = 'address-suggestion-item';
+              item.innerHTML = `
+                <strong>${feature.properties.name}</strong>
+                <small>${feature.properties.postcode} ${feature.properties.city}, ${feature.properties.context}</small>
+              `;
+              
+              item.addEventListener('click', function() {
+                // Remplir l'adresse
+                billingAddress.value = feature.properties.name;
+                
+                // Remplir automatiquement le CP, ville et département
+                billingPostcode.value = feature.properties.postcode;
+                billingPostcode.readOnly = true;
+                billingPostcode.style.backgroundColor = '#f0f0f0';
+                
+                billingCity.value = feature.properties.city;
+                billingCity.readOnly = true;
+                billingCity.style.backgroundColor = '#f0f0f0';
+                
+                // Extraire la région (première partie du context)
+                const context = feature.properties.context;
+                const region = context.split(',')[0].trim();
+                billingState.value = region;
+                billingState.readOnly = true;
+                billingState.style.backgroundColor = '#f0f0f0';
+                
+                // Masquer les suggestions
+                billingSuggestions.style.display = 'none';
+              });
+              
+              billingSuggestions.appendChild(item);
+            });
+          } else {
+            billingSuggestions.style.display = 'none';
+          }
+        } catch (error) {
+          console.error('Erreur API Adresse:', error);
+          billingSuggestions.style.display = 'none';
+        }
+      } else {
+        billingSuggestions.style.display = 'none';
+      }
+    }, 300));
+    
+    // Masquer les suggestions si on clique en dehors
+    document.addEventListener('click', function(e) {
+      if (!billingAddress.contains(e.target) && !billingSuggestions.contains(e.target)) {
+        billingSuggestions.style.display = 'none';
+      }
+    });
+  }
+
+  // ==========================================
+  // AUTO-COMPLÉTION ADRESSE LIVRAISON
+  // ==========================================
+  
+  const shippingAddress = document.getElementById('shipping_address_1');
+  const shippingSuggestions = document.getElementById('shipping_address_suggestions');
+  const shippingPostcode = document.getElementById('shipping_postcode');
+  const shippingCity = document.getElementById('shipping_city');
+  const shippingState = document.getElementById('shipping_state');
+
+  if (shippingAddress && shippingSuggestions) {
+    shippingAddress.addEventListener('input', debounce(async function() {
+      const query = this.value.trim();
+      
+      if (query.length >= 3) {
+        try {
+          const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=10`);
+          const data = await response.json();
+          
+          if (data.features && data.features.length > 0) {
+            shippingSuggestions.innerHTML = '';
+            shippingSuggestions.style.display = 'block';
+            
+            data.features.forEach(feature => {
+              const item = document.createElement('div');
+              item.className = 'address-suggestion-item';
+              item.innerHTML = `
+                <strong>${feature.properties.name}</strong>
+                <small>${feature.properties.postcode} ${feature.properties.city}, ${feature.properties.context}</small>
+              `;
+              
+              item.addEventListener('click', function() {
+                // Remplir l'adresse
+                shippingAddress.value = feature.properties.name;
+                
+                // Remplir automatiquement le CP, ville et département
+                shippingPostcode.value = feature.properties.postcode;
+                shippingPostcode.readOnly = true;
+                shippingPostcode.style.backgroundColor = '#f0f0f0';
+                
+                shippingCity.value = feature.properties.city;
+                shippingCity.readOnly = true;
+                shippingCity.style.backgroundColor = '#f0f0f0';
+                
+                // Extraire la région (première partie du context)
+                const context = feature.properties.context;
+                const region = context.split(',')[0].trim();
+                shippingState.value = region;
+                shippingState.readOnly = true;
+                shippingState.style.backgroundColor = '#f0f0f0';
+                
+                // Masquer les suggestions
+                shippingSuggestions.style.display = 'none';
+              });
+              
+              shippingSuggestions.appendChild(item);
+            });
+          } else {
+            shippingSuggestions.style.display = 'none';
+          }
+        } catch (error) {
+          console.error('Erreur API Adresse:', error);
+          shippingSuggestions.style.display = 'none';
+        }
+      } else {
+        shippingSuggestions.style.display = 'none';
+      }
+    }, 300));
+    
+    // Masquer les suggestions si on clique en dehors
+    document.addEventListener('click', function(e) {
+      if (!shippingAddress.contains(e.target) && !shippingSuggestions.contains(e.target)) {
+        shippingSuggestions.style.display = 'none';
+      }
+    });
+  }
+
+  // Fonction debounce pour éviter trop d'appels API
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func.apply(this, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+  
+  // Fin du DOMContentLoaded
+});
+</script>

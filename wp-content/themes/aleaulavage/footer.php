@@ -119,6 +119,54 @@
 				}
 			});
 		});
+
+		// Gestion de la popup de jeux
+		const gameModal = document.getElementById('game-modal');
+		const gameIframe = document.getElementById('game-iframe');
+		const modalClose = document.querySelector('.game-modal-close');
+		const gameCards = document.querySelectorAll('.game-card');
+
+		// Ouvrir la popup en cliquant n'importe où sur la carte
+		gameCards.forEach(function(card) {
+			card.addEventListener('click', function() {
+				const gameBtn = this.querySelector('.game-btn[data-game-url]');
+				if (gameBtn) {
+					const gameUrl = gameBtn.getAttribute('data-game-url');
+					if (gameUrl) {
+						gameIframe.src = gameUrl;
+						gameModal.style.display = 'flex';
+						document.body.style.overflow = 'hidden';
+					}
+				}
+			});
+		});
+
+		// Fermer la popup
+		if (modalClose) {
+			modalClose.addEventListener('click', closeGameModal);
+		}
+
+		// Fermer en cliquant à l'extérieur
+		if (gameModal) {
+			gameModal.addEventListener('click', function(e) {
+				if (e.target === gameModal) {
+					closeGameModal();
+				}
+			});
+		}
+
+		// Fermer avec la touche Escape
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape' && gameModal.style.display === 'flex') {
+				closeGameModal();
+			}
+		});
+
+		function closeGameModal() {
+			gameModal.style.display = 'none';
+			gameIframe.src = '';
+			document.body.style.overflow = '';
+		}
 	});
 	</script>
 </body>

@@ -19,6 +19,12 @@ the_post();
 			</div>
 		</div>
     </div>
+
+	<?php
+	// Section jeux désormais gérée par le plugin aleaulavage-tpe-salon
+	do_action('aleaulavage_home_games');
+	?>
+
 	<div>
 		<div id="post-<?php the_ID(); ?>" <?php post_class( 'content' ); ?>>
 			<?php
@@ -45,6 +51,14 @@ the_post();
 				comments_template();
 			endif;
 		?>
+	</div>
+
+	<!-- Modal pour les jeux -->
+	<div id="game-modal" class="game-modal" style="display: none;">
+		<div class="game-modal-content">
+			<span class="game-modal-close">&times;</span>
+			<iframe id="game-iframe" src="" frameborder="0" allowfullscreen></iframe>
+		</div>
 	</div>
 </div>
 <?php

@@ -276,6 +276,61 @@ class ComportementTracker {
         // Marquer les paniers comme convertis
         $this->mark_cart_as_converted();
     }
+
+    /**
+     * Callback pour le hook `woocommerce_thankyou`.
+     * Certains thèmes/appels passent seulement l'ID de commande. Supporte donc
+     * $order_id en int ou un objet WC_Order si fourni.
+     */
+    public function track_order_thankyou($order_id_or_obj) {
+        // Accepter soit un ID, soit un objet WC_Order
+        $order = null;
+        if (is_object($order_id_or_obj) && method_exists($order_id_or_obj, 'get_id')) {
+            $order = $order_id_or_obj;
+            $order_id = $order->get_id();
+        } else {
+            $order_id = intval($order_id_or_obj);
+            if ($order_id <= 0) {
+                error_log('Comportement: track_order_thankyou appelé avec un ID invalide: ' . var_export($order_id_or_obj, true));
+                return;
+            }
+            $order = wc_get_order($order_id);
+            if (!$order) {
+                error_log('Comportement: Order non trouvé pour ID ' . $order_id);
+                return;
+            }
+        }
+
+        // Construire les données à tracker
+        $items = [];
+        foreach ($order->get_items() as $item) {
+            $items[] = [
+                'product_id' => $item->get_product_id(),
+                'variation_id' => $item->get_variation_id(),
+                'quantity' => $item->get_quantity(),
+                'subtotal' => $item->get_subtotal(),
+                'total' => $item->get_total()
+            ];
+        }
+
+        $event_data = [
+            'order_id' => $order->get_id(),
+            'order_key' => $order->get_order_key(),
+            'total' => $order->get_total(),
+            'currency' => $order->get_currency(),
+            'payment_method' => $order->get_payment_method(),
+            'billing_email' => $order->get_billing_email(),
+            'status' => $order->get_status(),
+            'items' => $items
+        ];
+
+        $this->track_event('order_thankyou', $event_data, $this->session_id);
+
+        // Marquer le panier comme converti si nécessaire
+        $this->mark_cart_as_converted();
+
+        error_log('Comportement: track_order_thankyou exécuté pour commande ' . $order->get_id());
+    }
     
     public function track_page_view() {
         if (is_admin() || wp_doing_ajax() || wp_doing_cron()) {
