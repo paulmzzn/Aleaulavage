@@ -253,6 +253,12 @@ $promo_banner = get_theme_mod('promo_banner_message');
 											<div class="menu-card-title">Boutique</div>
 											<div class="menu-card-subtitle">Tous nos produits</div>
 										</a>
+
+										<a href="<?php echo esc_url(home_url('catalogue-2025')); ?>" class="menu-card">
+											<div class="menu-card-icon"><i class="fa-solid fa-book"></i></div>
+											<div class="menu-card-title">Catalogue 2025</div>
+											<div class="menu-card-subtitle">Voir le catalogue</div>
+										</a>
 										
 										<a href="<?php echo esc_url(home_url('contact/')); ?>" class="menu-card">
 											<div class="menu-card-icon"><i class="fa-solid fa-envelope"></i></div>

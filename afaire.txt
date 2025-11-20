@@ -1,0 +1,12 @@
+scrollable souris slider
+
+accueil : ok
+boutique : en cours
+profile : ok
+favoris :ok
+panier :
+produit : en cours
+login
+
+panier rapide 
+rupture - en reappro mais indispo si recommande pas possible

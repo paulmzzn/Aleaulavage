@@ -454,3 +454,124 @@ a img.aligncenter {
     font-weight: 600;
 }
 
+/* Styles pour le catalogue DFlip - 100% largeur et 80vh hauteur */
+/* Masquer le titre sur la page du catalogue */
+.content:has(._df_book) .entry-title {
+    display: none !important;
+}
+
+/* Forcer le conteneur parent à prendre toute la largeur */
+.content:has(._df_book) {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Forcer le container Bootstrap à prendre toute la largeur et enlever le padding top */
+.container:has(._df_book) {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+/* Supprimer la classe pt-5 sur les pages avec catalogue */
+.d-flex.container:has(._df_book) {
+    padding-top: 0 !important;
+}
+
+/* Cibler le conteneur principal avec l'ID généré */
+._df_book[id^="df_"],
+div[id^="df_"]._df_book {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 80vh !important;
+    min-height: 500px !important;
+}
+
+/* Container du flipbook pour prendre toute la largeur */
+._df_book .df-container,
+._df_book .df-viewer-container,
+._df_book .df-viewer {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+}
+
+/* Ajuster le viewer wrapper pour centrer */
+._df_book .df-viewer-wrapper {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    ._df_book[id^="df_"],
+    div[id^="df_"]._df_book {
+        height: 80vh !important;
+        min-height: 500px !important;
+    }
+
+    /* Forcer le mode single page sur mobile si pas déjà configuré */
+    .content:has(._df_book) {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Centrer le viewer wrapper sur mobile */
+    ._df_book .df-viewer-wrapper {
+        left: 50% !important;
+        margin-left: 0 !important;
+        transform: translateX(-50%) !important;
+        width: auto !important;
+    }
+
+    /* Centrer le container viewer */
+    ._df_book .df-viewer-container {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* Masquer toutes les pages par défaut */
+    ._df_book .df-sheet {
+        display: none !important;
+    }
+
+    /* Afficher seulement la page active (z-index le plus élevé) */
+    ._df_book .df-sheet[style*="z-index: 6"],
+    ._df_book .df-sheet[style*="z-index: 7"],
+    ._df_book .df-sheet[style*="z-index: 8"] {
+        display: block !important;
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+    }
+
+    /* Si aucune page avec z-index élevé, afficher la première page visible */
+    ._df_book .df-sheet.df-right-side:first-of-type {
+        display: block !important;
+        position: absolute !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        margin: 0 !important;
+    }
+
+    /* Ajuster le viewer wrapper pour centrer */
+    ._df_book .df-viewer-wrapper {
+        position: relative !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* Ajuster le viewer en mode flipbook */
+    ._df_book .df-viewer.df-flipbook {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        position: relative !important;
+    }
+}
+

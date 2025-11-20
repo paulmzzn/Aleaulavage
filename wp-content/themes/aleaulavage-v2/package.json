@@ -1,0 +1,24 @@
+{
+  "name": "aleaulavage-v2",
+  "version": "2.1.0",
+  "description": "Refactored theme for Aleaulavage",
+  "scripts": {
+    "minify:css": "npm run minify:header && npm run minify:home && npm run minify:gutenberg",
+    "minify:header": "npx cssnano assets/css/header.css assets/css/header.min.css",
+    "minify:home": "npx cssnano assets/css/home.css assets/css/home.min.css",
+    "minify:gutenberg": "npx cssnano assets/css/gutenberg.css assets/css/gutenberg.min.css",
+    "build": "npm run minify:css",
+    "watch:css": "watch 'npm run minify:css' assets/css"
+  },
+  "keywords": [
+    "wordpress",
+    "theme",
+    "woocommerce"
+  ],
+  "author": "YannQ & Paul Mazzon",
+  "license": "MIT",
+  "devDependencies": {
+    "cssnano": "^6.0.1",
+    "cssnano-cli": "^1.0.5"
+  }
+}

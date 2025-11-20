@@ -16,6 +16,7 @@ the_post();
 			<h1 class="text-light">Votre Station de Lavage <br/> Notre Priorité !</h1>
 			<div class="d-flex gap-2 mt-4">
 				<a class="btn bg-secondary" href="<?php echo esc_url(home_url('boutique')); ?>">Boutique</a>
+				<a class="btn" href="<?php echo esc_url(home_url('catalogue-2025')); ?>" style="background:#5899E2 !important;color:#ffffff !important;border-color:#5899E2 !important;">Catalogue 2025</a>
 			</div>
 		</div>
     </div>
