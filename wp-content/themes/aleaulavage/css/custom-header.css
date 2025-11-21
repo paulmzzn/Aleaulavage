@@ -141,13 +141,13 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #0d6efd, #6610f2);
+    background: linear-gradient(90deg, #5899E2, #6610f2);
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
 .menu-card:hover {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    color: #0d6efd;
+    color: #5899E2;
     text-decoration: none;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
@@ -158,7 +158,7 @@
 .menu-card-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    background: linear-gradient(135deg, #5899E2, #6610f2);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -218,6 +218,36 @@
 .free-shipping-progress .fsp-label {
     color: #2A3E6A;
     font-weight: 500;
+}
+
+/* Ensure mini-cart total HT is black and not oversized */
+#offcanvas-cart .cart-footer .cart-quick-label,
+#offcanvas-cart .cart-footer .cart-quick-amount,
+#offcanvas-cart .cart-footer .cart-quick-amount small {
+    color: #1a1a1a !important;
+}
+
+/* Force progress bar color to match primary */
+#offcanvas-cart .shipping-progress .progress-bar,
+#offcanvas-cart .progress .progress-bar,
+.fsp-bar-fill,
+.shipping-progress .progress-bar {
+    background: #5899E2 !important;
+    border-color: #5899E2 !important;
+}
+
+/* Success message for free shipping: use primary blue in v1 */
+#offcanvas-cart .shipping-progress p.text-success,
+#offcanvas-cart .shipping-progress p.text-primary {
+    color: #5899E2 !important;
+}
+
+/* Quick cart price amounts should be black */
+#offcanvas-cart .widget_shopping_cart_content .woocommerce-Price-amount.amount,
+#offcanvas-cart .cart-footer .cart-quick-amount,
+#offcanvas-cart .cart-footer .cart-quick-amount small {
+    color: #1a1a1a !important;
+    font-weight: 700 !important;
 }
 .free-shipping-progress .d-flex span {
     color: #2A3E6A;

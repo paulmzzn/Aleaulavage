@@ -111,7 +111,7 @@ class ComportementConfig {
             'client_actif' => [
                 'label' => 'Client actif',
                 'description' => 'Commande dans les 30 jours',
-                'color' => '#007bff'
+                'color' => '#5899E2'
             ],
             'client_fidele' => [
                 'label' => 'Client fidèle',

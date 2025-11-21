@@ -441,6 +441,70 @@ if (post_password_required()) {
         setupAccordion();
       }
     })();
+
+    // Smart sticky - la section la plus courte suit la plus longue
+    (function() {
+      function initProductSticky() {
+        var $gallery = jQuery('.product-gallery');
+        var $purchaseCard = jQuery('.product-purchase-card');
+        var $container = jQuery('.product-container');
+
+        if ($gallery.length === 0 || $purchaseCard.length === 0) {
+          return;
+        }
+
+        // Vérifier si on est sur desktop (> 992px)
+        if (jQuery(window).width() <= 992) {
+          $gallery.css('position', 'static');
+          $purchaseCard.css('position', 'static');
+          return;
+        }
+
+        var galleryHeight = $gallery.outerHeight();
+        var purchaseCardHeight = $purchaseCard.outerHeight();
+
+        // Utiliser un offset fixe pour le sticky (header + category-bar + padding)
+        // Valeur alignée avec la page panier
+        var topOffset = 130; // px
+
+        // Déterminer quelle section doit être sticky
+        if (galleryHeight > purchaseCardHeight) {
+          // Galerie plus longue - purchase card sticky
+          $purchaseCard.css({
+            'position': 'sticky',
+            'top': topOffset + 'px',
+            'align-self': 'flex-start'
+          });
+          $gallery.css('position', 'static');
+        } else {
+          // Purchase card plus longue - galerie sticky
+          $gallery.css({
+            'position': 'sticky',
+            'top': topOffset + 'px',
+            'align-self': 'flex-start'
+          });
+          $purchaseCard.css('position', 'static');
+        }
+      }
+
+      // Init au chargement
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          setTimeout(initProductSticky, 100);
+        });
+      } else {
+        setTimeout(initProductSticky, 100);
+      }
+
+      // Réinit au resize
+      var resizeTimer;
+      jQuery(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          initProductSticky();
+        }, 250);
+      });
+    })();
     </script>
   </div>
 

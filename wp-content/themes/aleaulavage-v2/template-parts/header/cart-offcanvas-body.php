@@ -10,26 +10,39 @@
 <!-- Free Shipping Progress -->
 <div class="shipping-progress p-3 bg-light">
     <?php
-    $cart_total = WC()->cart->get_subtotal();
-    $free_shipping_min = 550;
+    $cart_total = WC()->cart->get_cart_contents_total();
+
+    // Get franco de port based on customer type
+    $free_shipping_min = 550; // Default value
+    if (class_exists('Aleaulavage_Customer_Types')) {
+        $customer_type = Aleaulavage_Customer_Types::get_current_customer_type();
+        $franco = Aleaulavage_Customer_Types::get_franco_de_port($customer_type);
+        if ($franco !== null && $franco > 0) {
+            $free_shipping_min = $franco;
+        }
+    }
+
     $remaining = max(0, $free_shipping_min - $cart_total);
     $percentage = min(100, ($cart_total / $free_shipping_min) * 100);
     ?>
 
     <?php if ($remaining > 0): ?>
-        <p class="text-center mb-2 small text-muted">
-            Plus que <strong class="text-primary"><?php echo wc_price($remaining); ?></strong> pour la livraison gratuite
+        <?php $remaining_html = wc_price($remaining);
+            $remaining_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#5899E2 !important;">', $remaining_html);
+        ?>
+        <p class="text-center mb-2 small" style="color: #666; line-height: 1.5;">
+            Plus que <strong style="color:#5899E2;"><?php echo $remaining_html; ?> HT</strong> pour la livraison gratuite
         </p>
     <?php else: ?>
-        <p class="text-center mb-2 small text-success">
-            <i class="fa-solid fa-check-circle me-1"></i>
+        <p class="text-center mb-2 small" style="color:#5899E2 !important;">
+            <i class="fa-solid fa-check-circle me-1" style="color:#5899E2 !important;"></i>
             <strong>Livraison gratuite !</strong>
         </p>
     <?php endif; ?>
 
     <div class="progress" style="height: 6px;">
-        <div class="progress-bar bg-primary" role="progressbar"
-             style="width: <?php echo $percentage; ?>%;"
+           <div class="progress-bar bg-primary" role="progressbar"
+               style="width: <?php echo $percentage; ?>%; background: #5899E2 !important; border-color: #5899E2 !important;"
              aria-valuenow="<?php echo $percentage; ?>"
              aria-valuemin="0"
              aria-valuemax="100">
@@ -55,14 +68,23 @@
                         (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null)));
         ?>
 
-        <div class="cart-item-compact mb-2" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
-            <div class="d-flex gap-2 align-items-start p-2 rounded position-relative">
+        <div class="cart-item-compact py-3 border-bottom position-relative" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
+            <!-- Remove Button (Absolute Top Right of Item) -->
+            <button type="button"
+                    class="btn btn-link text-muted p-0 remove-item position-absolute top-0 end-0 mt-2"
+                    data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
+                    title="Supprimer"
+                    style="font-size: 0.85rem; line-height: 1; z-index: 10;">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+
+            <div class="d-flex align-items-start">
                 <!-- Product Image -->
-                <a href="<?php echo esc_url($_product->get_permalink($cart_item)); ?>" class="flex-shrink-0">
+                <a href="<?php echo esc_url($_product->get_permalink($cart_item)); ?>" class="flex-shrink-0 me-3">
                     <?php
                     $thumbnail = $_product->get_image('thumbnail', array(
                         'class' => 'rounded',
-                        'style' => 'width: 60px; height: 60px; object-fit: cover;'
+                        'style' => 'width: 60px; height: 60px; object-fit: cover; border: 1px solid #f0f0f0;'
                     ));
                     echo $thumbnail;
                     ?>
@@ -70,58 +92,58 @@
 
                 <!-- Product Info -->
                 <div class="flex-grow-1" style="min-width: 0;">
-                    <div class="d-flex justify-content-between align-items-start mb-1">
-                        <div class="d-flex align-items-center gap-1 flex-grow-1" style="min-width: 0;">
-                            <a href="<?php echo esc_url($_product->get_permalink($cart_item)); ?>"
-                               class="product-name text-decoration-none text-dark small fw-semibold text-truncate"
-                               style="max-width: 160px;">
-                                <?php echo wp_kses_post($_product->get_name()); ?>
-                            </a>
-                            <?php if ($is_backorder): ?>
-                                <i class="fa-solid fa-clock text-warning" style="font-size: 0.75rem;" title="En réapprovisionnement"></i>
-                            <?php endif; ?>
-                        </div>
-                        <button type="button"
-                                class="btn btn-link text-muted p-0 remove-item"
-                                data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
-                                title="Supprimer"
-                                style="font-size: 0.9rem; line-height: 1;">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <!-- Row 1: Name -->
+                    <div class="mb-2 pe-4">
+                        <a href="<?php echo esc_url($_product->get_permalink($cart_item)); ?>"
+                           class="product-name text-decoration-none fw-semibold text-dark lh-sm d-block"
+                           style="font-size: 0.9rem;">
+                            <?php echo wp_kses_post($_product->get_name()); ?>
+                        </a>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <!-- Quantity Controls -->
-                        <div class="cart-qty-selector d-flex align-items-center" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
-                            <button type="button" class="cart-qty-btn decrease-quantity" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>" <?php echo ($quantity <= 1) ? 'disabled' : ''; ?>>
-                                <i class="fa-solid fa-minus"></i>
+                    <!-- Row 2: Qty + Price (In Flow, Just Below Name) -->
+                    <div class="d-flex align-items-center justify-content-between mt-2">
+                        <!-- Quantity Controls (Pill Style) -->
+                        <div class="cart-qty-selector d-flex align-items-center border rounded-pill bg-white" 
+                             style="height: 32px; padding: 0 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.03);">
+                            <button type="button" class="cart-qty-btn decrease-quantity btn btn-sm btn-link text-dark p-0 text-decoration-none rounded-circle" 
+                                    data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>" 
+                                    <?php echo ($quantity <= 1) ? 'disabled' : ''; ?>
+                                    style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-minus" style="font-size: 0.6rem;"></i>
                             </button>
                             <input type="number"
-                                   class="cart-qty-value"
+                                   class="cart-qty-value border-0 text-center p-0 fw-bold bg-transparent"
                                    value="<?php echo esc_attr($quantity); ?>"
                                    min="1"
                                    max="999"
-                                   data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
-                            <button type="button" class="cart-qty-btn increase-quantity" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
-                                <i class="fa-solid fa-plus"></i>
+                                   data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
+                                   style="width: 30px; height: 24px; font-size: 0.85rem; -moz-appearance: textfield;">
+                            <button type="button" class="cart-qty-btn increase-quantity btn btn-sm btn-link text-dark p-0 text-decoration-none rounded-circle" 
+                                    data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
+                                    style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-plus" style="font-size: 0.6rem;"></i>
                             </button>
                         </div>
 
                         <!-- Price -->
-                        <div class="text-primary fw-bold" style="font-size: 0.95rem;">
-                            <?php echo WC()->cart->get_product_subtotal($_product, $quantity); ?>
+                        <div class="fw-bold text-end" style="font-size: 0.95rem; color: #2c3e50;">
+                            <?php $subtotal_html = WC()->cart->get_product_subtotal($_product, $quantity);
+                                  $subtotal_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#2c3e50 !important; font-weight:700;">', $subtotal_html);
+                                  echo $subtotal_html;
+                            ?>
+                            <small style="font-size: 0.7rem; color: #6c757d; font-weight: normal;">HT</small>
                         </div>
                     </div>
                 </div>
             </div>
-            <hr class="my-2" style="opacity: 0.1;">
         </div>
 
     <?php endforeach; ?>
 </div>
 
 <!-- Footer with Total and Actions -->
-<div class="cart-footer border-top p-3 bg-white">
+<div class="cart-footer bg-white px-3 pb-3">
     <!-- Backorder Global Notice -->
     <?php
     $has_backorder_items = false;
@@ -142,15 +164,18 @@
         </div>
     <?php endif; ?>
 
-    <!-- Total -->
-    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-        <span class="fs-5 fw-bold">Total</span>
-        <span class="fs-4 fw-bold text-primary"><?php echo WC()->cart->get_total(); ?></span>
+    <!-- Total HT -->
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-top" style="padding: 1rem; background: #f8f9fa; margin: 0 -1rem 1rem -1rem;">
+        <span class="fw-bold" style="font-size: 1rem; color: #2c3e50;">Total HT</span>
+        <?php $quick_html = wc_price( WC()->cart->get_cart_contents_total() );
+            $quick_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#2c3e50 !important; font-weight:700;">', $quick_html);
+        ?>
+        <span class="fw-bold" style="font-size: 1.25rem; color: #2c3e50;"><?php echo $quick_html; ?> <small style="font-size: 0.85rem; color: #666;">HT</small></span>
     </div>
 
     <!-- Action Buttons -->
     <div class="d-grid gap-2">
-        <a href="<?php echo esc_url(wc_get_checkout_url()); ?>"
+        <a href="<?php echo esc_url(wc_get_cart_url()); ?>"
            class="btn btn-primary btn-lg">
             Commander
         </a>

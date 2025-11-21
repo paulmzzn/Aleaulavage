@@ -1,4 +1,390 @@
 /* ====================================
+   LOGIN / REGISTER PAGE WITH TABS
+   ==================================== */
+
+/* Hide page title "Mon compte" on login page */
+.woocommerce-account:not(.logged-in) .entry-header {
+    display: none !important;
+}
+
+/* Login Page Container - Override the logged-in grid layout */
+.woocommerce-account:not(.logged-in) .woocommerce {
+    display: block !important;
+    max-width: 550px !important;
+    margin: 3rem auto !important;
+    padding: 0 !important;
+    grid-template-columns: unset !important;
+    gap: unset !important;
+}
+
+/* Tabs Navigation */
+.auth-tabs-nav {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    border: 1px solid #e3e5e8;
+    border-bottom: none;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 1.25rem 2rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.auth-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+    color: #495057;
+}
+
+.auth-tab-btn.active {
+    background: #fff;
+    color: #5899E2;
+    border-bottom-color: #5899E2;
+}
+
+/* Tabs Container */
+.auth-tabs-container {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* Hide default h2 titles */
+.woocommerce-account:not(.logged-in) .u-column1 > h2,
+.woocommerce-account:not(.logged-in) .u-column2 > h2 {
+    display: none !important;
+}
+
+/* Login/Register Forms Container */
+.woocommerce-account:not(.logged-in) .woocommerce > .u-columns,
+.woocommerce-account:not(.logged-in) .woocommerce > div:first-child,
+.woocommerce-account:not(.logged-in) #customer_login {
+    display: block !important;
+    flex-wrap: unset !important;
+    gap: unset !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    justify-content: unset !important;
+    margin: 0 !important;
+}
+
+/* Individual Columns - Hidden by default */
+.woocommerce-account:not(.logged-in) .u-column1,
+.woocommerce-account:not(.logged-in) .u-column2 {
+    flex: unset !important;
+    max-width: 100% !important;
+    min-width: unset !important;
+    width: 100% !important;
+    float: none !important;
+    margin-bottom: 0 !important;
+    display: none !important;
+}
+
+/* Show active tab */
+.woocommerce-account:not(.logged-in) .u-column1.active,
+.woocommerce-account:not(.logged-in) .u-column2.active {
+    display: block !important;
+}
+
+/* Individual Form Styling */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register {
+    background: #fff;
+    border: none;
+    border-radius: 0;
+    padding: 2.5rem;
+    box-shadow: none;
+}
+
+/* Form Titles */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login h2,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #14274A;
+    margin: 0 0 1rem 0 !important;
+    text-align: center;
+}
+
+/* Form Fields */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-form-row,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register .woocommerce-form-row {
+    margin-bottom: 1.5rem;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login label,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register label {
+    display: block;
+    font-weight: 600;
+    color: #14274A;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login input[type="text"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-login input[type="email"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-login input[type="password"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-register input[type="text"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-register input[type="email"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-register input[type="password"] {
+    width: 100% !important;
+    padding: 0.875rem 1rem !important;
+    border: 2px solid #e3e5e8 !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    background: #fff !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login input:focus,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register input:focus {
+    outline: none !important;
+    border-color: #5899E2 !important;
+    box-shadow: 0 0 0 4px rgba(88, 153, 226, 0.1) !important;
+}
+
+/* Remember Me Checkbox */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-form__label-for-checkbox {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    font-weight: 400 !important;
+    margin: 1rem 0 !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login input[type="checkbox"] {
+    width: auto !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+}
+
+/* Submit Buttons */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login button[type="submit"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-register button[type="submit"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-Button,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register .woocommerce-Button {
+    width: 100% !important;
+    background: linear-gradient(135deg, #5899E2, #4a8cd6) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 1rem 1.5rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-top: 1rem !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login button[type="submit"]:hover,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register button[type="submit"]:hover,
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-Button:hover,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register .woocommerce-Button:hover {
+    background: linear-gradient(135deg, #4a8cd6, #3c7bc4) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(88, 153, 226, 0.35) !important;
+}
+
+/* Lost Password Link */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-LostPassword {
+    text-align: center !important;
+    margin-top: 1.5rem !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-LostPassword a {
+    color: #5899E2 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-LostPassword a:hover {
+    color: #4785d6 !important;
+    text-decoration: underline !important;
+}
+
+/* Error Messages */
+.woocommerce-account:not(.logged-in) .woocommerce-error,
+.woocommerce-account:not(.logged-in) .woocommerce-message {
+    background: #fff !important;
+    border-left: 4px solid #dc3545 !important;
+    padding: 1rem 1.5rem !important;
+    margin-bottom: 2rem !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1) !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-message {
+    border-left-color: #28a745 !important;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1) !important;
+}
+
+/* Show password button on login page */
+.woocommerce-account:not(.logged-in) .woocommerce-form-login .woocommerce-form-row,
+.woocommerce-account:not(.logged-in) .woocommerce-form-register .woocommerce-form-row {
+    position: relative !important;
+}
+
+.woocommerce-account:not(.logged-in) .woocommerce-form-login input[type="password"],
+.woocommerce-account:not(.logged-in) .woocommerce-form-register input[type="password"] {
+    padding-right: 3.5rem !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .woocommerce-account:not(.logged-in) .woocommerce > .u-columns,
+    .woocommerce-account:not(.logged-in) .woocommerce > div:first-child {
+        gap: 2rem !important;
+    }
+
+    .woocommerce-account:not(.logged-in) .u-column1,
+    .woocommerce-account:not(.logged-in) .u-column2 {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+    }
+
+    .woocommerce-account:not(.logged-in) .woocommerce-form-login,
+    .woocommerce-account:not(.logged-in) .woocommerce-form-register {
+        padding: 2rem 1.5rem !important;
+    }
+}
+
+/* ====================================
+   LOST PASSWORD / RESET PASSWORD PAGE
+   ==================================== */
+
+/* Lost Password Form Container */
+.woocommerce-ResetPassword.lost_reset_password {
+    background: #fff;
+    border: 1px solid #e3e5e8;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    max-width: 500px;
+    margin: 2rem auto;
+    transition: all 0.3s ease;
+}
+
+.woocommerce-ResetPassword.lost_reset_password:hover {
+    box-shadow: 0 6px 24px rgba(88, 153, 226, 0.15);
+    border-color: #5899E2;
+}
+
+/* Lost Password - Description Text */
+.woocommerce-ResetPassword.lost_reset_password > p:first-of-type {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* Lost Password - Form Row */
+.woocommerce-ResetPassword.lost_reset_password .woocommerce-form-row,
+.woocommerce-ResetPassword.lost_reset_password .form-row-first,
+.woocommerce-ResetPassword.lost_reset_password .form-row {
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+    float: none !important;
+}
+
+/* Lost Password - Label */
+.woocommerce-ResetPassword.lost_reset_password label {
+    display: block !important;
+    font-weight: 600 !important;
+    color: #14274A !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.95rem !important;
+    width: 100% !important;
+}
+
+/* Lost Password - Input */
+.woocommerce-ResetPassword.lost_reset_password input[type="text"],
+.woocommerce-ResetPassword.lost_reset_password input[type="email"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.875rem 1rem !important;
+    border: 2px solid #e3e5e8 !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    transition: all 0.3s ease !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
+}
+
+.woocommerce-ResetPassword.lost_reset_password input:focus {
+    outline: none !important;
+    border-color: #5899E2 !important;
+    box-shadow: 0 0 0 4px rgba(88, 153, 226, 0.1) !important;
+}
+
+/* Lost Password - Submit Button */
+.woocommerce-ResetPassword.lost_reset_password button[type="submit"],
+.woocommerce-ResetPassword.lost_reset_password .woocommerce-Button {
+    width: 100% !important;
+    background: linear-gradient(135deg, #5899E2, #4a8cd6) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 1rem 1.5rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin-top: 1rem !important;
+}
+
+.woocommerce-ResetPassword.lost_reset_password button[type="submit"]:hover,
+.woocommerce-ResetPassword.lost_reset_password .woocommerce-Button:hover {
+    background: linear-gradient(135deg, #4a8cd6, #3c7bc4) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(88, 153, 226, 0.35) !important;
+}
+
+/* Page Title */
+.woocommerce-ResetPassword.lost_reset_password ~ .entry-header,
+article:has(.woocommerce-ResetPassword) .entry-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+article:has(.woocommerce-ResetPassword) .entry-header .entry-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #14274A;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .woocommerce-ResetPassword.lost_reset_password {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+
+    article:has(.woocommerce-ResetPassword) .entry-header .entry-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* ====================================
    MY ACCOUNT PAGE - GRID LAYOUT
    ==================================== */
 
@@ -419,5 +805,149 @@
 
     .woocommerce-account .woocommerce-MyAccount-content {
         padding: 1.5rem;
+    }
+}
+
+/* ====================================
+   PASSWORD VISIBILITY TOGGLE BUTTON
+   ==================================== */
+
+/* Password field wrapper with relative positioning */
+.woocommerce-account .woocommerce-MyAccount-content .woocommerce-form-row {
+    position: relative;
+}
+
+/* Show/Hide Password Button - Ultra specific selectors to override all defaults */
+.woocommerce-account .woocommerce-MyAccount-content form .show-password-input,
+.woocommerce-account .woocommerce-MyAccount-content button.show-password-input,
+.woocommerce form .show-password-input,
+.woocommerce-page form .show-password-input,
+.woocommerce-account .show-password-input {
+    /* Apply our custom styles */
+    position: absolute !important;
+    right: 1rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 40px !important;
+    height: 40px !important;
+    border: none !important;
+    background: transparent !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    transition: all 0.3s ease !important;
+    border-radius: 6px !important;
+    z-index: 10 !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    overflow: hidden !important;
+    text-indent: -9999px !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+}
+
+/* Add eye icon using Font Awesome */
+.woocommerce-account .woocommerce-MyAccount-content form .show-password-input::before,
+.woocommerce-account .woocommerce-MyAccount-content button.show-password-input::before,
+.woocommerce form .show-password-input::before,
+.woocommerce-page form .show-password-input::before,
+.woocommerce-account .show-password-input::before {
+    /* Remove WooCommerce default background image */
+    background-image: none !important;
+    background-repeat: no-repeat !important;
+    background-size: 0 !important;
+
+    /* Apply Font Awesome icon */
+    content: '\f06e' !important;
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    font-size: 1.1rem !important;
+    color: #6c757d !important;
+    transition: all 0.3s ease !important;
+    text-indent: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* When password is visible, show eye-slash */
+.woocommerce-account .woocommerce-MyAccount-content form .show-password-input.display-password::before,
+.woocommerce-account .woocommerce-MyAccount-content button.show-password-input.display-password::before,
+.woocommerce form .show-password-input.display-password::before,
+.woocommerce-page form .show-password-input.display-password::before,
+.woocommerce-account .show-password-input.display-password::before {
+    content: '\f070' !important;
+    color: #5899E2 !important;
+}
+
+/* Hover effect */
+.woocommerce-account .woocommerce-MyAccount-content form .show-password-input:hover,
+.woocommerce-account .woocommerce-MyAccount-content button.show-password-input:hover,
+.woocommerce form .show-password-input:hover,
+.woocommerce-page form .show-password-input:hover,
+.woocommerce-account .show-password-input:hover {
+    background: #f8f9fa !important;
+}
+
+.woocommerce-account .woocommerce-MyAccount-content form .show-password-input:hover::before,
+.woocommerce-account .woocommerce-MyAccount-content button.show-password-input:hover::before,
+.woocommerce form .show-password-input:hover::before,
+.woocommerce-page form .show-password-input:hover::before,
+.woocommerce-account .show-password-input:hover::before {
+    color: #5899E2 !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* Focus effect */
+.woocommerce-account .woocommerce-MyAccount-content form .show-password-input:focus,
+.woocommerce-account .woocommerce-MyAccount-content button.show-password-input:focus,
+.woocommerce form .show-password-input:focus,
+.woocommerce-page form .show-password-input:focus,
+.woocommerce-account .show-password-input:focus {
+    outline: 2px solid #5899E2 !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(88, 153, 226, 0.15) !important;
+}
+
+/* Adjust password input padding to make room for button */
+.woocommerce-account .woocommerce-MyAccount-content input[type="password"] {
+    padding-right: 3.5rem !important;
+}
+
+/* Fix positioning when label exists */
+.woocommerce-account .woocommerce-form-row.woocommerce-form-row--wide label + .show-password-input,
+.woocommerce-account .woocommerce-form-row label + .show-password-input {
+    top: calc(50% + 1rem) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .woocommerce-account .woocommerce-MyAccount-content form .show-password-input,
+    .woocommerce-account .woocommerce-MyAccount-content button.show-password-input,
+    .woocommerce form .show-password-input,
+    .woocommerce-page form .show-password-input,
+    .woocommerce-account .show-password-input {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .woocommerce-account .woocommerce-MyAccount-content form .show-password-input::before,
+    .woocommerce-account .woocommerce-MyAccount-content button.show-password-input::before,
+    .woocommerce form .show-password-input::before,
+    .woocommerce-page form .show-password-input::before,
+    .woocommerce-account .show-password-input::before {
+        font-size: 1rem !important;
     }
 }

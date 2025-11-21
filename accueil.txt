@@ -114,7 +114,7 @@
                         <i class="fa-solid fa-box"></i>
                     </div>
                     <h4 class="trust-title">Livraison offerte</h4>
-                    <p class="trust-description">Profitez de la livraison gratuite dès 550€ d'achat</p>
+                    <p class="trust-description">Profitez de la livraison gratuite dès [free_shipping_amount format="number"]€ d'achat</p>
                 </div>
             </div>
 

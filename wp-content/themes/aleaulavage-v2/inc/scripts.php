@@ -84,6 +84,12 @@ function aleaulavage_v2_scripts()
         $cart_offcanvas_js = get_template_directory() . '/assets/js/cart-offcanvas.js';
         wp_enqueue_script('aleaulavage-v2-cart-offcanvas', get_template_directory_uri() . '/assets/js/cart-offcanvas.js', array('jquery'), file_exists($cart_offcanvas_js) ? filemtime($cart_offcanvas_js) : $theme_version, true);
 
+        // Localize ajax params for cart offcanvas
+        wp_localize_script('aleaulavage-v2-cart-offcanvas', 'aleaulavage_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('aleaulavage_cart_nonce')
+        ));
+
         // Wishlist JS
         $wishlist_js = get_template_directory() . '/assets/js/wishlist.js';
         wp_enqueue_script('aleaulavage-v2-wishlist', get_template_directory_uri() . '/assets/js/wishlist.js', array('jquery'), file_exists($wishlist_js) ? filemtime($wishlist_js) : $theme_version, true);
@@ -93,6 +99,12 @@ function aleaulavage_v2_scripts()
             'nonce' => wp_create_nonce('aleaulavage_wishlist_nonce'),
             'is_logged_in' => is_user_logged_in()
         ));
+    }
+
+    // Cart Page Assets
+    if (is_cart()) {
+        $cart_css = get_template_directory() . '/assets/css/cart.css';
+        wp_enqueue_style('aleaulavage-v2-cart', get_template_directory_uri() . '/assets/css/cart.css', array(), file_exists($cart_css) ? filemtime($cart_css) : $theme_version);
     }
 }
 add_action('wp_enqueue_scripts', 'aleaulavage_v2_scripts');

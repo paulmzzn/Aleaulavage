@@ -209,7 +209,7 @@
 
 .menu-card:hover {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    color: #0d6efd;
+    color: #5899E2;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
@@ -217,7 +217,7 @@
 .menu-card-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
+    background: linear-gradient(135deg, #5899E2, #6610f2);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -412,4 +412,48 @@ body .site-header {
     text-align: center;
     color: #6c757d;
     font-size: 1.1rem;
+}
+
+/* Mini cart quick total styling */
+.cart-footer .cart-quick-label {
+     font-size: 0.95rem !important;
+     font-weight: 600 !important;
+}
+.cart-footer .cart-quick-amount {
+     font-size: 1rem !important;
+     font-weight: 700 !important;
+}
+
+/* Ensure quick total is black */
+.cart-footer .cart-quick-label,
+.cart-footer .cart-quick-amount,
+.cart-footer .cart-quick-amount small {
+    color: #1a1a1a !important;
+}
+
+/* Force progress bar color for shipping progress in mini cart / offcanvas */
+.shipping-progress .progress-bar,
+.cart-offcanvas .progress .progress-bar,
+.offcanvas .progress-bar,
+.al-fs-progress .al-fs-progress-bar,
+.progress-bar.bg-primary,
+.fsp-bar-fill{
+    background-color: #5899E2 !important;
+    border-color: #5899E2 !important;
+}
+
+/* Success message for free shipping: use primary blue */
+.shipping-progress p.text-success,
+.shipping-progress p.text-primary {
+    color: #5899E2 !important;
+}
+
+/* Force Price amount color in offcanvas and mini-cart to black */
+.widget_shopping_cart_content .woocommerce-Price-amount.amount,
+.cart-items .woocommerce-Price-amount.amount,
+.cart-item-compact .woocommerce-Price-amount.amount,
+.cart-footer .cart-quick-amount,
+.cart-footer .cart-quick-amount small {
+    color: #1a1a1a !important;
+    font-weight: 700 !important;
 }

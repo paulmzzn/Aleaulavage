@@ -417,8 +417,8 @@ class ComportementClientAdminProduitsAnalyse {
         }
 
         .cc-tab-btn.active {
-            color: #007bff;
-            border-bottom-color: #007bff;
+            color: #5899E2;
+            border-bottom-color: #5899E2;
             background-color: #f8f9fa;
         }
 

@@ -87,13 +87,13 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        // Refresh cart fragments
-                        $(document.body).trigger('wc_fragment_refresh');
+                        // Reload offcanvas content immediately
+                        reloadOffcanvasContent();
 
-                        // Reload offcanvas content
-                        setTimeout(function () {
-                            reloadOffcanvasContent();
-                        }, 300);
+                        // Update cart count in header badge
+                        if (response.data && response.data.cart_count !== undefined) {
+                            $('.cart-count-badge').text(response.data.cart_count);
+                        }
                     } else {
                         alert('Erreur lors de la mise à jour du panier');
                         $cartItem.removeClass('updating');
@@ -123,13 +123,13 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        // Refresh cart fragments
-                        $(document.body).trigger('wc_fragment_refresh');
+                        // Reload offcanvas content immediately
+                        reloadOffcanvasContent();
 
-                        // Reload offcanvas content
-                        setTimeout(function () {
-                            reloadOffcanvasContent();
-                        }, 300);
+                        // Update cart count in header badge
+                        if (response.data && response.data.cart_count !== undefined) {
+                            $('.cart-count-badge').text(response.data.cart_count);
+                        }
                     } else {
                         alert('Erreur lors de la suppression de l\'article');
                         $cartItem.removeClass('removing');
@@ -147,6 +147,7 @@
          */
         function reloadOffcanvasContent() {
             const $offcanvas = $('#offcanvas-cart');
+            const $offcanvasBody = $offcanvas.find('.offcanvas-body');
 
             // Only reload if offcanvas exists
             if ($offcanvas.length === 0) {
@@ -155,6 +156,9 @@
             }
 
             console.log('Reloading offcanvas content...');
+
+            // Add loading overlay to hide old values during reload
+            $offcanvasBody.css('opacity', '0.5').css('pointer-events', 'none');
 
             $.ajax({
                 url: wc_add_to_cart_params.ajax_url,
@@ -169,15 +173,22 @@
                         console.log('Cart count:', response.data.cart_count);
                         console.log('Debug:', response.data.debug);
                         if (response.data.html) {
-                            $offcanvas.find('.offcanvas-body').html(response.data.html);
+                            $offcanvasBody.html(response.data.html);
                             console.log('Offcanvas content updated');
+
+                            // Remove loading overlay
+                            $offcanvasBody.css('opacity', '1').css('pointer-events', 'auto');
                         }
                     } else {
                         console.error('Failed to reload cart content:', response);
+                        // Remove loading overlay even on error
+                        $offcanvasBody.css('opacity', '1').css('pointer-events', 'auto');
                     }
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX error reloading cart:', error, xhr.responseText);
+                    // Remove loading overlay on error
+                    $offcanvasBody.css('opacity', '1').css('pointer-events', 'auto');
                 }
             });
         }

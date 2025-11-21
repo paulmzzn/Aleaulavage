@@ -25,29 +25,41 @@
             <!-- Free Shipping Progress -->
             <div class="shipping-progress p-3 bg-light">
                 <?php
-                $cart_total = WC()->cart->get_subtotal();
-                $free_shipping_min = 550;
+                $cart_total = WC()->cart->get_cart_contents_total();
+
+                // Get franco de port based on customer type
+                $free_shipping_min = 550; // Default value
+                if (class_exists('Aleaulavage_Customer_Types')) {
+                    $customer_type = Aleaulavage_Customer_Types::get_current_customer_type();
+                    $franco = Aleaulavage_Customer_Types::get_franco_de_port($customer_type);
+                    if ($franco !== null && $franco > 0) {
+                        $free_shipping_min = $franco;
+                    }
+                }
+
                 $remaining = max(0, $free_shipping_min - $cart_total);
                 $percentage = min(100, ($cart_total / $free_shipping_min) * 100);
                 ?>
 
                 <?php if ($remaining > 0): ?>
+                    <?php $remaining_html = wc_price($remaining);
+                        $remaining_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#5899E2 !important;">', $remaining_html);
+                    ?>
                     <p class="text-center mb-2 small text-muted">
-                        Plus que <strong class="text-primary"><?php echo wc_price($remaining); ?></strong> pour la livraison gratuite
+                        Plus que <strong><?php echo $remaining_html; ?></strong> pour la livraison gratuite
                     </p>
                 <?php else: ?>
-                    <p class="text-center mb-2 small text-success">
-                        <i class="fa-solid fa-check-circle me-1"></i>
+                    <p class="text-center mb-2 small" style="color:#5899E2 !important;">
                         <strong>Livraison gratuite !</strong>
                     </p>
                 <?php endif; ?>
 
                 <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-primary" role="progressbar"
-                         style="width: <?php echo $percentage; ?>%;"
-                         aria-valuenow="<?php echo $percentage; ?>"
-                         aria-valuemin="0"
-                         aria-valuemax="100">
+                <div class="progress-bar bg-primary" role="progressbar"
+                    style="width: <?php echo $percentage; ?>%; background: #5899E2 !important; border-color: #5899E2 !important;"
+                    aria-valuenow="<?php echo $percentage; ?>"
+                    aria-valuemin="0"
+                    aria-valuemax="100">
                     </div>
                 </div>
             </div>
@@ -104,8 +116,11 @@
                             <?php endif; ?>
 
                             <!-- Price -->
-                            <div class="product-price text-primary fw-bold mb-2">
-                                <?php echo WC()->cart->get_product_price($_product); ?>
+                            <div class="product-price text-dark fw-bold mb-2">
+                                <?php $price_html = WC()->cart->get_product_price($_product);
+                                      $price_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#1a1a1a !important; font-weight:700;">', $price_html);
+                                      echo $price_html;
+                                ?>
                             </div>
 
                             <!-- Quantity Controls -->
@@ -166,10 +181,13 @@
                     </div>
                 <?php endif; ?>
 
-                <!-- Total -->
+                <!-- Total HT -->
                 <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                    <span class="fs-5 fw-bold">Total</span>
-                    <span class="fs-4 fw-bold text-primary"><?php echo WC()->cart->get_total(); ?></span>
+                    <span class="fs-6 fw-bold cart-quick-label text-dark">Total HT</span>
+                    <?php $quick_html = wc_price( WC()->cart->get_cart_contents_total() );
+                        $quick_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#1a1a1a !important; font-weight:700;">', $quick_html);
+                    ?>
+                    <span class="fs-5 fw-bold cart-quick-amount text-dark"><?php echo $quick_html; ?> <small class="text-dark">HT</small></span>
                 </div>
 
                 <!-- Action Buttons -->

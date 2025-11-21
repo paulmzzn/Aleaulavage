@@ -218,7 +218,7 @@
                 'nouveau_visiteur': '#28a745',
                 'visiteur_regulier': '#17a2b8', 
                 'client_potentiel': '#ffc107',
-                'client_actif': '#007bff',
+                'client_actif': '#5899E2',
                 'client_fidele': '#6f42c1',
                 'client_inactif': '#dc3545'
             };

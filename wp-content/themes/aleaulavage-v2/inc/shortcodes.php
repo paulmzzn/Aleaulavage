@@ -215,3 +215,32 @@ function aleaulavage_v2_wishlist_shortcode()
     return ob_get_clean();
 }
 add_shortcode('aleaulavage_wishlist', 'aleaulavage_v2_wishlist_shortcode');
+
+/**
+ * Shortcode to display free shipping threshold based on customer type
+ * Usage: [free_shipping_amount]
+ */
+function aleaulavage_v2_free_shipping_amount_shortcode($atts)
+{
+    $atts = shortcode_atts(array(
+        'format' => 'price', // 'price' or 'number'
+    ), $atts);
+
+    // Get franco de port based on customer type
+    $free_shipping_min = 550; // Default value
+    if (class_exists('Aleaulavage_Customer_Types')) {
+        $customer_type = Aleaulavage_Customer_Types::get_current_customer_type();
+        $franco = Aleaulavage_Customer_Types::get_franco_de_port($customer_type);
+        if ($franco !== null && $franco > 0) {
+            $free_shipping_min = $franco;
+        }
+    }
+
+    // Format output
+    if ($atts['format'] === 'number') {
+        return number_format($free_shipping_min, 0, ',', ' ');
+    } else {
+        return wc_price($free_shipping_min);
+    }
+}
+add_shortcode('free_shipping_amount', 'aleaulavage_v2_free_shipping_amount_shortcode');

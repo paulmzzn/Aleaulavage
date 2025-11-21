@@ -166,8 +166,11 @@ function aleaulavage_v2_cart_fragments($fragments)
                 ?>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-bold">Total :</span>
-                <span class="fw-bold"><?php echo WC()->cart->get_total(); ?></span>
+                <span class="fw-bold cart-quick-label text-dark">Total HT :</span>
+                <?php $quick_html = wc_price( WC()->cart->get_cart_contents_total() );
+                    $quick_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#1a1a1a !important; font-weight:700;">', $quick_html);
+                ?>
+                <span class="fw-bold cart-quick-amount text-dark"><?php echo $quick_html; ?> <small class="text-dark">HT</small></span>
             </div>
             <button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-dismiss="offcanvas">Continuer mes
                 achats</button>
@@ -262,7 +265,7 @@ function aleaulavage_v2_update_cart_item_quantity()
         WC()->cart->calculate_totals();
         wp_send_json_success(array(
             'cart_count' => WC()->cart->get_cart_contents_count(),
-            'cart_total' => WC()->cart->get_total()
+            'cart_total' => wc_price( WC()->cart->get_cart_contents_total() )
         ));
     } else {
         wp_send_json_error('Cart not available');
@@ -289,7 +292,7 @@ function aleaulavage_v2_remove_cart_item()
         WC()->cart->calculate_totals();
         wp_send_json_success(array(
             'cart_count' => WC()->cart->get_cart_contents_count(),
-            'cart_total' => WC()->cart->get_total()
+            'cart_total' => wc_price( WC()->cart->get_cart_contents_total() )
         ));
     } else {
         wp_send_json_error('Cart not available');
@@ -319,16 +322,17 @@ function aleaulavage_v2_get_cart_offcanvas_content()
         return;
     }
 
+    // Force recalculate totals to ensure fresh data
+    $cart->calculate_totals();
+
     // Get the actual cart contents
     $cart_contents = $cart->get_cart();
-    $cart_count = count($cart_contents);
-
-    // Alternative count method
-    $cart_count_method2 = $cart->get_cart_contents_count();
+    $cart_items_count = count($cart_contents); // Number of different products (lines)
+    $cart_count = $cart->get_cart_contents_count(); // Total quantity of all items
 
     ob_start();
 
-    if ($cart_count > 0) {
+    if ($cart_items_count > 0) {
         // Include the offcanvas body content directly
         $template_path = get_template_directory() . '/template-parts/header/cart-offcanvas-body.php';
         if (file_exists($template_path)) {
@@ -355,9 +359,8 @@ function aleaulavage_v2_get_cart_offcanvas_content()
     wp_send_json_success(array(
         'html' => $html,
         'cart_count' => $cart_count,
-        'cart_count_method2' => $cart_count_method2,
-        'cart_items' => count($cart_contents),
-        'debug' => 'Cart items: ' . count($cart_contents) . ', Count method 1: ' . $cart_count . ', Count method 2: ' . $cart_count_method2
+        'cart_items' => $cart_items_count,
+        'debug' => 'Cart items (lines): ' . $cart_items_count . ', Total quantity: ' . $cart_count
     ));
 }
 add_action('wp_ajax_get_cart_offcanvas_content', 'aleaulavage_v2_get_cart_offcanvas_content');
@@ -589,3 +592,179 @@ function is_product_in_wishlist($product_id)
 
     return in_array($product_id, $wishlist);
 }
+
+/**
+ * ==============================================================================
+ * CUSTOM REGISTRATION FIELDS
+ * ==============================================================================
+ */
+
+/**
+ * Add custom fields to registration form
+ */
+function aleaulavage_v2_add_registration_fields()
+{
+    ?>
+    <p class="woocommerce-form-row woocommerce-form-row--first form-row form-row-first">
+        <label for="reg_billing_first_name">Prénom&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text">Obligatoire</span></label>
+        <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="billing_first_name" id="reg_billing_first_name" autocomplete="given-name" value="<?php echo (!empty($_POST['billing_first_name'])) ? esc_attr(wp_unslash($_POST['billing_first_name'])) : ''; ?>" required aria-required="true" />
+    </p>
+
+    <p class="woocommerce-form-row woocommerce-form-row--last form-row form-row-last">
+        <label for="reg_billing_last_name">Nom&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text">Obligatoire</span></label>
+        <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="billing_last_name" id="reg_billing_last_name" autocomplete="family-name" value="<?php echo (!empty($_POST['billing_last_name'])) ? esc_attr(wp_unslash($_POST['billing_last_name'])) : ''; ?>" required aria-required="true" />
+    </p>
+
+    <div class="clear"></div>
+    <?php
+}
+add_action('woocommerce_register_form_start', 'aleaulavage_v2_add_registration_fields');
+
+/**
+ * Validate custom registration fields
+ */
+function aleaulavage_v2_validate_registration_fields($errors, $username, $email)
+{
+    if (empty($_POST['billing_first_name'])) {
+        $errors->add('billing_first_name_error', __('Le prénom est requis.', 'aleaulavage-v2'));
+    }
+
+    if (empty($_POST['billing_last_name'])) {
+        $errors->add('billing_last_name_error', __('Le nom est requis.', 'aleaulavage-v2'));
+    }
+
+    return $errors;
+}
+add_filter('woocommerce_registration_errors', 'aleaulavage_v2_validate_registration_fields', 10, 3);
+
+/**
+ * Save custom registration fields
+ */
+function aleaulavage_v2_save_registration_fields($customer_id)
+{
+    if (isset($_POST['billing_first_name'])) {
+        update_user_meta($customer_id, 'first_name', sanitize_text_field($_POST['billing_first_name']));
+        update_user_meta($customer_id, 'billing_first_name', sanitize_text_field($_POST['billing_first_name']));
+    }
+
+    if (isset($_POST['billing_last_name'])) {
+        update_user_meta($customer_id, 'last_name', sanitize_text_field($_POST['billing_last_name']));
+        update_user_meta($customer_id, 'billing_last_name', sanitize_text_field($_POST['billing_last_name']));
+    }
+}
+add_action('woocommerce_created_customer', 'aleaulavage_v2_save_registration_fields');
+
+/**
+ * Customize password strength requirements text
+ */
+function aleaulavage_v2_password_strength_meter_text($translated_text, $text, $domain)
+{
+    if ($text === 'Hint: The password should be at least twelve characters long. To make it stronger, use upper and lower case letters, numbers, and symbols like ! " ? $ % ^ &amp; ).') {
+        return 'Conseil : Le mot de passe devrait contenir au moins huit caractères. Pour le rendre plus sûr, utilisez des lettres en majuscules et minuscules et des nombres.';
+    }
+    return $translated_text;
+}
+add_filter('gettext', 'aleaulavage_v2_password_strength_meter_text', 20, 3);
+
+/**
+ * Change password minimum length to 8
+ */
+function aleaulavage_v2_password_strength_settings()
+{
+    ?>
+    <script type="text/javascript">
+        if (typeof wc_password_strength_meter_params !== 'undefined') {
+            wc_password_strength_meter_params.min_password_strength = 3;
+            wc_password_strength_meter_params.min_password_length = 8;
+        }
+    </script>
+    <?php
+}
+add_action('woocommerce_register_form', 'aleaulavage_v2_password_strength_settings');
+
+/**
+ * Change privacy policy link to /mentions-legales/
+ */
+function aleaulavage_v2_privacy_policy_text($text)
+{
+    $text = str_replace(
+        'politique de confidentialité',
+        '<a href="/mentions-legales/" class="woocommerce-privacy-policy-link" target="_blank">politique de confidentialité</a>',
+        $text
+    );
+    return $text;
+}
+add_filter('woocommerce_registration_privacy_policy_text', 'aleaulavage_v2_privacy_policy_text', 10, 1);
+
+/**
+ * Remove username field from registration (use email as username)
+ */
+function aleaulavage_v2_remove_username_registration()
+{
+    ?>
+    <script type="text/javascript">
+        jQuery(function($) {
+            // Hide username field
+            $('.woocommerce-form-register p:has(#reg_username)').hide();
+
+            // Auto-fill username from email
+            $('#reg_email').on('blur', function() {
+                var email = $(this).val();
+                if (email && $('#reg_username').length) {
+                    $('#reg_username').val(email);
+                }
+            });
+        });
+    </script>
+    <?php
+}
+add_action('woocommerce_register_form', 'aleaulavage_v2_remove_username_registration');
+
+/**
+ * Add tabs functionality to login/register page
+ */
+function aleaulavage_v2_login_register_tabs()
+{
+    if (!is_account_page() || is_user_logged_in()) {
+        return;
+    }
+    ?>
+    <script type="text/javascript">
+        jQuery(function($) {
+            // Wrap forms in tab structure
+            var $columns = $('#customer_login');
+
+            if ($columns.length) {
+                // Create tabs navigation
+                var $tabsNav = $('<div class="auth-tabs-nav"></div>');
+                $tabsNav.append('<button class="auth-tab-btn active" data-tab="login">Se connecter</button>');
+                $tabsNav.append('<button class="auth-tab-btn" data-tab="register">S\'inscrire</button>');
+
+                // Add tabs nav before columns
+                $columns.before($tabsNav);
+
+                // Wrap in container
+                $columns.wrap('<div class="auth-tabs-container"></div>');
+
+                // Add data attributes to columns
+                $('.u-column1').attr('data-tab-content', 'login').addClass('active');
+                $('.u-column2').attr('data-tab-content', 'register');
+
+                // Tab switching
+                $('.auth-tab-btn').on('click', function() {
+                    var tab = $(this).data('tab');
+
+                    // Update buttons
+                    $('.auth-tab-btn').removeClass('active');
+                    $(this).addClass('active');
+
+                    // Update content
+                    $('[data-tab-content]').removeClass('active');
+                    $('[data-tab-content="' + tab + '"]').addClass('active');
+                });
+            }
+        });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'aleaulavage_v2_login_register_tabs');

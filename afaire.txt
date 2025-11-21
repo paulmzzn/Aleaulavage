@@ -6,7 +6,20 @@ profile : ok
 favoris :ok
 panier :
 produit : en cours
-login
+login : ok
 
 panier rapide 
 rupture - en reappro mais indispo si recommande pas possible
+
+
+quand favrois pas co ne pas afficher la sidebar et centrer le message
+quand ajout fav pas co popup connexion redirection vers la page de connexion
+quand ``
+
+
+page cart
+
+Kit Anti-Fraude pour Monnayeurs RM5
+enlever Disponible sur commande
+refaire selecteur qté comme panier rapide
+

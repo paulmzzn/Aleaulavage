@@ -574,7 +574,7 @@ class ComportementClientAdminAnalyseComportementale {
 
         .cc-time-fill {
             height: 100%;
-            background: linear-gradient(90deg, #17a2b8, #007bff);
+            background: linear-gradient(90deg, #17a2b8, #5899E2);
             border-radius: 3px;
         }
 

@@ -39,7 +39,7 @@ $promo_banner = get_theme_mod('promo_banner_message');
 	<link rel="icon" type="image/png" sizes="32x32" href="<?php echo get_stylesheet_directory_uri(); ?>/img/favicon/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="<?php echo get_stylesheet_directory_uri(); ?>/img/favicon/favicon-16x16.png">
 	<link rel="manifest" href="<?php echo get_stylesheet_directory_uri(); ?>/img/favicon/site.webmanifest">
-	<link rel="mask-icon" href="<?php echo get_stylesheet_directory_uri(); ?>/img/favicon/safari-pinned-tab.svg" color="#0d6efd">
+	<link rel="mask-icon" href="<?php echo get_stylesheet_directory_uri(); ?>/img/favicon/safari-pinned-tab.svg" color="#5899E2">
 	<meta name="msapplication-TileColor" content="#ffffff">
 	<meta name="theme-color" content="#ffffff">
 	<link rel="stylesheet" href="<?php echo get_stylesheet_directory_uri(); ?>/css/custom-header.css?v=20250725">
@@ -338,12 +338,38 @@ $promo_banner = get_theme_mod('promo_banner_message');
 				   <hr class="m-0" style="border-top:1.5px solid #d1d7e0;">
 				   <div class="offcanvas-body p-0 d-flex flex-column" style="min-height: 400px;">
 					   <div class="free-shipping-progress mt-3 px-3">
-						   <div class="fsp-label text-center mb-2" style="font-size:1.05rem;"></div>
-						   <div class="fsp-bar-bg" style="width:100%;height:18px;background:#e8f0ed;border-radius:9px;position:relative;border:1.5px solid #bfc8d6;">
-							   <div class="fsp-bar-fill" style="height:100%;background:#6fa298;border-radius:9px 0 0 9px;width:0%;transition:width 0.4s;"></div>
+						   <?php
+						   $cart_total = WC()->cart->get_cart_contents_total();
+						   $free_shipping_min = 550;
+						   if (class_exists('Aleaulavage_Customer_Types')) {
+							   $customer_type = Aleaulavage_Customer_Types::get_current_customer_type();
+							   $franco = Aleaulavage_Customer_Types::get_franco_de_port($customer_type);
+							   if ($franco !== null && $franco > 0) {
+								   $free_shipping_min = $franco;
+							   }
+						   }
+						   $remaining = max(0, $free_shipping_min - $cart_total);
+						   $percentage = min(100, ($cart_total / $free_shipping_min) * 100);
+						   ?>
+
+						   <?php if ($remaining > 0):
+							   $remaining_html = wc_price($remaining);
+							   $remaining_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#5899E2 !important;">', $remaining_html);
+						   ?>
+							   <p class="text-center mb-2 small text-muted">
+								   Plus que <strong><?php echo $remaining_html; ?></strong> HT pour la livraison gratuite
+							   </p>
+						   <?php else: ?>
+							   <p class="text-center mb-2 small" style="color:#5899E2 !important;">
+								   <strong>Vous bénéficiez de la livraison gratuite !</strong>
+							   </p>
+						   <?php endif; ?>
+
+						   <div class="progress" style="height:6px;">
+							<div class="progress-bar" role="progressbar" style="width: <?php echo $percentage; ?>%; background:#5899E2 !important; border-color:#5899E2 !important;" aria-valuenow="<?php echo $percentage; ?>" aria-valuemin="0" aria-valuemax="100"></div>
 						   </div>
-						   <div class="mt-1 text-center mb-3" style="font-size:0.98rem;color:#23443b;">
-							   <span style="display:inline-block;font-weight:600;">550&nbsp;€ : Livraison offerte</span>
+						   <div class="mt-1 text-center mb-3" style="font-size:0.88rem;color:#6c757d;">
+							   <span style="display:inline-block;font-weight:600;"><?php echo wc_price($free_shipping_min); ?> : Livraison offerte</span>
 						   </div>
 					   </div>
 					   <hr class="m-0" style="border-top:1.5px solid #d1d7e0;">
@@ -406,9 +432,13 @@ $promo_banner = get_theme_mod('promo_banner_message');
 							   </div>
 							   <?php
 
-							   echo '<div class="d-flex justify-content-between align-items-center mb-2">';
-							   echo '<span class="fw-bold">Total :</span>';
-							   echo '<span class="fw-bold">' . wc_price($cart->get_total('edit')) . '</span>';
+							   // Total HT (articles, après remises)
+							   $quick_total = $cart->get_cart_contents_total();
+							   echo '<div class="d-flex justify-content-between align-items-center mb-2">'; 
+							   echo '<span class="fw-bold cart-quick-label text-dark">Total HT :</span>';
+							   $quick_html = wc_price($quick_total);
+							   $quick_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#1a1a1a !important; font-weight:700;">', $quick_html);
+							   echo '<span class="fs-5 fw-bold cart-quick-amount text-dark">' . $quick_html . ' <small class="text-dark">HT</small></span>';
 							   echo '</div>';
 							   echo '<button type="button" class="btn btn-outline-primary w-100 mb-2" data-bs-dismiss="offcanvas">Continuer mes achats</button>';
 							   echo '<a href="' . esc_url(wc_get_cart_url()) . '" class="btn btn-primary w-100">Commander</a>';
