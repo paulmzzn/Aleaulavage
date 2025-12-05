@@ -108,7 +108,7 @@ do_action('woocommerce_before_cart');
             <!-- Cart Items Section -->
             <div class="al-cart-items-section">
                 <div class="al-cart-header">
-                    <h2 class="al-cart-header-title">Mon Panier (<?php echo WC()->cart->get_cart_contents_count(); ?> article<?php echo WC()->cart->get_cart_contents_count() > 1 ? 's' : ''; ?>)</h2>
+                    <h2 class="al-cart-header-title">Mon Panier <span class="al-cart-items-count">(<?php echo WC()->cart->get_cart_contents_count(); ?> article<?php echo WC()->cart->get_cart_contents_count() > 1 ? 's' : ''; ?>)</span></h2>
                     <?php if (!WC()->cart->is_empty()) : ?>
                         <a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>" class="al-cart-continue-btn">
                             <i class="fa-solid fa-arrow-left"></i>Continuer mes achats
@@ -136,93 +136,105 @@ do_action('woocommerce_before_cart');
                                 $product_permalink = apply_filters('woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink($cart_item) : '', $cart_item, $cart_item_key);
                                 ?>
                                 <div class="al-cart-item" data-key="<?php echo esc_attr($cart_item_key); ?>">
-                                    <div class="al-cart-item-content">
-                                        <!-- Product Image -->
-                                        <div class="al-cart-item-image">
+                                    <!-- Product Image -->
+                                    <div class="al-cart-item-image">
+                                        <?php
+                                        $thumbnail = apply_filters('woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key);
+                                        if (!$product_permalink) {
+                                            echo $thumbnail;
+                                        } else {
+                                            printf('<a href="%s">%s</a>', esc_url($product_permalink), $thumbnail);
+                                        }
+                                        ?>
+                                    </div>
+
+                                    <!-- Product Details -->
+                                    <div class="al-cart-item-details">
+                                        <h4 class="al-cart-item-name">
                                             <?php
-                                            $thumbnail = apply_filters('woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key);
                                             if (!$product_permalink) {
-                                                echo $thumbnail;
+                                                echo wp_kses_post(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key) . '&nbsp;');
                                             } else {
-                                                printf('<a href="%s">%s</a>', esc_url($product_permalink), $thumbnail);
+                                                echo wp_kses_post(apply_filters('woocommerce_cart_item_name', sprintf('<a href="%s">%s</a>', esc_url($product_permalink), $_product->get_name()), $cart_item, $cart_item_key));
                                             }
-                                            ?>
-                                        </div>
 
-                                        <!-- Product Details -->
-                                        <div class="al-cart-item-details">
-                                            <h4 class="al-cart-item-name">
-                                                <?php
-                                                if (!$product_permalink) {
-                                                    echo wp_kses_post(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key) . '&nbsp;');
-                                                } else {
-                                                    echo wp_kses_post(apply_filters('woocommerce_cart_item_name', sprintf('<a href="%s">%s</a>', esc_url($product_permalink), $_product->get_name()), $cart_item, $cart_item_key));
-                                                }
-                                                ?>
-                                            </h4>
-                                            <?php
-                                            // Meta data
-                                            echo wc_get_formatted_cart_item_data($cart_item);
-
-                                            // Backorder notification
+                                            // Badge orange pour backorder à droite du titre
                                             if ($_product->backorders_require_notification() && $_product->is_on_backorder($cart_item['quantity'])) {
-                                                echo wp_kses_post(apply_filters('woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__('Available on backorder', 'woocommerce') . '</p>', $product_id));
+                                                echo '<span class="al-backorder-badge"><i class="fa-solid fa-clock"></i></span>';
                                             }
                                             ?>
+                                        </h4>
+                                        <?php
+                                        // Meta data
+                                        echo wc_get_formatted_cart_item_data($cart_item);
+                                        ?>
 
-                                            <!-- Quantity and Price (under the name) -->
-                                            <div class="al-cart-item-meta">
-                                                <!-- Quantity -->
-                                                <div class="al-cart-qty-wrapper">
-                                                    <span class="al-cart-qty-label">Quantité</span>
-                                                    <?php
-                                                    if ($_product->is_sold_individually()) {
-                                                        $min_quantity = 1;
-                                                        $max_quantity = 1;
-                                                    } else {
-                                                        $min_quantity = 0;
-                                                        $max_quantity = $_product->get_max_purchase_quantity();
-                                                    }
-
-                                                    $product_quantity = woocommerce_quantity_input(
-                                                        array(
-                                                            'input_name'   => "cart[{$cart_item_key}][qty]",
-                                                            'input_value'  => $cart_item['quantity'],
-                                                            'max_value'    => $max_quantity,
-                                                            'min_value'    => $min_quantity,
-                                                            'product_name' => $_product->get_name(),
-                                                        ),
-                                                        $_product,
-                                                        false
-                                                    );
-
-                                                    echo apply_filters('woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item);
-                                                    ?>
-                                                </div>
-
-                                                <!-- Price -->
-                                                <div class="al-cart-price-wrapper">
-                                                    <span class="al-cart-price-label">Prix unitaire</span>
-                                                    <span class="al-cart-price-value">
-                                                        <?php echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key); ?>
-                                                    </span>
+                                        <!-- Quantity and Price (under the name) -->
+                                        <div class="al-cart-item-meta">
+                                            <!-- Quantity Selector (Pill Style like offcanvas) -->
+                                            <div class="al-cart-qty-wrapper">
+                                                <span class="al-cart-qty-label">Quantité</span>
+                                                <div class="al-cart-qty-selector">
+                                                    <button type="button" class="al-qty-btn al-qty-decrease"
+                                                            data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
+                                                            <?php echo ($cart_item['quantity'] <= 1) ? 'disabled' : ''; ?>>
+                                                        <i class="fa-solid fa-minus"></i>
+                                                    </button>
+                                                    <input type="number"
+                                                           class="al-qty-input"
+                                                           name="cart[<?php echo esc_attr($cart_item_key); ?>][qty]"
+                                                           value="<?php echo esc_attr($cart_item['quantity']); ?>"
+                                                           min="1"
+                                                           <?php
+                                                           $max_qty = $_product->get_max_purchase_quantity();
+                                                           if ($max_qty > 0) {
+                                                               echo 'max="' . esc_attr($max_qty) . '"';
+                                                           }
+                                                           ?>
+                                                           data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
+                                                           step="1">
+                                                    <button type="button" class="al-qty-btn al-qty-increase"
+                                                            data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
+                                                        <i class="fa-solid fa-plus"></i>
+                                                    </button>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Subtotal -->
-                                        <div class="al-cart-subtotal-wrapper">
-                                            <span class="al-cart-subtotal-label">Sous-total</span>
-                                            <span class="al-cart-subtotal-value">
+                                            <!-- × Prix unitaire (mobile) -->
+                                            <div class="al-cart-unit-price-mobile">
+                                                <span class="al-cart-times">×</span>
+                                                <span class="al-cart-unit-price-value">
+                                                    <?php echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key); ?>
+                                                </span>
+                                            </div>
+
+                                            <!-- Prix total (mobile) -->
+                                            <div class="al-cart-total-mobile">
                                                 <?php echo apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); ?>
-                                            </span>
-                                        </div>
+                                            </div>
 
-                                        <!-- Remove Button -->
-                                        <button type="button" class="al-cart-remove-btn" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>" title="Supprimer">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
+                                            <!-- Price (desktop) -->
+                                            <div class="al-cart-price-wrapper">
+                                                <span class="al-cart-price-label">Prix unitaire</span>
+                                                <span class="al-cart-price-value">
+                                                    <?php echo apply_filters('woocommerce_cart_item_price', WC()->cart->get_product_price($_product), $cart_item, $cart_item_key); ?>
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    <!-- Subtotal (desktop only) -->
+                                    <div class="al-cart-subtotal-wrapper">
+                                        <span class="al-cart-subtotal-label">Sous-total</span>
+                                        <span class="al-cart-subtotal-value">
+                                            <?php echo apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); ?>
+                                        </span>
+                                    </div>
+
+                                    <!-- Remove Button -->
+                                    <button type="button" class="al-cart-remove-btn" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>" title="Supprimer">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
                                 </div>
                                 <?php
                             }
@@ -283,7 +295,7 @@ do_action('woocommerce_before_cart');
                                 <span class="al-cart-label">Sous-total</span>
                                 <span class="al-cart-value">
                                     <?php $subtotal_html = wc_price($cart_subtotal);
-                                    $subtotal_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#1a1a1a !important;">', $subtotal_html);
+                                    $subtotal_html = str_replace('<span class="woocommerce-Price-amount amount">', '<span class="woocommerce-Price-amount amount" style="color:#1a1a1a !important;">', $subtotal_html . ' HT');
                                     echo $subtotal_html; ?>
                                 </span>
                             </div>
@@ -349,6 +361,30 @@ do_action('woocommerce_before_cart');
                                         <?php endif; ?>
                                     </div>
                                 </div>
+
+                                <?php
+                                // Vérifier si un produit est en backorder
+                                $has_backorder = false;
+                                foreach (WC()->cart->get_cart() as $cart_item) {
+                                    $_product = $cart_item['data'];
+                                    if ($_product->backorders_require_notification() && $_product->is_on_backorder($cart_item['quantity'])) {
+                                        $has_backorder = true;
+                                        break;
+                                    }
+                                }
+
+                                if ($has_backorder) :
+                                ?>
+                                <div class="al-shipping-row al-backorder-warning">
+                                    <div class="al-backorder-warning-content">
+                                        <i class="fa-solid fa-clock"></i>
+                                        <div>
+                                            <strong>Produit en réapprovisionnement</strong>
+                                            <p>Un ou plusieurs produits sont actuellement en cours de réapprovisionnement. Le délai de livraison peut être légèrement prolongé.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -407,11 +443,39 @@ jQuery(function($) {
         }
     });
 
+    // Quantity selector buttons
+    $(document).on('click', '.al-qty-decrease, .al-qty-increase', function(e) {
+        e.preventDefault();
+        var $button = $(this);
+        var $selector = $button.closest('.al-cart-qty-selector');
+        var $input = $selector.find('.al-qty-input');
+        var currentQty = parseInt($input.val()) || 1;
+        var maxQty = parseInt($input.attr('max')) || 999;
+        var newQty = currentQty;
+
+        if ($button.hasClass('al-qty-decrease')) {
+            newQty = Math.max(1, currentQty - 1);
+        } else {
+            newQty = Math.min(maxQty, currentQty + 1);
+        }
+
+        if (newQty !== currentQty) {
+            $input.val(newQty).trigger('change');
+        }
+
+        // Update button states
+        $selector.find('.al-qty-decrease').prop('disabled', newQty <= 1);
+    });
+
     // Auto-update cart when quantity changes
     var updateCartTimer;
-    $(document).on('change input', 'input.qty', function() {
+    $(document).on('change', '.al-qty-input', function() {
         clearTimeout(updateCartTimer);
         var $input = $(this);
+        var $selector = $input.closest('.al-cart-qty-selector');
+        // Keep the minus button state in sync when editing manually
+        var currentQty = parseInt($input.val()) || 1;
+        $selector.find('.al-qty-decrease').prop('disabled', currentQty <= 1);
 
         updateCartTimer = setTimeout(function() {
             // Mettre à jour visuellement
@@ -419,7 +483,7 @@ jQuery(function($) {
 
             var $form = $('form.woocommerce-cart-form');
             var formData = $form.serialize();
-            
+
             // Ensure update_cart is in data
             if (formData.indexOf('update_cart') === -1) {
                 formData += '&update_cart=true';
@@ -432,7 +496,7 @@ jQuery(function($) {
                 success: function(response) {
                     var $html = $(response);
                     var $newContent = $html.find('.al-cart-wrapper');
-                    
+
                     // Remove "Cart updated" message
                     $newContent.find('.woocommerce-message').each(function() {
                         if ($(this).text().indexOf('Panier mis à jour') !== -1 || $(this).text().indexOf('Cart updated') !== -1) {
@@ -442,10 +506,10 @@ jQuery(function($) {
 
                     if ($newContent.length) {
                         $('.al-cart-wrapper').replaceWith($newContent);
-                        
+
                         // Re-run sticky init
                         initSmartSticky();
-                        
+
                         // Trigger WooCommerce events
                         $(document.body).trigger('updated_cart_totals');
                         $(document.body).trigger('wc_fragments_refreshed');
@@ -480,10 +544,10 @@ jQuery(function($) {
 
         var itemsHeight = $itemsSection.outerHeight();
         var sidebarHeight = $sidebar.outerHeight();
-        
-        // Somme fixe des éléments sticky en haut (header + category-bar + padding)
-        // À ajuster manuellement selon ton layout
-        var topOffset = 130; // Ajuste cette valeur selon la hauteur réelle de ton header + category-bar
+
+        // Offset sticky au sommet. Mettre à 0 pour éviter le décalage initial.
+        // Si un header fixe recouvre le contenu lors du scroll, on pourra affiner ici.
+        var topOffset = 0;
 
         // Déterminer quelle section doit être sticky
         if (itemsHeight > sidebarHeight) {

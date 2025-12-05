@@ -67,6 +67,12 @@ jQuery(document).ready(function ($) {
 
                             // Re-initialize category accordions
                             initCategoryAccordions();
+
+                            // Re-initialize wishlist buttons for new products
+                            if (typeof window.aleaulavageInitWishlist === 'function') {
+                                console.log('Reinitializing wishlist buttons after AJAX load');
+                                window.aleaulavageInitWishlist();
+                            }
                         }, 300);
 
                         // Update browser URL without reload

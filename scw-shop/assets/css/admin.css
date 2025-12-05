@@ -1,0 +1,83 @@
+/**
+ * Admin CSS
+ * Styles for WordPress admin area
+ *
+ * @package SCW_Shop
+ */
+
+/* Admin color scheme matching theme */
+.scw-admin-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.scw-admin-panel h2 {
+  margin-top: 0;
+  color: var(--color-primary-dark);
+}
+
+.scw-admin-field {
+  margin-bottom: 1.5rem;
+}
+
+.scw-admin-field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.scw-admin-field input[type="text"],
+.scw-admin-field input[type="email"],
+.scw-admin-field input[type="number"],
+.scw-admin-field textarea,
+.scw-admin-field select {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.scw-admin-field input[type="color"] {
+  width: 100px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.scw-admin-field-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* User role badges */
+.scw-role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.scw-role-badge.reseller {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.scw-role-badge.client {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.scw-role-badge.guest {
+  background-color: #f3f4f6;
+  color: #374151;
+}

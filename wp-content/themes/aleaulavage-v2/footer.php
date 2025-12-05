@@ -84,6 +84,26 @@
 
 <?php wp_footer(); ?>
 
+<!-- Wishlist Login Required Modal -->
+<div id="wishlist-login-required-modal" class="wishlist-modal" style="display: none;">
+    <div class="wishlist-modal-content">
+        <button type="button" class="close-wishlist-modal" aria-label="Fermer">&times;</button>
+
+        <div class="wishlist-modal-header">
+            <i class="fa-solid fa-heart-circle-exclamation wishlist-modal-icon"></i>
+            <h3>Connexion requise</h3>
+            <p>Vous devez être connecté pour ajouter des produits à vos favoris</p>
+        </div>
+
+        <div class="wishlist-modal-actions">
+            <a href="<?php echo esc_url(wc_get_page_permalink('myaccount')); ?>" class="btn btn-primary btn-lg w-100">
+                <i class="fa-solid fa-sign-in-alt me-2"></i>
+                Se connecter
+            </a>
+        </div>
+    </div>
+</div>
+
 <script>
 // Redirection automatique pour le menu déroulant de catégories
 document.addEventListener('DOMContentLoaded', function() {

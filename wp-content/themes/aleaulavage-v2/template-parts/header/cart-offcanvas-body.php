@@ -66,6 +66,21 @@
         $stock_quantity = $_product->get_stock_quantity();
         $is_backorder = ($stock_status === 'outofstock' || $stock_status === 'onbackorder' ||
                         (!$_product->is_in_stock() && ($stock_quantity === 0 || $stock_quantity === null)));
+
+        // Vérifier si on peut augmenter la quantité
+        $max_qty = $_product->get_max_purchase_quantity();
+        $backorders_allowed = $_product->get_backorders(); // 'no', 'notify', or 'yes'
+        $can_increase = true;
+
+        // Si max_qty est défini (pas -1) et qu'on a atteint la limite
+        if ($max_qty > 0 && $quantity >= $max_qty) {
+            $can_increase = false;
+        }
+
+        // Si on a atteint le stock et que les backorders ne sont pas autorisés
+        if ($stock_quantity !== null && $quantity >= $stock_quantity && $backorders_allowed === 'no') {
+            $can_increase = false;
+        }
         ?>
 
         <div class="cart-item-compact py-3 border-bottom position-relative" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
@@ -116,11 +131,21 @@
                                    class="cart-qty-value border-0 text-center p-0 fw-bold bg-transparent"
                                    value="<?php echo esc_attr($quantity); ?>"
                                    min="1"
-                                   max="999"
+                                   <?php
+                                   // Définir le max en fonction du stock et des backorders
+                                   $input_max = 99999999; // Par défaut - limite très élevée
+                                   if ($max_qty > 0) {
+                                       $input_max = $max_qty;
+                                   } elseif ($stock_quantity !== null && $backorders_allowed === 'no') {
+                                       $input_max = $stock_quantity;
+                                   }
+                                   echo 'max="' . esc_attr($input_max) . '"';
+                                   ?>
                                    data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
                                    style="width: 30px; height: 24px; font-size: 0.85rem; -moz-appearance: textfield;">
-                            <button type="button" class="cart-qty-btn increase-quantity btn btn-sm btn-link text-dark p-0 text-decoration-none rounded-circle" 
+                            <button type="button" class="cart-qty-btn increase-quantity btn btn-sm btn-link text-dark p-0 text-decoration-none rounded-circle"
                                     data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>"
+                                    <?php echo !$can_increase ? 'disabled' : ''; ?>
                                     style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
                                 <i class="fa-solid fa-plus" style="font-size: 0.6rem;"></i>
                             </button>

@@ -31,34 +31,28 @@ function aleaulavage_v2_ajax_add_to_cart_redirect($url) {
 }
 
 /**
- * Handler AJAX pour l'ajout au panier
+ * Désactiver le message "Voir le panier" par défaut de WooCommerce
+ * Car on utilise un système de notification personnalisé
  */
-add_action('wp_ajax_woocommerce_ajax_add_to_cart', 'aleaulavage_v2_ajax_add_to_cart_handler');
-add_action('wp_ajax_nopriv_woocommerce_ajax_add_to_cart', 'aleaulavage_v2_ajax_add_to_cart_handler');
-function aleaulavage_v2_ajax_add_to_cart_handler() {
-    $product_id = apply_filters('woocommerce_add_to_cart_product_id', absint($_POST['product_id']));
-    $quantity = empty($_POST['quantity']) ? 1 : wc_stock_amount($_POST['quantity']);
-    $passed_validation = apply_filters('woocommerce_add_to_cart_validation', true, $product_id, $quantity);
+add_filter('wc_add_to_cart_message_html', '__return_empty_string');
+add_filter('woocommerce_add_to_cart_message_html', '__return_empty_string');
 
-    if ($passed_validation && WC()->cart->add_to_cart($product_id, $quantity)) {
-        do_action('woocommerce_ajax_added_to_cart', $product_id);
-
-        WC_AJAX::get_refreshed_fragments();
-    } else {
-        $data = array(
-            'error' => true,
-            'product_url' => apply_filters('woocommerce_cart_redirect_after_error', get_permalink($product_id), $product_id)
-        );
-
-        wp_send_json($data);
-    }
-}
+/**
+ * Désactiver l'ajout du bouton "Voir le panier" après l'ajout au panier
+ */
+add_filter('woocommerce_cart_redirect_after_error', '__return_false');
+add_filter('wc_add_to_cart_message', '__return_empty_string', 10, 2);
 
 /**
  * Support AJAX pour l'ajout au panier sur les pages produit simple
  */
 add_action('wp_footer', 'aleaulavage_v2_ajax_add_to_cart_script');
 function aleaulavage_v2_ajax_add_to_cart_script() {
+    // Ne pas exécuter pendant les requêtes AJAX
+    if (wp_doing_ajax()) {
+        return;
+    }
+
     if (!is_product()) {
         return;
     }
@@ -71,26 +65,60 @@ function aleaulavage_v2_ajax_add_to_cart_script() {
 
             var form = $(this);
             var button = form.find('.single_add_to_cart_button');
-            var productId = button.val();
             var quantity = form.find('input[name="quantity"]').val() || 1;
 
-            console.log('Adding to cart:', productId, 'Quantity:', quantity);
+            // Get variation data if it's a variable product
+            var variationId = form.find('input[name="variation_id"]').val() || 0;
+            var variation = {};
+
+            // Get product ID - for variable products, get from hidden field
+            var productId = button.val();
+            if (variationId > 0) {
+                // For variable products, get the parent product ID from hidden field
+                var hiddenProductId = form.find('input[name="product_id"]').val();
+                if (hiddenProductId) {
+                    productId = hiddenProductId;
+                }
+            }
+
+            // Collect all variation attributes
+            form.find('select[name^="attribute_"]').each(function() {
+                var attrName = $(this).attr('name');
+                var attrValue = $(this).val();
+                if (attrValue) {
+                    variation[attrName] = attrValue;
+                }
+            });
+
+            console.log('Adding to cart - Product:', productId, 'Variation:', variationId, 'Quantity:', quantity, 'Attributes:', variation);
 
             // Désactiver le bouton pendant l'ajout
             button.prop('disabled', true).addClass('loading');
 
+            var ajaxData = {
+                action: 'woocommerce_ajax_add_to_cart',
+                product_id: productId,
+                quantity: quantity,
+                nonce: '<?php echo wp_create_nonce('aleaulavage_cart_nonce'); ?>'
+            };
+
+            // Add variation data if it's a variable product
+            if (variationId > 0) {
+                ajaxData.variation_id = variationId;
+                ajaxData.variation = variation;
+            }
+
             $.ajax({
                 type: 'POST',
                 url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
-                data: {
-                    action: 'woocommerce_ajax_add_to_cart',
-                    product_id: productId,
-                    quantity: quantity
-                },
+                data: ajaxData,
                 success: function(response) {
                     console.log('Response:', response);
+                    console.log('Response success:', response.success);
+                    console.log('Response data:', response.data);
+                    console.log('Response error:', response.error);
 
-                    if (response && !response.error) {
+                    if (response && response.success !== false && !response.error) {
                         // Déclencher l'événement WooCommerce
                         $(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, button]);
 
@@ -102,6 +130,7 @@ function aleaulavage_v2_ajax_add_to_cart_script() {
                         }
                     } else {
                         console.error('Error adding to cart:', response);
+                        alert('Erreur lors de l\'ajout au panier: ' + (response.data || 'Erreur inconnue'));
                     }
 
                     // Réactiver le bouton
@@ -109,6 +138,7 @@ function aleaulavage_v2_ajax_add_to_cart_script() {
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX error:', status, error);
+                    console.error('Response:', xhr.responseText);
                     button.prop('disabled', false).removeClass('loading');
                 }
             });
@@ -197,18 +227,40 @@ function aleaulavage_v2_ajax_add_to_cart()
 
     $product_id = absint($_POST['product_id']);
     $quantity = isset($_POST['quantity']) ? absint($_POST['quantity']) : 1;
+    $variation_id = isset($_POST['variation_id']) ? absint($_POST['variation_id']) : 0;
+    $variation = isset($_POST['variation']) ? wc_clean($_POST['variation']) : array();
+
+    // Debug logging
+    error_log('Add to cart attempt - Product: ' . $product_id . ', Variation: ' . $variation_id . ', Quantity: ' . $quantity);
+    error_log('Variation attributes: ' . print_r($variation, true));
 
     if ($product_id && WC()->cart) {
-        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
+        // Add to cart with variation support
+        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity, $variation_id, $variation);
 
         if ($cart_item_key) {
+            error_log('Successfully added to cart: ' . $cart_item_key);
+
             // Trigger cart calculation
             WC()->cart->calculate_totals();
 
             // Get WooCommerce fragments
             WC_AJAX::get_refreshed_fragments();
         } else {
-            wp_send_json_error('Could not add product to cart');
+            $error_msg = 'Could not add product to cart';
+            error_log('Failed to add to cart - Product: ' . $product_id . ', Variation: ' . $variation_id);
+
+            // Get WooCommerce notices if any
+            $notices = wc_get_notices('error');
+            if (!empty($notices)) {
+                error_log('WooCommerce errors: ' . print_r($notices, true));
+                $error_msg = implode(', ', array_map(function($notice) {
+                    return is_array($notice) ? $notice['notice'] : $notice;
+                }, $notices));
+                wc_clear_notices();
+            }
+
+            wp_send_json_error($error_msg);
         }
     } else {
         wp_send_json_error('Invalid product ID');
@@ -725,6 +777,11 @@ add_action('woocommerce_register_form', 'aleaulavage_v2_remove_username_registra
  */
 function aleaulavage_v2_login_register_tabs()
 {
+    // Ne pas exécuter pendant les requêtes AJAX
+    if (wp_doing_ajax()) {
+        return;
+    }
+
     if (!is_account_page() || is_user_logged_in()) {
         return;
     }
@@ -768,3 +825,380 @@ function aleaulavage_v2_login_register_tabs()
     <?php
 }
 add_action('wp_footer', 'aleaulavage_v2_login_register_tabs');
+
+/**
+ * Customize Checkout Fields
+ * Match SCW Shop Layout exactly
+ */
+function aleaulavage_v2_checkout_fields($fields) {
+    // --- Billing Fields ---
+    
+    // Hide unnecessary fields instead of unset, to avoid validation errors
+    // We set them to hidden and provide default values in HTML
+    $fields['billing']['billing_country']['class'] = array('d-none', 'hidden');
+    $fields['billing']['billing_country']['label_class'] = array('d-none', 'hidden');
+    $fields['billing']['billing_country']['required'] = false; // Handled by hidden input
+    $fields['billing']['billing_country']['default'] = 'FR'; // Force default value
+    
+    $fields['billing']['billing_state']['class'] = array('d-none', 'hidden');
+    $fields['billing']['billing_state']['label_class'] = array('d-none', 'hidden');
+    $fields['billing']['billing_state']['required'] = false;
+
+    $fields['billing']['billing_address_2']['class'] = array('d-none', 'hidden');
+    $fields['billing']['billing_address_2']['label_class'] = array('d-none', 'hidden');
+    $fields['billing']['billing_address_2']['required'] = false;
+
+    // ... (Billing fields setup) ...
+
+    // --- Shipping Fields (Mirror Billing) ---
+    
+    $fields['shipping']['shipping_country']['class'] = array('d-none', 'hidden');
+    $fields['shipping']['shipping_country']['label_class'] = array('d-none', 'hidden');
+    $fields['shipping']['shipping_country']['required'] = false;
+    $fields['shipping']['shipping_country']['default'] = 'FR'; // Force default value
+    
+    $fields['shipping']['shipping_state']['class'] = array('d-none', 'hidden');
+    $fields['shipping']['shipping_state']['label_class'] = array('d-none', 'hidden');
+    $fields['shipping']['shipping_state']['required'] = false;
+
+    $fields['shipping']['shipping_address_2']['class'] = array('d-none', 'hidden');
+    $fields['shipping']['shipping_address_2']['label_class'] = array('d-none', 'hidden');
+    $fields['shipping']['shipping_address_2']['required'] = false;
+
+    $fields['shipping']['shipping_first_name']['priority'] = 10;
+    $fields['shipping']['shipping_first_name']['class'] = array('form-row-first');
+    $fields['shipping']['shipping_first_name']['label'] = 'Prénom';
+
+    $fields['shipping']['shipping_last_name']['priority'] = 20;
+    $fields['shipping']['shipping_last_name']['class'] = array('form-row-last');
+    $fields['shipping']['shipping_last_name']['label'] = 'Nom';
+
+    $fields['shipping']['shipping_company']['priority'] = 30;
+    $fields['shipping']['shipping_company']['class'] = array('form-row-first');
+    $fields['shipping']['shipping_company']['label'] = 'Société';
+    $fields['shipping']['shipping_company']['required'] = true;
+
+    $fields['shipping']['shipping_address_1']['priority'] = 40;
+    $fields['shipping']['shipping_address_1']['class'] = array('form-row-wide');
+    $fields['shipping']['shipping_address_1']['placeholder'] = 'N° et nom de rue';
+    $fields['shipping']['shipping_address_1']['label'] = 'Adresse';
+
+    $fields['shipping']['shipping_postcode']['priority'] = 50;
+    $fields['shipping']['shipping_postcode']['class'] = array('form-row-first');
+    $fields['shipping']['shipping_postcode']['label'] = 'Code Postal';
+
+    $fields['shipping']['shipping_city']['priority'] = 60;
+    $fields['shipping']['shipping_city']['class'] = array('form-row-last');
+    $fields['shipping']['shipping_city']['label'] = 'Ville';
+
+    return $fields;
+}
+add_filter('woocommerce_checkout_fields', 'aleaulavage_v2_checkout_fields');
+
+
+/**
+ * Prevent WooCommerce from copying billing to shipping address
+ * This ensures shipping address fields from the form are respected
+ */
+add_filter( 'woocommerce_ship_to_different_address_checked', '__return_true' );
+
+/**
+ * Save SIRET field to Order Meta and ensure all shipping fields are saved
+ */
+function aleaulavage_v2_checkout_field_update_order_meta( $order_id ) {
+    // Get the order object
+    $order = wc_get_order( $order_id );
+    if ( ! $order ) {
+        return;
+    }
+
+    // Save SIRET fields using WooCommerce methods
+    if ( ! empty( $_POST['billing_siret'] ) ) {
+        $order->update_meta_data( '_billing_siret', sanitize_text_field( $_POST['billing_siret'] ) );
+    }
+    if ( ! empty( $_POST['shipping_siret'] ) ) {
+        $order->update_meta_data( '_shipping_siret', sanitize_text_field( $_POST['shipping_siret'] ) );
+    }
+
+    // Ensure all shipping address fields are saved using WooCommerce setter methods
+    // Only set if the value exists in POST to avoid overwriting with empty values
+    if ( ! empty( $_POST['shipping_first_name'] ) ) {
+        $order->set_shipping_first_name( sanitize_text_field( $_POST['shipping_first_name'] ) );
+    }
+    if ( ! empty( $_POST['shipping_last_name'] ) ) {
+        $order->set_shipping_last_name( sanitize_text_field( $_POST['shipping_last_name'] ) );
+    }
+    if ( ! empty( $_POST['shipping_company'] ) ) {
+        $order->set_shipping_company( sanitize_text_field( $_POST['shipping_company'] ) );
+    }
+    if ( ! empty( $_POST['shipping_address_1'] ) ) {
+        $order->set_shipping_address_1( sanitize_text_field( $_POST['shipping_address_1'] ) );
+    }
+    if ( ! empty( $_POST['shipping_postcode'] ) ) {
+        $order->set_shipping_postcode( sanitize_text_field( $_POST['shipping_postcode'] ) );
+    }
+    if ( ! empty( $_POST['shipping_city'] ) ) {
+        $order->set_shipping_city( sanitize_text_field( $_POST['shipping_city'] ) );
+    }
+    if ( ! empty( $_POST['shipping_country'] ) ) {
+        $order->set_shipping_country( sanitize_text_field( $_POST['shipping_country'] ) );
+    }
+    if ( isset( $_POST['shipping_state'] ) ) {
+        $order->set_shipping_state( sanitize_text_field( $_POST['shipping_state'] ) );
+    }
+
+    // Save all changes to the order
+    $order->save();
+}
+add_action( 'woocommerce_checkout_update_order_meta', 'aleaulavage_v2_checkout_field_update_order_meta', 10, 1 );
+
+/**
+ * Display SIRET in Admin Order Details
+ */
+function aleaulavage_v2_admin_order_data_after_shipping_address( $order ) {
+    $siret = get_post_meta( $order->get_id(), '_shipping_siret', true );
+    if ( ! empty( $siret ) ) {
+        echo '<p><strong>' . __( 'SIRET', 'aleaulavage-v2' ) . ':</strong> ' . esc_html( $siret ) . '</p>';
+    }
+}
+add_action( 'woocommerce_admin_order_data_after_shipping_address', 'aleaulavage_v2_admin_order_data_after_shipping_address' );
+
+/**
+ * Save SIRET to User Meta (optional, for auto-fill next time)
+ */
+function aleaulavage_v2_checkout_update_user_meta( $customer_id, $posted ) {
+    if ( ! empty( $_POST['billing_siret'] ) ) {
+        update_user_meta( $customer_id, 'billing_siret', sanitize_text_field( $_POST['billing_siret'] ) );
+    }
+    if ( ! empty( $_POST['shipping_siret'] ) ) {
+        update_user_meta( $customer_id, 'shipping_siret', sanitize_text_field( $_POST['shipping_siret'] ) );
+    }
+
+    // Ensure shipping address fields are saved correctly
+    // This fixes the issue where billing and shipping addresses were being saved as the same
+    $shipping_fields = array(
+        'shipping_first_name',
+        'shipping_last_name',
+        'shipping_company',
+        'shipping_siret',
+        'shipping_address_1',
+        'shipping_postcode',
+        'shipping_city',
+        'shipping_country',
+        'shipping_state'
+    );
+
+    foreach ( $shipping_fields as $field ) {
+        if ( isset( $_POST[$field] ) ) {
+            update_user_meta( $customer_id, $field, sanitize_text_field( $_POST[$field] ) );
+        }
+    }
+
+    // Ensure billing address fields are saved correctly
+    $billing_fields = array(
+        'billing_first_name',
+        'billing_last_name',
+        'billing_company',
+        'billing_siret',
+        'billing_address_1',
+        'billing_postcode',
+        'billing_city',
+        'billing_country',
+        'billing_state',
+        'billing_email',
+        'billing_phone'
+    );
+
+    foreach ( $billing_fields as $field ) {
+        if ( isset( $_POST[$field] ) ) {
+            update_user_meta( $customer_id, $field, sanitize_text_field( $_POST[$field] ) );
+        }
+    }
+}
+add_action( 'woocommerce_checkout_update_user_meta', 'aleaulavage_v2_checkout_update_user_meta', 10, 2 );
+/**
+ * === GUEST CHECKOUT & CART MANAGEMENT ===
+ */
+
+/**
+ * Gérer le bouton "Continuer en tant qu'invité"
+ */
+function aleaulavage_v2_handle_guest_checkout() {
+    if ( isset( $_POST['enable_guest_checkout_temp'] ) && 
+         wp_verify_nonce( $_POST['guest_checkout_nonce'], 'enable_guest_checkout' ) ) {
+        
+        // Activer temporairement le guest checkout pour cette session
+        WC()->session->set( 'guest_checkout_enabled', true );
+        
+        // Rediriger vers le checkout
+        wp_safe_redirect( wc_get_checkout_url() );
+        exit;
+    }
+}
+add_action( 'template_redirect', 'aleaulavage_v2_handle_guest_checkout' );
+
+/**
+ * Permettre le guest checkout si activé en session
+ * Forcer à 'no' par défaut pour toujours afficher la page de login/invité
+ */
+function aleaulavage_v2_allow_guest_checkout( $value ) {
+    if ( WC()->session && WC()->session->get( 'guest_checkout_enabled' ) ) {
+        return 'yes';
+    }
+    return 'no'; // Forcer à 'no' pour toujours montrer la page de login/invité
+}
+add_filter( 'option_woocommerce_enable_guest_checkout', 'aleaulavage_v2_allow_guest_checkout' );
+add_filter( 'pre_option_woocommerce_enable_guest_checkout', 'aleaulavage_v2_allow_guest_checkout' );
+
+/**
+ * Désactiver le panier persistant de WooCommerce si keep_cart=1
+ * Cela empêche WooCommerce de fusionner l'ancien panier de l'utilisateur
+ */
+function aleaulavage_v2_disable_persistent_cart( $enabled ) {
+    if ( isset( $_GET['keep_cart'] ) && $_GET['keep_cart'] == '1' ) {
+        return false;
+    }
+    return $enabled;
+}
+add_filter( 'woocommerce_persistent_cart_enabled', 'aleaulavage_v2_disable_persistent_cart', 10, 1 );
+
+/**
+ * Sauvegarder le panier de session dans un cookie avant la connexion
+ */
+function aleaulavage_v2_save_cart_to_cookie() {
+    if ( isset( $_GET['keep_cart'] ) && $_GET['keep_cart'] == '1' && ! is_user_logged_in() ) {
+        $cart = WC()->session->get( 'cart' );
+        if ( $cart && ! empty( $cart ) ) {
+            // Sauvegarder dans un cookie temporaire (expire dans 1 heure)
+            setcookie( 'temp_checkout_cart', json_encode( $cart ), time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+        }
+    }
+}
+add_action( 'template_redirect', 'aleaulavage_v2_save_cart_to_cookie', 5 );
+
+/**
+ * Restaurer le panier depuis le cookie après connexion
+ */
+function aleaulavage_v2_restore_cart_from_cookie() {
+    // Vérifier si l'utilisateur vient de se connecter avec keep_cart=1
+    if ( is_user_logged_in() && isset( $_GET['keep_cart'] ) && $_GET['keep_cart'] == '1' ) {
+        // Vérifier si le cookie existe
+        if ( isset( $_COOKIE['temp_checkout_cart'] ) ) {
+            $saved_cart = json_decode( stripslashes( $_COOKIE['temp_checkout_cart'] ), true );
+
+            if ( $saved_cart && ! empty( $saved_cart ) ) {
+                // Vider complètement le panier actuel
+                WC()->cart->empty_cart( false );
+
+                // Restaurer le panier depuis le cookie
+                WC()->session->set( 'cart', $saved_cart );
+
+                // Supprimer le cookie
+                setcookie( 'temp_checkout_cart', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+
+                // Recalculer les totaux
+                WC()->cart->calculate_totals();
+            }
+        }
+    }
+}
+add_action( 'woocommerce_load_cart_from_session', 'aleaulavage_v2_restore_cart_from_cookie', 999 );
+
+/**
+ * Redirection après connexion vers le panier avec le panier de session préservé
+ */
+function aleaulavage_v2_login_redirect( $redirect_to, $request, $user ) {
+    // Vérifier si un paramètre redirect a été passé dans l'URL de connexion
+    if ( isset( $_REQUEST['redirect_to'] ) && ! empty( $_REQUEST['redirect_to'] ) ) {
+        $redirect_to = wp_unslash( $_REQUEST['redirect_to'] );
+    }
+
+    return $redirect_to;
+}
+add_filter( 'login_redirect', 'aleaulavage_v2_login_redirect', 100, 3 );
+
+/**
+ * Redirection WooCommerce après connexion
+ */
+function aleaulavage_v2_woocommerce_login_redirect( $redirect, $user ) {
+    // Vérifier si un paramètre redirect a été passé dans l'URL de connexion
+    if ( isset( $_REQUEST['redirect_to'] ) && ! empty( $_REQUEST['redirect_to'] ) ) {
+        $redirect = wp_unslash( $_REQUEST['redirect_to'] );
+    }
+
+    return $redirect;
+}
+add_filter( 'woocommerce_login_redirect', 'aleaulavage_v2_woocommerce_login_redirect', 100, 2 );
+
+/**
+ * Effacer la session guest checkout après une commande
+ * Pour que l'utilisateur doive choisir à nouveau à sa prochaine commande
+ */
+function aleaulavage_v2_clear_guest_checkout_after_order( $order_id ) {
+    if ( WC()->session ) {
+        WC()->session->set( 'guest_checkout_enabled', null );
+    }
+}
+add_action( 'woocommerce_thankyou', 'aleaulavage_v2_clear_guest_checkout_after_order', 10, 1 );
+
+/**
+ * Inject cart quantity data for JS
+ */
+function aleaulavage_v2_inject_cart_data() {
+    if ( ! function_exists('is_product') || ! is_product() ) {
+        return;
+    }
+    
+    global $product;
+    if ( ! $product || ! is_object($product) ) {
+        return;
+    }
+    
+    $cart_qty = 0;
+    if ( function_exists('WC') && WC()->cart ) {
+        foreach ( WC()->cart->get_cart() as $cart_item ) {
+            // Check product ID match (parent or variation)
+            if ( $cart_item['product_id'] == $product->get_id() || $cart_item['variation_id'] == $product->get_id() ) {
+                $cart_qty += $cart_item['quantity'];
+            }
+        }
+    }
+    
+    ?>
+    <script type="text/javascript">
+    var aleaulavageProductData = {
+        cartQty: <?php echo intval($cart_qty); ?>,
+        regularPriceHtml: '<?php echo wc_price(wc_get_price_to_display($product, array('price' => $product->get_regular_price()))); ?>',
+        regularPrice: <?php echo floatval(wc_get_price_to_display($product, array('price' => $product->get_regular_price()))); ?>,
+        productId: <?php echo intval($product->get_id()); ?>,
+        ajaxUrl: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>'
+    };
+    </script>
+    <?php
+}
+add_action( 'wp_footer', 'aleaulavage_v2_inject_cart_data' );
+
+/**
+ * AJAX: Récupérer la quantité panier actuelle pour un produit donné
+ * Utilisé pour synchroniser la page produit quand le panier change ailleurs (offcanvas)
+ */
+function aleaulavage_v2_get_product_cart_qty_ajax() {
+    $product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+    
+    if ( ! $product_id ) {
+        wp_send_json_error('No product ID');
+    }
+    
+    $cart_qty = 0;
+    if ( function_exists('WC') && WC()->cart ) {
+        foreach ( WC()->cart->get_cart() as $cart_item ) {
+            if ( $cart_item['product_id'] == $product_id || $cart_item['variation_id'] == $product_id ) {
+                $cart_qty += $cart_item['quantity'];
+            }
+        }
+    }
+    
+    wp_send_json_success(['qty' => $cart_qty]);
+}
+add_action('wp_ajax_aleaulavage_get_product_cart_qty', 'aleaulavage_v2_get_product_cart_qty_ajax');
+add_action('wp_ajax_nopriv_aleaulavage_get_product_cart_qty', 'aleaulavage_v2_get_product_cart_qty_ajax');

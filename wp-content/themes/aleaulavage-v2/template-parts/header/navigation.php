@@ -6,7 +6,15 @@
 <nav id="nav-main" class="navbar main-navbar outline-gray box-shadow-gray bg-white">
     <div class="container">
         <!-- First Row: Logo + Actions -->
-        <div class="w-100 d-flex justify-content-between align-items-center">
+        <div class="w-100 d-flex align-items-center justify-content-md-between">
+            <!-- Menu Burger (Mobile - Left Side) -->
+            <button class="btn btn-outline-secondary d-lg-none me-1" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#offcanvas-navbar" aria-controls="offcanvas-navbar"
+                aria-label="Ouvrir le menu de navigation">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                <span class="visually-hidden">Menu</span>
+            </button>
+
             <!-- Logo -->
             <div class="navbar-brand-container">
                 <a class="navbar-brand xs d-md-none" href="<?php echo esc_url(home_url()); ?>">
@@ -30,7 +38,7 @@
             ?>
 
             <!-- Header Actions -->
-            <div class="header-actions d-flex align-items-center">
+            <div class="header-actions d-flex align-items-center ms-auto ms-md-0">
                 <a class="btn bg-secondary me-2 d-none d-sm-inline-flex text-white"
                     href="<?php echo esc_url(home_url('boutique/')); ?>" aria-label="Accéder à la boutique">
                     <span>Boutique</span>
@@ -81,12 +89,6 @@
                             <?php } ?>
                         </span>
                     <?php } ?>
-                </button>
-                <button class="btn btn-outline-secondary d-lg-none ms-1 ms-md-2" type="button"
-                    data-bs-toggle="offcanvas" data-bs-target="#offcanvas-navbar" aria-controls="offcanvas-navbar"
-                    aria-label="Ouvrir le menu de navigation">
-                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
-                    <span class="visually-hidden">Menu</span>
                 </button>
             </div>
         </div>

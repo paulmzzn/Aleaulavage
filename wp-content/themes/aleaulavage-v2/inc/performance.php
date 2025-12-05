@@ -75,3 +75,23 @@ if (!defined('WP_POST_REVISIONS')) {
 if (!defined('AUTOSAVE_INTERVAL')) {
     define('AUTOSAVE_INTERVAL', 300); // 5 minutes
 }
+
+// Prevent Express Checkout scripts on classic cart to avoid noisy console errors
+function aleaulavage_v2_disable_express_checkout_on_cart()
+{
+    if (!function_exists('is_cart') || !is_cart()) {
+        return;
+    }
+
+    global $wp_scripts;
+    if (!$wp_scripts instanceof WP_Scripts) {
+        return;
+    }
+
+    foreach ((array) $wp_scripts->queue as $handle) {
+        if (strpos($handle, 'express-checkout') !== false) {
+            wp_dequeue_script($handle);
+        }
+    }
+}
+add_action('wp_print_scripts', 'aleaulavage_v2_disable_express_checkout_on_cart', 100);

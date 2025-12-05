@@ -92,7 +92,7 @@
 
                         // Update cart count in header badge
                         if (response.data && response.data.cart_count !== undefined) {
-                            $('.cart-count-badge').text(response.data.cart_count);
+                            updateHeaderCartBadge(response.data.cart_count);
                         }
                     } else {
                         alert('Erreur lors de la mise à jour du panier');
@@ -128,7 +128,7 @@
 
                         // Update cart count in header badge
                         if (response.data && response.data.cart_count !== undefined) {
-                            $('.cart-count-badge').text(response.data.cart_count);
+                            updateHeaderCartBadge(response.data.cart_count);
                         }
                     } else {
                         alert('Erreur lors de la suppression de l\'article');
@@ -178,6 +178,9 @@
 
                             // Remove loading overlay
                             $offcanvasBody.css('opacity', '1').css('pointer-events', 'auto');
+                            
+                            // Trigger custom event to notify other parts of the page (e.g. product page quantity sync) without causing infinite loop
+                            $(document.body).trigger('aleaulavage_cart_updated');
                         }
                     } else {
                         console.error('Failed to reload cart content:', response);
@@ -211,6 +214,28 @@
             console.log('Added to cart event');
             reloadOffcanvasContent();
         });
+
+        /**
+         * Helper to update header cart badge
+         */
+        function updateHeaderCartBadge(count) {
+            var $cartContent = $('.cart-content');
+            var $badge = $cartContent.find('.badge');
+            
+            // Update existing badge or create new one
+            if (count > 0) {
+                if ($badge.length) {
+                    $badge.text(count);
+                } else {
+                    $cartContent.html('<span class="badge bg-primary rounded-pill position-absolute top-0 start-100 translate-middle" aria-hidden="true">' + count + '</span>');
+                }
+            } else {
+                $badge.remove();
+            }
+            
+            // Also update any other badges with standard class
+            $('.cart-count-badge').text(count);
+        }
     });
 
 })(jQuery);

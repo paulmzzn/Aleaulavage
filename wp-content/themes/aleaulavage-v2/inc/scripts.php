@@ -47,9 +47,9 @@ function aleaulavage_v2_scripts()
     }
 
     // Shop Page Assets
-    if (is_shop() || is_product_category() || is_product_tag() || is_page('favoris')) {
-        $shop_css = get_template_directory() . '/assets/css/shop.css';
-        wp_enqueue_style('aleaulavage-v2-shop', get_template_directory_uri() . '/assets/css/shop.css', array(), file_exists($shop_css) ? filemtime($shop_css) : $theme_version);
+    if (is_shop() || is_product_category() || is_product_tag() || is_tax('product_brand') || is_page('favoris')) {
+        $shop_css = get_template_directory() . '/assets/css/shop' . $suffix . '.css';
+        wp_enqueue_style('aleaulavage-v2-shop', get_template_directory_uri() . '/assets/css/shop' . $suffix . '.css', array(), file_exists($shop_css) ? filemtime($shop_css) : $theme_version);
 
         // Shop AJAX filtering
         $shop_ajax_js = get_template_directory() . '/assets/js/shop-ajax.js';
@@ -68,6 +68,11 @@ function aleaulavage_v2_scripts()
         wp_enqueue_style('aleaulavage-v2-product', get_template_directory_uri() . '/assets/css/product.css', array(), file_exists($product_css) ? filemtime($product_css) : $theme_version);
     }
 
+    // Blog & Single Post Assets
+    if (is_single() || is_home() || is_archive() || is_category() || is_tag()) {
+        $blog_css = get_template_directory() . '/assets/css/blog' . $suffix . '.css';
+        wp_enqueue_style('aleaulavage-v2-blog', get_template_directory_uri() . '/assets/css/blog' . $suffix . '.css', array(), file_exists($blog_css) ? filemtime($blog_css) : $theme_version);
+    }
 
     // Product Cart Custom JS
     if (class_exists('WooCommerce')) {
@@ -105,6 +110,25 @@ function aleaulavage_v2_scripts()
     if (is_cart()) {
         $cart_css = get_template_directory() . '/assets/css/cart.css';
         wp_enqueue_style('aleaulavage-v2-cart', get_template_directory_uri() . '/assets/css/cart.css', array(), file_exists($cart_css) ? filemtime($cart_css) : $theme_version);
+
+        // Ensure core WP packages some plugins rely on are available early
+        // Prevents "wp is not defined" / "_ is not defined" issues
+        wp_enqueue_script('underscore');
+        wp_enqueue_script('wp-api-fetch');
+        wp_enqueue_script('wp-url');
+        wp_enqueue_script('wp-i18n');
+    }
+
+    // Checkout Page Assets
+    if (is_checkout()) {
+        $checkout_css = get_template_directory() . '/assets/css/checkout.css';
+        wp_enqueue_style('aleaulavage-v2-checkout', get_template_directory_uri() . '/assets/css/checkout.css', array(), file_exists($checkout_css) ? filemtime($checkout_css) : $theme_version);
+
+        $checkout_js = get_template_directory() . '/assets/js/checkout.js';
+        wp_enqueue_script('aleaulavage-v2-checkout', get_template_directory_uri() . '/assets/js/checkout.js', array('jquery', 'wc-checkout'), file_exists($checkout_js) ? filemtime($checkout_js) : $theme_version, true);
+
+        // Note: wc_checkout_params is already provided by WooCommerce
+        // DO NOT override it or we'll lose critical nonces for update_order_review, apply_coupon, etc.
     }
 }
 add_action('wp_enqueue_scripts', 'aleaulavage_v2_scripts');
@@ -117,9 +141,16 @@ function aleaulavage_v2_defer_scripts($tag, $handle, $src)
         return $tag;
     }
 
-    // Don't defer jQuery and critical scripts
-    $no_defer = array('jquery', 'jquery-core', 'jquery-migrate', 'aleaulavage-v2-shop-ajax');
+    // Don't defer critical or dependency-provider scripts
+    // - jQuery and our own AJAX script
+    // - WordPress package scripts (handles starting with wp-)
+    // - WooCommerce core/blocks scripts (handles starting with wc-)
+    // - Vendor globals many scripts expect synchronously: underscore/lodash, react, react-dom
+    $no_defer = array('jquery', 'jquery-core', 'jquery-migrate', 'aleaulavage-v2-shop-ajax', 'underscore', 'lodash', 'react', 'react-dom');
     if (in_array($handle, $no_defer)) {
+        return $tag;
+    }
+    if (strpos($handle, 'wp-') === 0 || strpos($handle, 'wc-') === 0) {
         return $tag;
     }
 

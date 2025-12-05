@@ -3,7 +3,7 @@
  * Template part for displaying the mobile menu offcanvas
  */
 ?>
-<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas-navbar">
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas-navbar">
     <div class="offcanvas-header bg-light">
         <span class="h5 mb-0">Menu</span>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>

@@ -402,7 +402,7 @@ get_header();
 </div>
 
 <script>
-    // Scroll to full description
+    // Scroll to full description (uses CSS scroll-margin-top for offset)
     function scrollToFullDescription() {
         const fullDescription = document.getElementById('full-description');
         if (fullDescription) {
@@ -415,23 +415,81 @@ get_header();
 
     // Category accordion toggles and interactions
     document.addEventListener('DOMContentLoaded', function () {
-        // Category accordion toggles
-        const toggleButtons = document.querySelectorAll('.toggle-children');
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', function (e) {
+        console.log('Script loaded');
+
+        // Category accordion toggles - use event delegation for better compatibility
+        document.addEventListener('click', function (e) {
+            // Check if clicked element is a toggle button
+            if (e.target.closest('.toggle-children')) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                const parentLi = this.closest('.cat-item');
-                const isOpen = parentLi.classList.contains('open');
+                const button = e.target.closest('.toggle-children');
+                const parentLi = button.closest('.cat-item');
 
-                // Toggle open class
-                if (isOpen) {
-                    parentLi.classList.remove('open');
-                } else {
-                    parentLi.classList.add('open');
+                if (parentLi) {
+                    const isOpen = parentLi.classList.contains('open');
+                    console.log('Toggle clicked, isOpen:', isOpen);
+
+                    // Toggle open class
+                    if (isOpen) {
+                        parentLi.classList.remove('open');
+                    } else {
+                        parentLi.classList.add('open');
+                    }
+                }
+            }
+        });
+
+        // Close offcanvas when clicking on category links and update active state
+        const offcanvasElement = document.getElementById('filterOffcanvas');
+        if (offcanvasElement) {
+            offcanvasElement.addEventListener('click', function (e) {
+                const clickedLink = e.target.closest('.product-categories a');
+
+                // Check if clicked on a category link (but not the toggle button)
+                if (clickedLink && !e.target.closest('.toggle-children')) {
+                    // Update the active state immediately for visual feedback
+                    const allCatItems = offcanvasElement.querySelectorAll('.product-categories .cat-item');
+                    allCatItems.forEach(item => {
+                        item.classList.remove('current-cat');
+                    });
+
+                    // Add current-cat class to the clicked category
+                    const clickedCatItem = clickedLink.closest('.cat-item');
+                    if (clickedCatItem) {
+                        clickedCatItem.classList.add('current-cat');
+                    }
+
+                    // Close offcanvas
+                    const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                    if (offcanvasInstance) {
+                        offcanvasInstance.hide();
+                    }
+
+                    // Allow the default link behavior to navigate
                 }
             });
+        }
+
+        // Also update active state for sidebar categories (desktop)
+        document.addEventListener('click', function (e) {
+            const clickedLink = e.target.closest('.shop-sidebar .product-categories a');
+
+            if (clickedLink && !e.target.closest('.toggle-children')) {
+                const sidebar = document.querySelector('.shop-sidebar');
+                if (sidebar) {
+                    const allCatItems = sidebar.querySelectorAll('.product-categories .cat-item');
+                    allCatItems.forEach(item => {
+                        item.classList.remove('current-cat');
+                    });
+
+                    const clickedCatItem = clickedLink.closest('.cat-item');
+                    if (clickedCatItem) {
+                        clickedCatItem.classList.add('current-cat');
+                    }
+                }
+            }
         });
     });
 </script>

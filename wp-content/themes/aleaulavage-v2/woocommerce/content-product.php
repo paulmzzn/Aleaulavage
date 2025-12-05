@@ -61,7 +61,7 @@ if ($is_on_backorder) {
          * Stock Status Badge (Out of Stock / Backorder)
          */
         if (!$is_in_stock) {
-            echo '<span class="stock-badge out-of-stock"><i class="fa-solid fa-circle-xmark me-1"></i>Rupture</span>';
+            echo '<span class="stock-badge backorder"><i class="fa-solid fa-clock me-1"></i>Réappro.</span>';
         } elseif ($is_on_backorder) {
             echo '<span class="stock-badge backorder"><i class="fa-solid fa-clock me-1"></i>Réappro.</span>';
         }
@@ -83,10 +83,14 @@ if ($is_on_backorder) {
 
         <?php
         /**
-         * Product Price
+         * Product Price with Bulk Pricing Detection
          */
+
+        // Display price (bulk pricing will be added via filter hook)
         ?>
-        <div class="price"><?php echo $product->get_price_html(); ?></div>
+        <div class="price">
+            <?php echo $product->get_price_html(); ?>
+        </div>
 
     </a>
 
@@ -97,7 +101,7 @@ if ($is_on_backorder) {
     if ($is_in_stock || $is_on_backorder) {
         woocommerce_template_loop_add_to_cart();
     } else {
-        echo '<button class="button disabled" disabled><i class="fa-solid fa-ban me-2"></i>Indisponible</button>';
+        echo '<button class="button disabled" disabled></i>Réapprovisionnement</button>';
     }
     ?>
 

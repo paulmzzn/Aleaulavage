@@ -1,25 +1,25 @@
-scrollable souris slider
 
-accueil : ok
-boutique : en cours
-profile : ok
-favoris :ok
-panier :
-produit : en cours
-login : ok
+page produit : 6,76 €
+100
+ Ajouter au panier
+Offre en vrac
+Quantité	Prix fixe
+100 - 199	6,50 €
+200 +	5,80 €
+il faut afficher le prix offre en vrac si on. rentre dans une offre 
 
-panier rapide 
-rupture - en reappro mais indispo si recommande pas possible
-
-
-quand favrois pas co ne pas afficher la sidebar et centrer le message
-quand ajout fav pas co popup connexion redirection vers la page de connexion
-quand ``
+ajouter au plugin un tabs pour lister les produits jamais vendu
+avec un tri du plus au moins vendu et inverse.
 
 
-page cart
 
-Kit Anti-Fraude pour Monnayeurs RM5
-enlever Disponible sur commande
-refaire selecteur qté comme panier rapide
+
+ Coups de cœur
+Découvrez nos produits
+pour vos stations de lavage
+doivent etre les produit favoris 
+
+label offre en vrac
+
+titre centré
 

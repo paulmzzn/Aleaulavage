@@ -53,6 +53,11 @@
     padding-right: 10%;
 }
 
+element.style {
+    padding-left: 5% !important;
+    padding-right: 5% !important;
+}
+
 /* Paragraphs */
 .wp-block-paragraph {
     line-height: 1.75;

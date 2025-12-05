@@ -22,9 +22,9 @@ jQuery(document).ready(function ($) {
         const btn = $(this);
         const productId = btn.data('product-id');
 
-        // If not logged in, show modal
+        // If not logged in, show login required modal
         if (!aleaulavage_wishlist_params.is_logged_in) {
-            $('#login-modal').css('display', 'flex');
+            $('#wishlist-login-required-modal').css('display', 'flex');
             return;
         }
 
@@ -98,35 +98,40 @@ jQuery(document).ready(function ($) {
     });
 
     // 2. Check Wishlist Status on Page Load (for products in loop)
-    if (aleaulavage_wishlist_params.is_logged_in) {
-        $('.aleaulavage-wishlist-btn').each(function () {
-            const btn = $(this);
-            const productId = btn.data('product-id');
+    // Export function to be called after AJAX product loads
+    function initWishlistButtons() {
+        if (aleaulavage_wishlist_params.is_logged_in) {
+            $('.aleaulavage-wishlist-btn').each(function () {
+                const btn = $(this);
+                const productId = btn.data('product-id');
 
-            // Optimization: could batch this, but for now single requests or relying on server-side rendering if possible
-            // Actually, for better performance, we should rely on a localized array of IDs if possible, 
-            // or check individually. Let's check individually for now as it's simpler to implement without modifying global localized data.
-
-            // Only check if not already marked (server-side rendering might handle this in future)
-            if (!btn.hasClass('checked-status')) {
-                $.ajax({
-                    url: aleaulavage_wishlist_params.ajax_url,
-                    type: 'POST',
-                    data: {
-                        action: 'aleaulavage_check_wishlist_status',
-                        product_id: productId,
-                        nonce: aleaulavage_wishlist_params.nonce
-                    },
-                    success: function (response) {
-                        btn.addClass('checked-status');
-                        if (response.success && response.data.in_wishlist) {
-                            toggleHeartIcon(btn, true);
+                // Only check if not already marked (server-side rendering might handle this in future)
+                if (!btn.hasClass('checked-status')) {
+                    $.ajax({
+                        url: aleaulavage_wishlist_params.ajax_url,
+                        type: 'POST',
+                        data: {
+                            action: 'aleaulavage_check_wishlist_status',
+                            product_id: productId,
+                            nonce: aleaulavage_wishlist_params.nonce
+                        },
+                        success: function (response) {
+                            btn.addClass('checked-status');
+                            if (response.success && response.data.in_wishlist) {
+                                toggleHeartIcon(btn, true);
+                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
+        }
     }
+
+    // Initialize on page load
+    initWishlistButtons();
+
+    // Export function to global scope so it can be called after AJAX loads
+    window.aleaulavageInitWishlist = initWishlistButtons;
 
     // 3. Login Modal Logic
     // Close modal on outside click
@@ -134,6 +139,14 @@ jQuery(document).ready(function ($) {
         if ($(e.target).is('#login-modal')) {
             $('#login-modal').css('display', 'none');
         }
+        if ($(e.target).is('#wishlist-login-required-modal')) {
+            $('#wishlist-login-required-modal').css('display', 'none');
+        }
+    });
+
+    // Close login required modal
+    $(document).on('click', '.close-wishlist-modal', function () {
+        $('#wishlist-login-required-modal').css('display', 'none');
     });
 
     // Handle Login Form Submit
